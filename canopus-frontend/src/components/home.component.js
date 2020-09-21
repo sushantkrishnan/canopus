@@ -1,47 +1,93 @@
-import React from "react";
+import React, { useRef, useState } from "react";
+import Select from "react-select";
+import "../stylesheets/home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NavbarComponent from "./navbar.component";
-import FooterComponent from "./footer.component";
 import doctor from "../images/doctor.png";
-function Home() {
+import data from "../data";
+import { Button, Alert } from "reactstrap";
+import { Redirect, Link } from "react-router-dom";
+
+const Home = (props) => {
+    let professionArray = [];
+    console.log(props.data);
+    if (props.data) {
+        professionArray = props.data.professions.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+    }
+    const profession = useRef(null);
+    const [param, setParam] = useState("");
+    const [alert, setAlert] = useState(true);
     return (
         <div>
+            {props.location.search !== "" && (
+                <Alert
+                    color='danger'
+                    className='mb-0'
+                    isOpen={alert}
+                    toggle={() => {
+                        setAlert(!alert);
+                    }}>
+                    {props.location.search.slice(
+                        5,
+                        props.location.search.length,
+                    )}
+                </Alert>
+            )}
             <div className='flex flex-column justify-content-between main-container'>
-                <NavbarComponent />
                 <div
                     className='main py-5 '
                     style={{ height: "100%", flexGrow: 1 }}>
-                    <h1 className='text-white' style={{ textAlign: "center" }}>
+                    <h1
+                        className='text-white px-2'
+                        style={{ textAlign: "center" }}>
                         New Provider Jobs Added Every Day
                     </h1>
-                    <div
-                        className='form-inline row justify-content-center mt-5'
-                        style={{
-                            marginLeft: "15vw",
-                            width: "70vw",
-                        }}>
-                        <input
-                            className='form-control mr-sm-2 col-8'
-                            type='search'
-                            placeholder='Search a Profession'
-                            aria-label='Search'
+                    <div className='form-inline home-search  justify-content-center mt-5 '>
+                        <div
+                            className='col-8 '
                             style={{
-                                fontSize:
-                                    " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
-                            }}
-                            // ref={this.textInput}
-                        />
-                        <button
-                            className='col-3 btn btn-warning my-2 my-sm-0'
-                            type='submit'>
-                            <span
-                                style={{
-                                    fontSize:
-                                        " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
-                                }}>
+                                width: `100%`,
+                            }}>
+                            <Select
+                                autosize={true}
+                                placeholder='Profession'
+                                options={professionArray}
+                                onChange={(e) => {
+                                    console.log(e);
+                                    setParam(e.value);
+                                }}
+                                ref={profession}
+                            />
+                        </div>
+                        {param !== "" ? (
+                            <Link
+                                to={{
+                                    pathname: `/search-jobs/`,
+                                    state: {
+                                        feild: "profession",
+                                        query: param,
+                                    },
+                                }}
+                                className='col-3 btn btn-info my-2 my-sm-0'>
+                                <span
+                                // style={{
+                                //     fontSize:
+                                //         " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
+                                // }}
+                                >
+                                    Search
+                                </span>
+                            </Link>
+                        ) : (
+                            <Button
+                                color='info'
+                                className='my-2 my-sm-0 col-3'
+                                disabled>
                                 Search
-                            </span>
-                        </button>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -51,22 +97,100 @@ function Home() {
                 <h1 style={{ textAlign: "center" }}>Jobs by Category</h1>
                 <div className='row justify-content-center px-3 px-md-4 m-4 '>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Physician / Surgeon</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "General Surgery",
+                                },
+                            }}>
+                            General Surgery
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Nurse Practitioner</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Nurse",
+                                },
+                            }}>
+                            Certified Registered Nurse
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Physician Assistant</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Physician",
+                                },
+                            }}>
+                            Physician
+                        </Link>
+                    </div>
+                    {/* <div className='jobs text-secondary'>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Therapist",
+                                },
+                            }}>
+                            Therapist
+                        </Link>
+                    </div> */}
+                    <div className='jobs text-secondary'>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Technicians",
+                                },
+                            }}>
+                            Technicians
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Certified Registered Nurse</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "Community Health",
+                                },
+                            }}>
+                            Community Health
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Anesthetist (CRNA)</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "Anaesthesiology",
+                                },
+                            }}>
+                            Anesthetist (CRNA)
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Academics / Research</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "Ear, Nose and Throat",
+                                },
+                            }}>
+                            ENT Specialist
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -84,17 +208,15 @@ function Home() {
                         Apply for Positions + Set Up Job Alerts + Get
                         Newsletters
                     </h1>
-                    <button
-                        className='btn btn-lg btn-outline-info mt-3'
-                        // type='submit'
-                        // onClick={this.search}
-                    >
+                    <Link
+                        to='/search-jobs/'
+                        className='btn btn-lg btn-outline-info mt-3'>
                         Get Started
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default Home;

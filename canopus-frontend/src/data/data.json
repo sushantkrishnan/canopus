@@ -1,0 +1,39 @@
+{
+    "professions": [
+        "Physician",
+        "Surgeon",
+        "Dentist",
+        "Nurse",
+        "Therapist",
+        "Technicians",
+        "Pharmacist",
+        "Medical Translator"
+    ],
+    "experience": [
+        "New Graduate",
+        "Less than 5 years",
+        "5-10 years",
+        "More than 10 years"
+    ],
+    "specializations": [
+        "Anaesthesiology",
+        "Ear, Nose and Throat",
+        "Biochemistry",
+        "General Surgery",
+        "Anatomy",
+        "Community Health",
+        "Ophthalmology",
+        "Dermatology"
+    ],
+    "incentive": [
+        "Accomadation for self",
+        "Accomadation for spouse",
+        "No emergency calls",
+        "Emergency calls only",
+        "Shift Duty",
+        "Fixed Hour Duty",
+        "Travel allowance",
+        "Accomadation allowance",
+        "Case wise incentive"
+    ]
+}

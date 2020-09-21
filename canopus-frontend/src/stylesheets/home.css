@@ -1,0 +1,43 @@
+.main-container {
+    height: 560px;
+    min-height: 80vh;
+}
+
+.main {
+    height: 100%;
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url("../images/bg1.jpg");
+}
+
+.home-search {
+    margin-left: 20vw;
+    margin-right: 20vw;
+    width: 60vw;
+}
+
+@media (max-width: 576px) {
+    .home-search {
+        margin-left: 8vw;
+        width: 84vw;
+    }
+}
+
+.jobs {
+    display: block;
+    margin-left: 12px;
+    margin-right: 12px;
+    font-size: large;
+    text-align: center;
+    margin: 6px;
+}
+
+.jobs a {
+    color: gray;
+}
+
+.jobs a:hover {
+    color: rgb(54, 187, 169);
+}

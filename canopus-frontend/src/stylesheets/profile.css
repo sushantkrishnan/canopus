@@ -1,0 +1,28 @@
+.img-container {
+    position: relative;
+    width: 100%;
+}
+
+.btn-float {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.progress {
+    height: 1.7rem;
+}
+
+input.file {
+    margin: 0;
+    padding: 1rem 0.5rem;
+    font: 1rem/1.5 "PT Sans", Arial, sans-serif;
+    color: #5a5a5a;
+}
+
+.block-noHover {
+    border-radius: 0.25rem;
+    border: 0.05rem solid #eeeeee;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1);
+    transition: "0.3s ease-in-out", ;
+}

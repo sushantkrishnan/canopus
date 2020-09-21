@@ -1,0 +1,42 @@
+.incentive {
+    /* line-height: 1em;
+    height: 10em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis; */
+    /* width: 100%; */
+    overflow: hidden;
+    /* display: -webkit-box; */
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    /* number of lines to show */
+    line-height: 1.3em;
+    /* fallback */
+    max-height: 5.2em;
+    text-overflow: ellipsis;
+}
+
+hr {
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.main-job {
+    border-radius: 0.5rem;
+    border: 0.05rem solid lightgrey;
+    /* background-color: rgba(0, 0, 0, 0.15); */
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    transition: 0.3s ease-in-out;
+}
+
+a,
+a:hover {
+    color: black;
+}
+
+.badge.badge-info {
+    background: rgb(255, 255, 255);
+    color: #808080;
+    border: 1px solid #575757;
+    border-radius: 0.5rem;
+}

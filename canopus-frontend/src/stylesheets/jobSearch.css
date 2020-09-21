@@ -1,0 +1,176 @@
+.vertical {
+    display: none;
+}
+
+.horizontal {
+    display: block;
+}
+
+.sticky-filter {
+    position: relative;
+    top: 0;
+}
+
+@media (min-width: 992px) {
+    .vertical {
+        display: flex;
+    }
+    .horizontal {
+        display: none;
+    }
+    .sticky-filter {
+        position: sticky;
+        top: 0;
+    }
+}
+
+.active-tab {
+    border-bottom: 4px solid rgb(8, 163, 163) !important;
+}
+
+.tab:hover {
+    border: transparent;
+    /* border-bottom: 4px solid transparent; */
+    transition: 0.1s ease-in-out;
+}
+
+
+/* .desc:after {
+    content: '...'
+} */
+
+.btn-hover:hover {
+    background-color: #17a2b8;
+}
+
+.badge.badge-info {
+    background: rgb(255, 255, 255);
+    color: #808080;
+    border: 1px solid #575757;
+    border-radius: 0.5rem;
+}
+
+.block-info {
+    border-radius: 0.25rem;
+    border: 0.15rem solid #17a2b8;
+    /* background-color: rgba(0, 0, 0, 0.15); */
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    transition: 0.3s ease-in-out;
+}
+
+.block-info:hover {
+    /* border-radius: 0.25rem;
+    border: 0.15rem solid #17a2b8;
+    
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    transition: 0.3s ease-in-out; */
+    border: 0.12rem solid rgb(150, 150, 150);
+    box-shadow: 5px 5px 7px rgba(2, 160, 152, 0.555);
+    transition: 0.2s ease-in-out;
+    /* transform: scale(1.0001); */
+}
+
+.descr {
+    /* line-height: 1em;
+    height: 10em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis; */
+    /* width: 100%; */
+    overflow: hidden;
+    display: -webkit-box;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    /* number of lines to show */
+    line-height: 1.3em;
+    /* fallback */
+    max-height: 2.6em;
+    text-overflow: ellipsis;
+}
+
+.react-switch-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    width: 40px;
+    height: 20px;
+    background: rgb(161, 161, 161);
+    border-radius: 40px;
+    position: relative;
+    transition: background-color .2s;
+    transform: scale(0.8);
+}
+
+.react-switch-checkbox {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+}
+
+.react-switch-label .react-switch-button {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 15.3333px;
+    height: 15.333px;
+    border-radius: 15.333px;
+    transition: 0.2s;
+    /* background: #fff; */
+    background: rgb(216, 216, 216);
+    /* background: black; */
+    box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+}
+
+.react-switch-checkbox:checked+.react-switch-label .react-switch-button {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+    background-color: white;
+}
+
+.react-switch-checkbox:checked+.react-switch-label {
+    /* left: calc(100% - 2px);
+    transform: translateX(-100%); */
+    background: #17a2b8;
+}
+
+.react-switch-label:active .react-switch-button {
+    width: 24px;
+}
+
+.switch {
+    justify-content: space-between;
+    width: 100%;
+}
+
+@media (min-width: 500px) {
+    .switch {
+        justify-content: flex-end;
+        width: max-content;
+        text-align: end;
+    }
+}
+
+
+/* .select-sort {
+    font-size: .6rem;
+    
+
+width: 110px;
+
+}
+*/
+
+.job-found {
+    padding-top: .94rem;
+    font-size: 1.25rem
+}
+
+@media (max-width: 576px) {
+    .job-found {
+        padding-top: 0.5rem;
+        font-size: 1.2rem;
+    }
+}

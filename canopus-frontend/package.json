@@ -1,41 +1,59 @@
 {
-  "name": "healthcare",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.30",
-    "@fortawesome/free-brands-svg-icons": "^5.14.0",
-    "@fortawesome/free-solid-svg-icons": "^5.14.0",
-    "@fortawesome/react-fontawesome": "^0.1.11",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
-    "bootstrap": "^4.5.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.1",
-    "reactstrap": "^8.5.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+    "name": "healthcare",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@azure/storage-blob": "^12.2.0-preview.1",
+        "@fortawesome/fontawesome-svg-core": "^1.2.30",
+        "@fortawesome/free-brands-svg-icons": "^5.14.0",
+        "@fortawesome/free-solid-svg-icons": "^5.14.0",
+        "@fortawesome/react-fontawesome": "^0.1.11",
+        "@react-google-maps/api": "^1.9.12",
+        "@testing-library/jest-dom": "^4.2.4",
+        "@testing-library/react": "^9.5.0",
+        "@testing-library/user-event": "^7.2.1",
+        "axios": "^0.19.2",
+        "azure-storage": "^2.10.3",
+        "bootstrap": "^4.5.0",
+        "browser-image-compression": "^1.0.12",
+        "google-maps-react": "^2.0.6",
+        "http-proxy-middleware": "^1.0.5",
+        "markdown-it": "^11.0.0",
+        "react": "^16.13.1",
+        "react-animations": "^1.0.0",
+        "react-copy-to-clipboard": "^5.0.2",
+        "react-dom": "^16.13.1",
+        "react-loader-spinner": "^3.1.14",
+        "react-loading": "^2.0.3",
+        "react-markdown-editor-lite": "^1.2.2",
+        "react-player": "^2.6.1",
+        "react-router-dom": "^5.2.0",
+        "react-scripts": "3.4.1",
+        "react-select": "^3.1.0",
+        "reactstrap": "^8.5.1",
+        "styled-components": "^5.1.1"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "proxy": "http://localhost:8080",
+    "secure": false,
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import "../stylesheets/footer.css";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,7 +16,7 @@ import {
 
 export default function FooterComponent() {
     return (
-        <div className='mt-5 pt-5 pb-5 footer'>
+        <div className=' pt-5 pb-5 footer'>
             <div className='container'>
                 <div className='row'>
                     <div className='col-lg-5 col-xs-12 about-company'>
@@ -38,35 +39,21 @@ export default function FooterComponent() {
                         <ul className='m-0 p-0'>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/profile/asdsad'>Lorem ipsum</Link>
+                                <Link to='/search-jobs/'></Link>Job Search
+                            </li>
+                            <li>
+                                <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
+                                <Link to='/employer'>find employees</Link>
                             </li>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
                                 <Link to='/profile/asdsad'>
-                                    Nam mauris velit
+                                    Career Resoures
                                 </Link>
                             </li>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/profile/asdsad'>
-                                    Etiam vitae mauris
-                                </Link>
-                            </li>
-                            <li>
-                                <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/profile/asdsad'>
-                                    Fusce scelerisque
-                                </Link>
-                            </li>
-                            <li>
-                                <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/profile/asdsad'>Sed faucibus</Link>
-                            </li>
-                            <li>
-                                <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/profile/asdsad'>
-                                    Mauris efficitur nulla
-                                </Link>
+                                <Link to='/profile/asdsad'>About Us</Link>
                             </li>
                         </ul>
                     </div>
@@ -86,27 +73,27 @@ export default function FooterComponent() {
                     <div className='col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-5'>
                         <ul className='list-unstyled list-inline social text-center'>
                             <li className='list-inline-item'>
-                                <a href='#'>
+                                <a href='https://www.facebook.com/'>
                                     <FontAwesomeIcon icon={faFacebook} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='#'>
+                                <a href='https://www.google.com/'>
                                     <FontAwesomeIcon icon={faGoogle} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='#'>
+                                <a href='https://www.linkedin.com/'>
                                     <FontAwesomeIcon icon={faLinkedin} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='#'>
+                                <a href='https://www.twitter.com/'>
                                     <FontAwesomeIcon icon={faTwitter} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='#' target='_blank'>
+                                <a href='mailto:ads@gmail.com'>
                                     <FontAwesomeIcon icon={faEnvelope} />
                                 </a>
                             </li>
