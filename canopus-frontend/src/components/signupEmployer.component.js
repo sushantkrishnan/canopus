@@ -7,6 +7,9 @@ import {
     FormText,
     Button,
     FormFeedback,
+    Modal,
+    ModalHeader,
+    ModalBody,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -50,11 +53,19 @@ export default class SignupEmployer extends Component {
                 email: false,
                 password: false,
             },
+            Errormodal: false,
+            ErrorModalMess: "",
         };
         this.handleChange = this.handleChange.bind(this);
         this.signUp = this.signUp.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
         this.check = this.check.bind(this);
+        this.toggleErrorModal = this.toggleErrorModal.bind(this);
+    }
+    toggleErrorModal() {
+        this.setState({
+            Errormodal: !this.state.Errormodal,
+        });
     }
     setCoordinates(coords) {
         this.setState({
@@ -113,6 +124,10 @@ export default class SignupEmployer extends Component {
                 .catch(({ response }) => {
                     console.log(response);
                     alert(response.data.err.message);
+                    if (response.data && response.data.err)
+                        this.setState({
+                            ErrorModalMess: response.data.err.message,
+                        });
                 });
     }
     render() {
@@ -169,6 +184,20 @@ export default class SignupEmployer extends Component {
                         </Button>
                     </div>
                 </Form>
+                <Modal
+                    isOpen={this.state.Errormodal}
+                    toggle={this.toggleErrorModal}
+                    style={{ marginTop: "20vh" }}>
+                    <ModalHeader
+                        toggle={this.toggleErrorModal}
+                        className='py-1'>
+                        Message
+                    </ModalHeader>
+                    {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                    <ModalBody>{this.state.ErrorModalMess}</ModalBody>
+                </Modal>
             </div>
         );
     }

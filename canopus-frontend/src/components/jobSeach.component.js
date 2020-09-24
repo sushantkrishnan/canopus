@@ -1759,13 +1759,10 @@ export default class JobSearch extends Component {
                                                     value: "Relevance",
                                                 },
                                                 {
-                                                    label: "New Jobs",
+                                                    label: "Date",
                                                     value: "New",
                                                 },
-                                                {
-                                                    label: "Old Jobs",
-                                                    value: "Old",
-                                                },
+
                                                 // {
                                                 //     label:
                                                 //         "Number of applicants",

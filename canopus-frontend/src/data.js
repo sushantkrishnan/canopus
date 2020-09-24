@@ -11,6 +11,7 @@
 // }
 
 const data = {
+    degree: ["MBBS", "MD"],
     professions: [
         "Physician",
         "Surgeon",

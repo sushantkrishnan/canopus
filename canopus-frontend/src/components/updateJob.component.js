@@ -1,12 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useLocation, Link, useHistory } from "react-router-dom";
+import { NavLink, useLocation, Link, useHistory } from "react-router-dom";
 import {
     Form,
     Label,
     FormGroup,
     Nav,
     NavItem,
-    NavLink,
     Button,
     Input,
     InputGroup,
@@ -683,16 +682,18 @@ const UpdateJob = (props) => {
                 <div className='row justify-content-start col-6 col-sm-7'>
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
-                            href='/employer'
+                            to='/employer'
                             // onClick={() => {
                             //     this.toggleTab("1");
                             // }}
-                            className={`p-1 p-sm-2`}>
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Overview</h6>
                         </NavLink>
                     </NavItem>
                     <NavItem className='mx-1 mx-sm-2'>
-                        <NavLink href='/applications' className={`p-1 p-sm-2`}>
+                        <NavLink
+                            to='/applications'
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Jobs</h6>
                         </NavLink>
                     </NavItem>
@@ -1432,7 +1433,7 @@ const UpdateJob = (props) => {
                         <div className='col-3 col-md-2 px-1'>
                             <Button
                                 onClick={(e) => {
-                                    setMess("discard");
+                                    setMess("close");
                                     // history.push({
                                     //     pathname: "/post",
                                     //     state: { id, type2, jobType },
@@ -1502,8 +1503,9 @@ const UpdateJob = (props) => {
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
                     {mess === "save" && "Confirm Save"}
-                    {mess === "post" && "Confirm Publish"}
-                    {mess === "discard" && "Confirm Discard"}
+                    {mess === "post" && "Update the Job?"}
+                    {mess === "discard" && "Discard the Job?"}
+                    {mess === "close" && "Close the Job?"}
 
                     {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
                 </ModalHeader>
@@ -1511,13 +1513,14 @@ const UpdateJob = (props) => {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                 <ModalBody>
+                    {mess === "promote" &&
+                        "Are you sure you want to promote this job ?"}
                     {mess === "post" &&
-                        "Are you sure you want to publish this job ?"}
-
-                    {mess === "save" &&
-                        "Are you sure you want to save the job?"}
+                        "Updating the Job will make it visible to applicants."}
                     {mess === "discard" &&
-                        "Are you sure you want to discard the job?"}
+                        "You will not be able to recover this job."}
+                    {mess === "close" &&
+                        "Applicants will no longer be able to apply for this job."}
                 </ModalBody>
                 <ModalFooter>
                     {mess === "post" && (
@@ -1528,7 +1531,7 @@ const UpdateJob = (props) => {
                                 toggle();
                                 submit();
                             }}>
-                            Yes
+                            Post
                         </Button>
                     )}
                     {mess === "save" && (
@@ -1545,17 +1548,30 @@ const UpdateJob = (props) => {
                     {mess === "discard" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='danger'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Yes
+                            Delete
+                        </Button>
+                    )}
+                    {mess === "close" && (
+                        <Button
+                            size='sm'
+                            color='danger'
+                            onClick={(e) => {
+                                toggle();
+                                discard();
+                            }}>
+                            Close
                         </Button>
                     )}
 
                     <Button color='secondary' size='sm' onClick={toggle}>
-                        No
+                        {(mess === "discard" || mess === "close") && "Keep"}
+                        {mess === "post" && "Wait"}
+                        {mess === "promote" && "No"}
                     </Button>
                 </ModalFooter>
             </Modal>

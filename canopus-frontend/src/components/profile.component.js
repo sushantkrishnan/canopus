@@ -1,4 +1,5 @@
 import React, { Component, createRef } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import {
@@ -17,6 +18,7 @@ import {
     Progress,
     Media,
     Button,
+    Nav,
     Modal,
     Input,
     ModalHeader,
@@ -276,7 +278,59 @@ export default class Profile extends Component {
     render() {
         return (
             <div>
-                {/* <NavbarComponent /> */}
+                <Nav tabs className='justify-content-between '>
+                    <div className='row justify-content-start col-6 col-sm-7'>
+                        {/* <NavItem className='mx-1 mx-sm-2'>
+                            <NavLink
+                                to='/employer'
+                                // onClick={() => {
+                                //     this.toggleTab("1");
+                                // }}
+                                className={`p-1 p-sm-2 nav-link`}>
+                                <h6>Overview</h6>
+                            </NavLink>
+                        </NavItem>
+                        <NavItem className='mx-1 mx-sm-2'>
+                            <NavLink
+                                to='/applications'
+                                className={`p-1 p-sm-2 nav-link`}>
+                                <h6>Jobs</h6>
+                            </NavLink>
+                        </NavItem> */}
+                    </div>
+                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                        <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                            {/* <Link to='/profile/update'>
+                                <Button
+                                    className=' mt-2 my-1 px-2 w-100'
+                                    size='sm'
+                                    style={{ textAlign: "center" }}
+                                    color='info'>
+                                    Update Profile
+                                    <FontAwesomeIcon
+                                        icon={faPen}
+                                        className='ml-2'
+                                    />
+                                </Button>
+                            </Link> */}
+                        </div>
+                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                            <Link to='/profile/update'>
+                                <Button
+                                    className=' mt-2 my-1 px-2 w-100'
+                                    size='sm'
+                                    style={{ textAlign: "center" }}
+                                    color='primary'>
+                                    Update Profile{" "}
+                                    <FontAwesomeIcon
+                                        icon={faPen}
+                                        className='ml-2'
+                                    />
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </Nav>
                 {this.state.profile ? (
                     <div className='row my-3 mx-3 mx-lg-0 p-2 justify-content-center '>
                         <div className='col-12 col-lg-3'>
@@ -285,7 +339,7 @@ export default class Profile extends Component {
                                 style={{
                                     height: "fit-content",
                                 }}>
-                                <div className='img-container '>
+                                <div className='img-container col-12 col-sm-4 col-lg-12'>
                                     {/* <Loader
                                             type='Rings'
                                             color='#17a2b8'
@@ -296,14 +350,15 @@ export default class Profile extends Component {
                                         />
                                      */}
                                     <div
-                                        className='position-relative'
+                                        className='position-relative text-align-center'
                                         style={{ minHeight: "200px" }}>
                                         <img
                                             src={this.state.profile.image}
                                             alt=''
-                                            className='img-fluid col-12 '
+                                            className='img-fluid '
                                             style={{
                                                 borderRadius: "0.5rem",
+                                                maxHeight: "30vh",
                                             }}
                                             onLoad={() => {
                                                 this.setState({
@@ -365,7 +420,7 @@ export default class Profile extends Component {
                                     )} */}
                                 </div>
                                 <div
-                                    className='py-3 px-2 col-12 position-relative'
+                                    className='py-3 px-2 col-12 col-sm-8 col-lg-12 position-relative'
                                     style={{
                                         borderRadius: "0.5rem",
                                     }}>
@@ -385,8 +440,8 @@ export default class Profile extends Component {
                                                 icon={faBriefcaseMedical}
                                                 className='ml-2 mr-3'
                                             />
-                                            {this.state.profile.profession &&
-                                                this.state.profile.profession}
+                                            {this.state.profile.title &&
+                                                this.state.profile.title}
                                         </h6>
                                     </div>
                                     {this.state.profile.address && (
@@ -419,25 +474,25 @@ export default class Profile extends Component {
                                             {this.state.profile.username}
                                         </h6>
                                     </div>
-                                    {this.state.editable && (
+                                    {/* {this.state.editable && (
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'
                                             style={{ borderRadius: "50%" }}
                                             onClick={this.toggleDetail}>
                                             <FontAwesomeIcon icon={faPen} />
                                         </button>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                             <div className='p-4 block-noHover row mt-2 mt-lg-4 position-relative'>
-                                {this.state.editable && (
+                                {/* {this.state.editable && (
                                     <button
                                         className='btn btn-info btn-sm m-2 btn-float'
                                         style={{ borderRadius: "50%" }}
                                         onClick={this.toggleAbout}>
                                         <FontAwesomeIcon icon={faPen} />
                                     </button>
-                                )}
+                                )} */}
                                 <h2>About</h2>
                                 <hr />
 
@@ -449,14 +504,14 @@ export default class Profile extends Component {
                             <div className='p-4 block-noHover '>
                                 <h2 className='position-relative'>
                                     Experience
-                                    {this.state.editable && (
+                                    {/* {this.state.editable && (
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'
                                             style={{ borderRadius: "50%" }}
                                             onClick={this.toggleExperience}>
                                             <FontAwesomeIcon icon={faPen} />
                                         </button>
-                                    )}
+                                    )} */}
                                 </h2>
                                 {this.state.profile.experience &&
                                     this.state.profile.experience.map(
@@ -486,14 +541,14 @@ export default class Profile extends Component {
                             <div className='p-4 block-noHover mt-4'>
                                 <h2 className='position-relative'>
                                     Education
-                                    {this.state.editable && (
+                                    {/* {this.state.editable && (
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'
                                             style={{ borderRadius: "50%" }}
                                             onClick={this.toggleEducation}>
                                             <FontAwesomeIcon icon={faPen} />
                                         </button>
-                                    )}
+                                    )} */}
                                 </h2>
 
                                 {this.state.profile.education &&
@@ -505,16 +560,18 @@ export default class Profile extends Component {
                                                     <Media heading>
                                                         <h5>
                                                             <strong>
-                                                                {data.institute}
+                                                                {data.degree}
                                                             </strong>
                                                         </h5>
                                                     </Media>
                                                     <Media heading>
-                                                        <h6>{data.degree}</h6>
+                                                        <h6>
+                                                            {data.speciality}
+                                                        </h6>
                                                     </Media>
                                                     <div>
-                                                        {data.startTime} -{" "}
-                                                        {data.endTime}
+                                                        {data.startYear} -{" "}
+                                                        {data.endYear}
                                                     </div>
                                                 </Media>
                                             </Media>
@@ -575,12 +632,11 @@ export default class Profile extends Component {
                                     )}
                                 </div>
                             )}
-                            {(this.state.editable ||
-                                !(
-                                    typeof this.state.profile.resume ===
-                                        "undefined" ||
-                                    this.state.profile.resume === ""
-                                )) && (
+                            {!(
+                                typeof this.state.profile.resume ===
+                                    "undefined" ||
+                                this.state.profile.resume === ""
+                            ) && (
                                 <div className='block-noHover mt-4 p-2 p-sm-3'>
                                     <h3>Resume</h3>
 
@@ -616,11 +672,11 @@ export default class Profile extends Component {
                                         </div>
                                     ) : this.state.uploaded ? (
                                         <div className='row'>
-                                            {this.state.editable && (
+                                            {/* {this.state.editable && (
                                                 <div className='col-12 col-sm-4'>
                                                     <h5>Uploaded !</h5>
                                                 </div>
-                                            )}
+                                            )} */}
                                             <div className='col-12 col-sm-8 row justify-content-between'>
                                                 <a
                                                     href={`${this.state.profile.resume}`}
@@ -636,7 +692,7 @@ export default class Profile extends Component {
                                                 className='btn btn-info btn-sm float-right mr-3'>
                                                 Change Resume
                                             </a> */}
-                                                {this.state.editable && (
+                                                {/* {this.state.editable && (
                                                     <button
                                                         className='col-6 btn btn-sm btn-primary'
                                                         onClick={() => {
@@ -654,7 +710,7 @@ export default class Profile extends Component {
                                                             icon={faPen}
                                                         />
                                                     </button>
-                                                )}
+                                                )} */}
                                             </div>
                                         </div>
                                     ) : (
@@ -754,7 +810,7 @@ export default class Profile extends Component {
                                             />
                                         </div>
 
-                                        {this.state.editable && (
+                                        {/* {this.state.editable && (
                                             <div className='position-relative'>
                                                 <button
                                                     className='btn btn-info btn-sm m-2 btn-float'
@@ -789,7 +845,7 @@ export default class Profile extends Component {
                                                     onChange={this.uploadImage}
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </div>
                                     <div className='input-group my-1 row'>
                                         <h6 className='col-12'>Name</h6>

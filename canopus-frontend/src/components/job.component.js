@@ -43,7 +43,7 @@ const Badges = ({ desc, superSpecialization }) => {
         const type = desc.type ? desc.type : [];
         const incentives = desc.incentives ? desc.incentives : [];
 
-        badges = [desc.experience, ...type, ...incentives, ...superSp];
+        badges = [desc.experience, ...incentives, ...superSp];
     }
     const number = badges.length - 5;
     badges = badges.slice(0, 3);
@@ -407,14 +407,9 @@ export default class Job extends Component {
                                         className='ml-1'
                                     /> */}
                                     </h6>
-                                    {job.description.type &&
-                                        job.description.type.map((tag) => (
-                                            <Badge
-                                                color='info'
-                                                className='mx-1 p-1 my-1'>
-                                                {tag}
-                                            </Badge>
-                                        ))}
+                                    {Array.isArray(job.description.type)
+                                        ? job.description.type[0]
+                                        : job.description.type}
                                 </div>
                                 <div
                                     className='col-6 col-md-2 my-1'

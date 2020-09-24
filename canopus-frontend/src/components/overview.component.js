@@ -41,10 +41,10 @@ export default class Overview extends Component {
         return (
             <div>
                 {this.state.employer && (
-                    <div className='d-flex flex-column-reverse flex-sm-row mx-2 mx-sm-3'>
+                    <div className='d-flex flex-column-reverse flex-sm-row mx-1 mx-sm-3'>
                         <div className='col-12  col-sm-7 col-md-8  py-3'>
-                            <div className='row m-2'>
-                                <div className='col-12 col-md-3 col-lg-2 px-5 px-sm-0 text-align-center'>
+                            <div className='row m-1 m-sm-2'>
+                                <div className='col-8 mx-auto col-md-3 col-lg-2 px-5 px-sm-0 text-align-center'>
                                     <img
                                         src={
                                             this.state.employer.logo
@@ -102,9 +102,7 @@ export default class Overview extends Component {
                                 <div
                                     className='col-12 d-block d-sm-none'
                                     style={{ height: "max-content" }}>
-                                    <h4
-                                        className='text-blue'
-                                        className='text-align-center'>
+                                    <h4 className='text-blue text-align-center'>
                                         Subscription Details
                                     </h4>
                                     <Table
@@ -274,15 +272,18 @@ export default class Overview extends Component {
                             </div>
                             <div className='row p-3 m-2' style={block}>
                                 <h4 className='text-blue col-12'>Location</h4>
-                                <p className='col-12'>
-                                    {this.state.employer.address &&
-                                        this.state.employer.address.line}
-                                </p>
-                                <p className='col-12'>
-                                    {this.state.employer.address &&
-                                        `${this.state.employer.address.city}, ${this.state.employer.address.state}, ${this.state.employer.address.pin}`}
-                                </p>
-                                <div className='col-12'>
+                                <div className='col-12 col-md-5'>
+                                    <p className='col-12'>
+                                        {this.state.employer.address &&
+                                            this.state.employer.address.line}
+                                    </p>
+                                    <p className='col-12'>
+                                        {this.state.employer.address &&
+                                            `${this.state.employer.address.city}, ${this.state.employer.address.state}, ${this.state.employer.address.pin}`}
+                                    </p>
+                                </div>
+
+                                <div className='col-12 col-md-7'>
                                     {this.state.employer.address &&
                                         this.state.employer.address
                                             .coordinates && (
@@ -302,11 +303,17 @@ export default class Overview extends Component {
                                     this.state.employer.image[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='text-blue'>Images</h4>
-                                        <ImageCarousel
-                                            style={{ minHeight: "360px" }}
-                                            items={this.state.employer.image}
-                                        />
+                                        <h4 className='text-blue col-12'>
+                                            Images
+                                        </h4>
+                                        <div className='col-12 col-md-8 mx-auto'>
+                                            <ImageCarousel
+                                                style={{ minHeight: "360px" }}
+                                                items={
+                                                    this.state.employer.image
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 )}
                             {this.state.employer.youtube &&
@@ -315,12 +322,18 @@ export default class Overview extends Component {
                                     this.state.employer.youtube[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='text-blue'>Videos</h4>
+                                        <h4 className='col-12 text-blue'>
+                                            Videos
+                                        </h4>
+                                        <div className='col-12 col-md-8 mx-auto'>
+                                            <VideoCarousel
+                                                className='w-100'
+                                                items={
+                                                    this.state.employer.youtube
+                                                }
+                                            />
+                                        </div>
 
-                                        <VideoCarousel
-                                            className='w-100'
-                                            items={this.state.employer.youtube}
-                                        />
                                         {/* <ReactPlayer
                                         className='w-100'
                                         url='https://www.youtube.com/watch?v=b_lHyhTRb-8&list=RDv2-9rIL_f4w&index=34'
@@ -334,7 +347,7 @@ export default class Overview extends Component {
                             <div
                                 className='col-12 '
                                 style={{ height: "max-content" }}>
-                                <h4 className='text-align-left'>
+                                <h4 className='text-blue text-align-left'>
                                     Subscription Details
                                 </h4>
                                 <Table
@@ -444,7 +457,12 @@ export default class Overview extends Component {
                                                     : "-"}
                                             </td>
                                             <td>0</td>
-                                            <td>0</td>
+                                            <td>
+                                                {this.state.employer.sponsors
+                                                    ? this.state.employer
+                                                          .sponsors.allowed
+                                                    : "-"}
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </Table>

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import job from "../images/job.png";
 import applicants from "../images/profile.png";
 import bg1 from "../images/bg1.jpg";
@@ -26,7 +26,6 @@ import {
     Button,
     Nav,
     NavItem,
-    NavLink,
     TabPane,
     TabContent,
     Row,
@@ -57,32 +56,40 @@ export default class Employer extends Component {
         return (
             <div>
                 <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-7'>
+                    <div
+                        className='row justify-content-start col-12 col-sm-5 col-md-6 col-lg-7'
+                        style={{ paddingLeft: "15px" }}>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                onClick={() => {
-                                    this.toggleTab("1");
-                                }}
-                                className={`${
-                                    this.state.activeTab === "1" && "active-tab"
-                                } p-1 p-sm-2 tab`}>
+                                className='p-1 p-sm-2 active-tab nav-link'
+                                to='/employer'
+                                // onClick={() => {
+                                //     this.toggleTab("1");
+                                // }}
+                                // className={`${
+                                //     this.state.activeTab === "1" && "active-tab"
+                                // } p-1 p-sm-2 tab`}
+                            >
                                 <h6>Overview</h6>
                             </NavLink>
                         </NavItem>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                onClick={() => {
-                                    this.toggleTab("2");
-                                }}
-                                className={`${
-                                    this.state.activeTab === "2" && "active-tab"
-                                } p-1 p-sm-2 tab`}>
+                                className='nav-link p-1 p-sm-2 '
+                                to='/applications'
+                                // onClick={() => {
+                                //     this.toggleTab("2");
+                                // }}
+                                // className={`${
+                                //     this.state.activeTab === "2" && "active-tab"
+                                // } p-1 p-sm-2 tab`}
+                            >
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem>
                     </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                        <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                    <div className='col-12 col-sm-7 col-md-6 col-lg-5 row px-2 justify-content-end'>
+                        <div className='col-6 col-sm-5 col-md-4 px-1'>
                             <Link to='/employer/update'>
                                 <Button
                                     className=' mt-2 my-1 px-2 w-100'
@@ -97,7 +104,7 @@ export default class Employer extends Component {
                                 </Button>
                             </Link>
                         </div>
-                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                        <div className='col-6 col-sm-5 col-md-4 px-1'>
                             <Link to='/post'>
                                 <Button
                                     className=' mt-2 my-1 px-2 w-100'
@@ -114,7 +121,8 @@ export default class Employer extends Component {
                         </div>
                     </div>
                 </Nav>
-                <TabContent activeTab={this.state.activeTab}>
+                <Overview />
+                {/* <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId='1'>
                         <Row>
                             <Col sm='12' className='px-0'>
@@ -127,7 +135,7 @@ export default class Employer extends Component {
                             <JobApplications />
                         </Row>
                     </TabPane>
-                </TabContent>
+                </TabContent> */}
                 {/* <div
                     className='row align-content-center'
                     style={{ margin: "0" }}>

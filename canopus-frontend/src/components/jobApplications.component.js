@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState } from "react";
 import axios from "axios";
 import Loader from "react-loader-spinner";
-import { Link, useHistory } from "react-router-dom";
+import { NavLink, Link, useHistory } from "react-router-dom";
 import {
     Media,
     Badge,
@@ -33,7 +33,6 @@ import {
     Nav,
     NavItem,
     DropdownToggle,
-    NavLink,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -76,7 +75,7 @@ const Badges = ({ desc, superSpecialization }) => {
     if (desc && desc.type)
         badges = [
             desc.experience,
-            ...desc.type,
+            // ...desc.type,
             ...desc.incentives,
             ...superSp,
         ];
@@ -105,6 +104,7 @@ const Job = ({
     getOpenJobs,
     getSavedJobs,
 }) => {
+    // console.log(window.location);
     const history = useHistory();
     const freelance = type2 === "freelance" ? true : false;
     const [show, setShow] = useState(false);
@@ -204,7 +204,7 @@ const Job = ({
         <div className='col-12 col-md-6'>
             <Media
                 className={`row  justify-content-center m-2 m-md-3 p-2 px-md-2  ${
-                    job.sponsored ? "block-info" : "block"
+                    job.sponsored === "true" ? "block-info" : "block"
                 }`}>
                 <Media body className='col-12 p-1'>
                     <Media heading className='row'>
@@ -279,8 +279,9 @@ const Job = ({
                                             params={{ freelance: freelance }}>
                                             <Button
                                                 size={"sm"}
+                                                color='secondary'
                                                 className='btn btn-primary w-100'>
-                                                Edit
+                                                View
                                             </Button>
                                         </Link>
                                     </div>
@@ -292,7 +293,7 @@ const Job = ({
                                         job.sponsored &&
                                         job.sponsored === "true"
                                     ) ? (
-                                        <div className='col-8 px-0 pr-1'>
+                                        <div className='col-8 col-md-7 px-0 pr-1'>
                                             <Button
                                                 className='w-100'
                                                 size='sm'
@@ -311,7 +312,7 @@ const Job = ({
                                             </Button>
                                         </div>
                                     ) : (
-                                        <div className='col-8 px-0 pr-1'>
+                                        <div className='col-8 col-md-7 px-0 pr-1'>
                                             <Button
                                                 className='w-100 px-0'
                                                 size='sm'
@@ -393,24 +394,26 @@ const Job = ({
                                     ).toLocaleDateString()}
                                 </div>
                             )}
-                            <div className='row'>
-                                {job.startDate && (
-                                    <div className=''>
-                                        {new Date(
-                                            job.startDate,
-                                        ).toLocaleTimeString()}
-                                        {" - "}
-                                    </div>
-                                )}
+                            {job.category === "Day Job" && (
+                                <div className='row'>
+                                    {job.startDate && (
+                                        <div className=''>
+                                            {new Date(
+                                                job.startDate,
+                                            ).toLocaleTimeString()}
+                                            {" - "}
+                                        </div>
+                                    )}
 
-                                {job.endDate && (
-                                    <div className=''>
-                                        {new Date(
-                                            job.endDate,
-                                        ).toLocaleTimeString()}
-                                    </div>
-                                )}
-                            </div>
+                                    {job.endDate && (
+                                        <div className=''>
+                                            {new Date(
+                                                job.endDate,
+                                            ).toLocaleTimeString()}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         {!freelance && (
                             <div className='col-12  px-0 '>
@@ -435,7 +438,7 @@ const Job = ({
                             </div> */}
                             <hr className='col-12 my-1' />
                             <div className='col-12 col-sm-12  my-auto pl-0 pr-1 py-1 py-sm-0'>
-                                <button
+                                <div
                                     style={{
                                         backgroundColor: "rgba(0, 0, 0, 0)",
                                         color: "black",
@@ -453,7 +456,7 @@ const Job = ({
                                             />
                                         )}
                                     </span>
-                                </button>
+                                </div>
                             </div>
                             {/* <div className='col-6  my-auto p-0 p-md-2 pl-1'>
                                 <Link
@@ -561,20 +564,20 @@ const Job = ({
             </Media>
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
-                    {mess === "promote" && "Confirm Promote"}
-                    {mess === "post" && "Confirm Publish"}
-                    {mess === "discard" && "Confirm Discard"}
-                    {mess.split("_")[0] === "accept" && "Confirm Accept"}
+                    {mess === "promote" && "Promote the Job?"}
+                    {mess === "post" && "Publish the Job?"}
+                    {mess === "discard" && "Discard the Job?"}
+                    {mess.split("_")[0] === "accept" && "Accept the Applicant?"}
                 </ModalHeader>
                 <ModalBody className='py-3'>
                     {mess === "promote" &&
                         "Are you sure you want to promote this job ?"}
                     {mess.split("_")[0] === "accept" &&
-                        "Are you sure you want to accept  ?"}
+                        "Are you sure you want to confirm the applicant. Clicking on “OK” will confirm the applicant and close the job for other applicants"}
                     {mess === "post" &&
-                        "Are you sure you want to publish the job?"}
+                        "Posting the Job will make it visible to applicants."}
                     {mess === "discard" &&
-                        "Are you sure you want to discard the job?"}
+                        "You will not be able to recover this job."}
                 </ModalBody>
                 <ModalFooter className='py-1'>
                     {mess === "promote" && (
@@ -585,7 +588,7 @@ const Job = ({
                                 toggle();
                                 sponsor();
                             }}>
-                            Yes
+                            Promote
                         </Button>
                     )}
                     {mess === "post" && (
@@ -596,18 +599,18 @@ const Job = ({
                                 toggle();
                                 post();
                             }}>
-                            Yes
+                            Post
                         </Button>
                     )}
                     {mess === "discard" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='danger'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Yes
+                            Delete
                         </Button>
                     )}
                     {mess.split("_")[0] === "accept" && (
@@ -622,7 +625,9 @@ const Job = ({
                         </Button>
                     )}
                     <Button color='secondary' size='sm' onClick={toggle}>
-                        No
+                        {mess === "discard" && "Keep"}
+                        {mess === "post" && "Wait"}
+                        {mess === "promote" && "No"}
                     </Button>
                 </ModalFooter>
             </Modal>
@@ -716,104 +721,137 @@ export default class JobApplications extends Component {
     }
     render() {
         return (
-            <div className='row pt-3 w-100'>
-                <div className='col-7 px-0 pl-3'>
-                    {/* <h3 className='text-align-left   '>
-                        {this.state.jobType} Jobs
-                    </h3> */}
-                </div>
-
-                <div
-                    className='col-5 px-0 pr-3'
-                    style={{ textAlign: "right", width: "max-content" }}>
-                    <Dropdown
-                        isOpen={this.state.dropdownOpen}
-                        toggle={() => {
-                            this.setState({
-                                dropdownOpen: !this.state.dropdownOpen,
-                            });
-                        }}>
-                        <DropdownToggle
-                            style={{
-                                textTransform: "capitalize",
-                                backgroundColor: "transparent",
-                                color: "black",
-                                border: "0px solid transparent",
-                            }}
-                            caret>{`${this.state.jobType} jobs`}</DropdownToggle>
-                        <DropdownMenu right>
-                            <DropdownItem
-                                onClick={() => {
-                                    this.setState({ jobType: "Open" });
-                                    this.getOpenJobs();
-                                }}>
-                                Open Jobs
-                            </DropdownItem>
-                            <DropdownItem
-                                onClick={() => {
-                                    this.setState({ jobType: "Closed" });
-                                    this.getClosedJobs();
-                                }}>
-                                Closed Jobs
-                            </DropdownItem>
-                            <DropdownItem
-                                onClick={() => {
-                                    this.setState({ jobType: "Saved" });
-                                    this.getSavedJobs();
-                                }}>
-                                Saved Jobs
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                </div>
-                <div className='row px-2 w-100'>
-                    <h3 className='col-12 px-2 px-sm-3'>Regular Jobs</h3>
-                    {this.state.jobs !== null &&
-                    this.state.jobs !== undefined ? (
-                        this.state.jobs.length !== 0 &&
-                        this.state.jobs.map(
-                            (job) =>
-                                job && (
-                                    <Job
-                                        key={job._id}
-                                        job={job}
-                                        jobType={this.state.jobType}
-                                        type2='job'
-                                        getOpenJobs={this.getOpenJobs}
-                                        getClosedJobs={this.getClosedJobs}
-                                        getSavedJobs={this.getSavedJobs}
-                                    />
-                                ),
-                        )
-                    ) : (
-                        <div
-                            className='mx-auto my-auto col-12'
-                            style={{ textAlign: "center" }}>
-                            <Loader
-                                type='Bars'
-                                color='#17a2b8'
-                                height={300}
-                                width={220}
-                            />
+            <div className='w-100'>
+                {window.location.pathname === "/applications" && (
+                    <Nav tabs className='justify-content-between '>
+                        <div className='row justify-content-start col-6 col-sm-7'>
+                            <NavItem className='mx-1 mx-sm-2'>
+                                <NavLink
+                                    to='/employer'
+                                    // onClick={() => {
+                                    //     this.toggleTab("1");
+                                    // }}
+                                    className={`p-1 p-sm-2 nav-link`}>
+                                    <h6>Overview</h6>
+                                </NavLink>
+                            </NavItem>
+                            <NavItem className='mx-1 mx-sm-2'>
+                                <NavLink
+                                    to='/applications'
+                                    className={`p-1 p-sm-2  active-tab nav-link`}>
+                                    <h6>Jobs</h6>
+                                </NavLink>
+                            </NavItem>
                         </div>
-                    )}
+                        <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                            <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                                <Link to='/employer/update'>
+                                    <Button
+                                        className=' mt-2 my-1 px-2 w-100'
+                                        size='sm'
+                                        style={{ textAlign: "center" }}
+                                        color='info'>
+                                        Update Profile
+                                        <FontAwesomeIcon
+                                            icon={faPen}
+                                            className='ml-2'
+                                        />
+                                    </Button>
+                                </Link>
+                            </div>
+                            <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                                <Link to='/post'>
+                                    <Button
+                                        className=' mt-2 my-1 px-2 w-100'
+                                        size='sm'
+                                        style={{ textAlign: "center" }}
+                                        color='primary'>
+                                        Post a Job{" "}
+                                        <FontAwesomeIcon
+                                            icon={faPen}
+                                            className='ml-2'
+                                        />
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </Nav>
+                )}
+                <div className='row pt-3 w-100 justify-content-end'>
+                    {/* <div className='col-7 px-0 pl-3'>
+                        <h3 className='text-align-left   '>
+                        {this.state.jobType} Jobs
+                    </h3>
+                    </div> */}
 
-                    <hr className='w-100' />
-                    {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
-
-                    <div className='row w-100'>
-                        <h3 className='col-12 px-2 px-sm-3'>Locum/Day Jobs</h3>
-
-                        {this.state.freelanceJobs ? (
-                            this.state.freelanceJobs.length !== 0 &&
-                            this.state.freelanceJobs.map(
+                    <div
+                        className=' px-0 pr-3'
+                        style={{ textAlign: "right", width: "max-content" }}>
+                        <Dropdown
+                            isOpen={this.state.dropdownOpen}
+                            toggle={() => {
+                                this.setState({
+                                    dropdownOpen: !this.state.dropdownOpen,
+                                });
+                            }}>
+                            <DropdownToggle
+                                style={{
+                                    textTransform: "capitalize",
+                                    backgroundColor: "transparent",
+                                    color: "black",
+                                    border: "0px solid transparent",
+                                }}
+                                caret>{`${this.state.jobType} jobs`}</DropdownToggle>
+                            <DropdownMenu right>
+                                <DropdownItem
+                                    onClick={() => {
+                                        this.setState({
+                                            jobType: "Open",
+                                            freelanceJobs: null,
+                                            jobs: null,
+                                        });
+                                        this.getOpenJobs();
+                                    }}>
+                                    Open Jobs
+                                </DropdownItem>
+                                <DropdownItem
+                                    onClick={() => {
+                                        this.setState({
+                                            jobType: "Closed",
+                                            jobs: null,
+                                            freelanceJobs: null,
+                                        });
+                                        this.getClosedJobs();
+                                    }}>
+                                    Closed Jobs
+                                </DropdownItem>
+                                <DropdownItem
+                                    onClick={() => {
+                                        this.setState({
+                                            jobType: "Saved",
+                                            jobs: null,
+                                            freelanceJobs: null,
+                                        });
+                                        this.getSavedJobs();
+                                    }}>
+                                    Saved Jobs
+                                </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </div>
+                    <div className='row px-2 w-100'>
+                        <h3 className='col-12 px-2 px-sm-3'>Regular Jobs</h3>
+                        {this.state.jobs !== null &&
+                        this.state.jobs !== undefined ? (
+                            this.state.jobs.length !== 0 &&
+                            this.state.jobs.map(
                                 (job) =>
                                     job && (
                                         <Job
                                             key={job._id}
                                             job={job}
                                             jobType={this.state.jobType}
-                                            type2='freelance'
+                                            type2='job'
                                             getOpenJobs={this.getOpenJobs}
                                             getClosedJobs={this.getClosedJobs}
                                             getSavedJobs={this.getSavedJobs}
@@ -822,7 +860,7 @@ export default class JobApplications extends Component {
                             )
                         ) : (
                             <div
-                                className='mx-auto my-auto col-12 '
+                                className='mx-auto my-auto col-12'
                                 style={{ textAlign: "center" }}>
                                 <Loader
                                     type='Bars'
@@ -832,6 +870,46 @@ export default class JobApplications extends Component {
                                 />
                             </div>
                         )}
+
+                        <hr className='w-100' />
+                        {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
+
+                        <div className='row w-100'>
+                            <h3 className='col-12 px-2 px-sm-3'>
+                                Locum/Day Jobs
+                            </h3>
+
+                            {this.state.freelanceJobs ? (
+                                this.state.freelanceJobs.length !== 0 &&
+                                this.state.freelanceJobs.map(
+                                    (job) =>
+                                        job && (
+                                            <Job
+                                                key={job._id}
+                                                job={job}
+                                                jobType={this.state.jobType}
+                                                type2='freelance'
+                                                getOpenJobs={this.getOpenJobs}
+                                                getClosedJobs={
+                                                    this.getClosedJobs
+                                                }
+                                                getSavedJobs={this.getSavedJobs}
+                                            />
+                                        ),
+                                )
+                            ) : (
+                                <div
+                                    className='mx-auto my-auto col-12 '
+                                    style={{ textAlign: "center" }}>
+                                    <Loader
+                                        type='Bars'
+                                        color='#17a2b8'
+                                        height={300}
+                                        width={220}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

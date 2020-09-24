@@ -13,10 +13,12 @@ import PostJob from "./components/postJob.component";
 import Employer from "./components/employer.component";
 import JobApplications from "./components/jobApplications.component";
 import UpdateJob from "./components/updateJob.component";
+import UpdateUser from "./components/updateUser.component";
 import ErrorPage from "./components/error.component";
 import SignupEmployer from "./components/signupEmployer.component";
 import UpdateEmployer from "./components/updateEmployer.component";
 import data from "./data/data.json";
+import Test from "./components/test.component";
 import axios from "axios";
 import EmployerProfile from "./components/employerProfile.component";
 class App extends Component {
@@ -90,6 +92,7 @@ class App extends Component {
                         path='/user/signup'
                         component={() => <SignupUser />}
                     />
+                    <Route exact path='/test' component={() => <Test />} />
                     <Route
                         exact
                         path='/employer/signup'
@@ -100,6 +103,14 @@ class App extends Component {
                         path='/profile'
                         // render={(props) => <Profile {...props} />}
                         component={() => <Profile />}
+                    />
+                    <Route
+                        exact
+                        path='/profile/update'
+                        // render={(props) => <Profile {...props} />}
+                        render={(props) => (
+                            <UpdateUser {...props} setUser={this.setUser} />
+                        )}
                     />
                     <Route
                         exact

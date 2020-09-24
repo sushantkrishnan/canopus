@@ -26,6 +26,19 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+/* Firefox */
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
 .nav-item {
     text-align: center;
 }
@@ -135,4 +148,24 @@ th {
 .border-invalid {
     border: 1.4px solid #dc3545;
     border-radius: .25rem
+}
+
+.nav-tabs .nav-link:hover {
+    border: 1px solid #e9ecef;
+    border-bottom: 0px solid transparent;
+}
+
+.active-tab.nav-link.active {
+    border-color: transparent
+}
+
+.active-tab {
+    border: 4px solid transparent;
+    border-bottom: 4px solid rgb(8, 163, 163) !important;
+}
+
+.tab:hover {
+    border: transparent;
+    /* border-bottom: 4px solid transparent; */
+    transition: 0.1s ease-in-out;
 }

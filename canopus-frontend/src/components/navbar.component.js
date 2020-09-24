@@ -24,6 +24,8 @@ import {
 } from "reactstrap";
 import logo from "../images/logo.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ReactGA from "react-ga";
+
 import {
     faUser,
     faLock,
@@ -75,6 +77,10 @@ const NavbarComponent = (props) => {
                 console.log(newuser.data.user);
                 props.setUser(newuser.data.user);
                 // window.location = "/search-jobs";
+                ReactGA.event({
+                    category: "User",
+                    action: "userlogedin",
+                });
                 history.push("/search-jobs");
             })
             .catch((err) => {
@@ -96,6 +102,16 @@ const NavbarComponent = (props) => {
                 console.log(newuser.data.employer);
                 props.setUser(newuser.data.employer);
                 // window.location = "/employer";
+                // ReactGA.initialize("UA-176987444-1");
+                // ReactGA.set({
+                //     userId: newuser.data.employer._id,
+                //     dimension2: "employer",
+                // });
+                ReactGA.event({
+                    category: "Employer",
+                    action: "loggedin",
+                    id: `${newuser.data.employer._id}`,
+                });
                 history.push("/employer");
             })
             .catch((err) => {
@@ -140,7 +156,7 @@ const NavbarComponent = (props) => {
                             <NavLink to='/search-jobs'>Job Search</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
-                            <NavLink to='/employer'>FInd Employees</NavLink>
+                            <NavLink to='/employer'>Find Employees</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
                             <NavLink to='/'>Career Resources</NavLink>

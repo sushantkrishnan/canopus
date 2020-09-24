@@ -25,14 +25,6 @@ export default function FooterComponent() {
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                             elit. Nullam ac ante mollis quam tristique convallis{" "}
                         </p>
-                        <p>
-                            <Link to='/profile/asdsad'>
-                                <i className='fa fa-facebook-square mr-1'></i>
-                            </Link>
-                            <Link to='/profile/asdsad'>
-                                <i className='fa fa-linkedin-square'></i>
-                            </Link>
-                        </p>
                     </div>
                     <div className='col-lg-3 col-xs-12 links'>
                         <h4 className='mt-lg-0 mt-sm-3'>Links</h4>

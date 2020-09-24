@@ -8,13 +8,12 @@ import {
     Progress,
     Modal,
     Nav,
-    NavLink,
     NavItem,
     ModalHeader,
     ModalBody,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import {
     faPlusCircle,
     faPen,
@@ -167,6 +166,7 @@ export default class UpdateEmployer extends Component {
                 youtube: this.state.youtube,
                 specialty: this.state.speciality,
                 phone: this.state.phone,
+                instituteName: this.state.organization,
                 // username: this.state.username,
                 address: {
                     line: this.state.line,
@@ -245,7 +245,9 @@ export default class UpdateEmployer extends Component {
                         employeeCount: user.description.employeeCount
                             ? Number(user.description.employeeCount)
                             : 0,
-                        organization: user.description.organization,
+                        organization: user.instituteName
+                            ? user.instituteName
+                            : user.description.organization,
                         type: user.description.type,
                     });
                 }
@@ -424,18 +426,18 @@ export default class UpdateEmployer extends Component {
                     <div className='row justify-content-start col-6 col-sm-7'>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                href='/employer'
+                                to='/employer'
                                 // onClick={() => {
                                 //     this.toggleTab("1");
                                 // }}
-                                className={`p-1 p-sm-2`}>
+                                className={`p-1 p-sm-2 nav-link active-tab`}>
                                 <h6>Overview</h6>
                             </NavLink>
                         </NavItem>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                href='/applications'
-                                className={`p-1 p-sm-2`}>
+                                to='/applications'
+                                className={`p-1 p-sm-2 nav-link`}>
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem>

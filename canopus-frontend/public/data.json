@@ -1,0 +1,81 @@
+{
+    "professions": [
+        "Physician",
+        "Surgeon",
+        "Dentist",
+        "Nurse",
+        "Therapist",
+        "Technicians",
+        "Pharmacist",
+        "Medical Translator",
+        "Extra"
+    ],
+    "experience": [
+        "Any",
+        "0-2 Years",
+        "2-5 Years",
+        "5-10 Years",
+        "10-15 Years",
+        "15+ Years"
+    ],
+    "orgType": [
+        "Business organization",
+        "NGO",
+        "Pharmaceutical and Biotechnology Company",
+        "Government org",
+        "other"
+    ],
+    "speciality": [
+        "Multi Speciality Hospital",
+        "Single Speciality Hospital",
+        "Primary Health care center",
+        "tertiary care institute",
+        "single speciality diagnostic",
+        "multi speciality diagnostic"
+    ],
+    "specializations": [
+        "Anaesthesiology",
+        "Ear, Nose and Throat",
+        "Biochemistry",
+        "General Surgery",
+        "Anatomy",
+        "Community Health",
+        "Ophthalmology",
+        "Dermatology",
+        "NEW"
+    ],
+    "incentive": [
+        "Accomadation for self",
+        "Accomadation for spouse",
+        "No emergency calls",
+        "Emergency calls only",
+        "Shift Duty",
+        "Fixed Hour Duty",
+        "Travel allowance",
+        "Accomadation allowance",
+        "Case wise incentive"
+    ],
+    "type": ["Day Job", "Locum Position", "Full-time", "Part-time"],
+    "superSpecialization": [
+        "Anaesthesiology",
+        "Ear, Nose and Throat",
+        "Biochemistry",
+        "General Surgery",
+        "Anatomy",
+        "Community Health",
+        "Ophthalmology",
+        "Dermatology"
+    ],
+    "tags": ["COVID", "Urgent", "Floods"],
+    "location": [{
+            "id": "1",
+            "name": "Mumbai",
+            "state": "Maharashtra"
+        },
+        {
+            "id": "2",
+            "name": "Delhi",
+            "state": "Delhi"
+        }
+    ]
+}

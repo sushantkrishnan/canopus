@@ -14,9 +14,8 @@ import {
     ModalFooter,
     Nav,
     NavItem,
-    NavLink,
 } from "reactstrap";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import axios from "axios";
 import Select from "react-select";
 import data from "../data";
@@ -328,6 +327,7 @@ const PostJob = (props) => {
             })
             .catch((err) => {
                 console.log(err);
+                console.log(err.response);
                 const error =
                     err.response && err.response.data
                         ? err.response.data.err
@@ -599,16 +599,18 @@ const PostJob = (props) => {
                 <div className='row justify-content-start col-6 col-sm-7'>
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
-                            href='/employer'
+                            to='/employer'
                             // onClick={() => {
                             //     this.toggleTab("1");
                             // }}
-                            className={`p-1 p-sm-2`}>
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Overview</h6>
                         </NavLink>
                     </NavItem>
                     <NavItem className='mx-1 mx-sm-2'>
-                        <NavLink href='/applications' className={`p-1 p-sm-2`}>
+                        <NavLink
+                            to='/applications'
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Jobs</h6>
                         </NavLink>
                     </NavItem>
@@ -951,7 +953,7 @@ const PostJob = (props) => {
 
                             <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Salary</h6>
+                                    <h6>Salary/Fees</h6>
                                 </Label>
                                 <InputGroup className=''>
                                     <Input
@@ -1093,7 +1095,7 @@ const PostJob = (props) => {
                         <FormGroup className='row p-2'>
                             <div className='col-12 col-md-6 my-1 pr-md-2'>
                                 <Label className='m-1'>
-                                    <h6>Employer</h6>
+                                    <h6>Employer Name</h6>
                                 </Label>
                                 <Input
                                     placeholder='Employer'
@@ -1109,6 +1111,7 @@ const PostJob = (props) => {
                                             : employer
                                     }
                                     onChange={handleChange}
+                                    disabled
                                     required
                                 />
                             </div>
@@ -1162,23 +1165,42 @@ const PostJob = (props) => {
                                     />
                                 </InputGroup>
                             </div>
-                            <div className='col-12 row justify-content-between'>
-                                <Label className='my-2 col-10'>
-                                    <h5>Promote</h5>
-                                </Label>
-                                <InputGroup className='col-2 position-relative my-2'>
+                            <div className='col-12 row justify-content-start'>
+                                {/* <InputGroup className='col-1 position-relative my-2 ml-2 pl-2 pr-0'>
                                     <Input
                                         type='checkbox'
                                         name=''
                                         defaultValue={sponsored}
-                                        className=' my-2 position-absolute'
-                                        style={{ right: 0 }}
+                                        className='  position-absolute'
+                                        style={{
+                                            height: "1.2rem",
+                                            width: "1.2rem",
+                                        }}
                                         onChange={(e) =>
                                             // console.log(e.target.checked)
                                             setSponsored(e.target.checked)
                                         }
                                     />
-                                </InputGroup>
+                                </InputGroup> */}
+                                <Label className='my-2 col-9 text-align-left m-1'>
+                                    <Input
+                                        type='checkbox'
+                                        name=''
+                                        defaultValue={sponsored}
+                                        className='  position-absolute'
+                                        style={{
+                                            height: "1.1rem",
+                                            width: "1.1rem",
+                                        }}
+                                        onChange={(e) =>
+                                            // console.log(e.target.checked)
+                                            setSponsored(e.target.checked)
+                                        }
+                                    />
+                                    <span>
+                                        <h5 className='ml-2 my-1'>Promote</h5>
+                                    </span>
+                                </Label>
                             </div>
                         </FormGroup>
                     )}
@@ -1254,7 +1276,16 @@ const PostJob = (props) => {
                                                     ? false
                                                     : !valid.startDate
                                             }
-                                            // defaultValue={endDate}
+                                            // defaultValue={
+                                            //     new Date(
+                                            //         new Date().getTime() +
+                                            //             60 *
+                                            //                 24 *
+                                            //                 60 *
+                                            //                 60 *
+                                            //                 1000,
+                                            //     )
+                                            // }
                                             // ref={endDateRef}
                                             // onChange={handleChange}
                                         />
@@ -1275,6 +1306,16 @@ const PostJob = (props) => {
                                                 className=''
                                                 onChange={handleChange}
                                                 // defaultValue={endDate}
+                                                // defaultValue={new Date(
+                                                //     new Date().getTime() +
+                                                //         90 *
+                                                //             24 *
+                                                //             60 *
+                                                //             60 *
+                                                //             1000,
+                                                // )
+                                                //     .toISOString()
+                                                //     .substring(0, 10)}
                                                 // ref={endDateRef}
                                                 // onChange={handleChange}
                                                 invalid={
