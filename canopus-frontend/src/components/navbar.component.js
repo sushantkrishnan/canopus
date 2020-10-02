@@ -22,7 +22,7 @@ import {
     DropdownToggle,
     DropdownMenu,
 } from "reactstrap";
-import logo from "../images/logo.svg";
+import logo from "../images/logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactGA from "react-ga";
 
@@ -135,9 +135,8 @@ const NavbarComponent = (props) => {
                 {error}
             </Alert>
             <Navbar color='light' light expand='lg'>
-                <img src={logo} alt='logo' width='30px' />
-                <NavbarBrand href='/' className='ml-2 text-align-center'>
-                    Canopus
+                <NavbarBrand href='/' className='text-align-center'>
+                    <img src={logo} alt='logo' width='130px' />
                 </NavbarBrand>
                 <NavbarToggler
                     onClick={toggle}
@@ -181,12 +180,13 @@ const NavbarComponent = (props) => {
                                 </div>
                                 <ToastBody className='row justify-content-around mx-1'>
                                     <div>
-                                        <a
-                                            href='#'
+                                        <Link
+                                            to='/user/login'
                                             className='text-primary'
-                                            onClick={toggleModal}>
+                                            // onClick={toggleModal}
+                                        >
                                             Login
-                                        </a>
+                                        </Link>
                                     </div>
                                     <div className=''>
                                         <Link
@@ -209,12 +209,13 @@ const NavbarComponent = (props) => {
                                 </div>
                                 <ToastBody className='row justify-content-around mx-1'>
                                     <div>
-                                        <a
-                                            href='#'
+                                        <Link
+                                            to='/employer/login'
                                             className='text-danger'
-                                            onClick={toggleModalEmployer}>
+                                            // onClick={toggleModalEmployer}
+                                        >
                                             Login
-                                        </a>
+                                        </Link>
                                     </div>
                                     <div className=''>
                                         <a
@@ -257,7 +258,7 @@ const NavbarComponent = (props) => {
                                             : "primary"
                                     }
                                 />
-                                <DropdownMenu right>
+                                <DropdownMenu right style={{ zIndex: "2000" }}>
                                     {props.user.role === "Employer" ? (
                                         <Link
                                             to='/employer'
@@ -350,9 +351,12 @@ const NavbarComponent = (props) => {
                                 </button>
                             </div>
                             <div className='clearfix'>
-                                <a href='#' className='float-right'>
+                                <Link
+                                    className='text-info float-right'
+                                    // to='/employer/forgot'
+                                >
                                     Forgot Password?
-                                </a>
+                                </Link>
                             </div>
                             <div className='or-seperator'>
                                 <i>or</i>
@@ -376,18 +380,12 @@ const NavbarComponent = (props) => {
                             </div>
                             <p className='text-center text-muted small'>
                                 Don't have an account?{" "}
-                                <a href='/'>Sign up here!</a>
+                                <Link to='/user/signup' className='text-info'>
+                                    Sign up here!
+                                </Link>
                             </p>
                         </div>
                     </ModalBody>
-                    <ModalFooter>
-                        <Button color='primary' onClick={toggle}>
-                            Login
-                        </Button>{" "}
-                        <Button color='secondary' onClick={toggle}>
-                            Cancel
-                        </Button>
-                    </ModalFooter>
                 </Modal>
             </div>
             <div>
@@ -441,9 +439,11 @@ const NavbarComponent = (props) => {
                                 </button>
                             </div>
                             <div className='clearfix'>
-                                <a href='/' className='float-right'>
+                                <Link
+                                    className='text-info float-right'
+                                    to='/employer/forgot'>
                                     Forgot Password?
-                                </a>
+                                </Link>
                             </div>
                             <div className='or-seperator'>
                                 <i>or</i>
@@ -464,18 +464,14 @@ const NavbarComponent = (props) => {
 
                             <p className='text-center text-muted small'>
                                 Don't have an account?{" "}
-                                <a href='/'>Sign up here!</a>
+                                <Link
+                                    to='/employer/signup'
+                                    className='text-info'>
+                                    Sign up here!
+                                </Link>
                             </p>
                         </div>
                     </ModalBody>
-                    <ModalFooter>
-                        <Button color='primary' onClick={toggle}>
-                            Login
-                        </Button>{" "}
-                        <Button color='secondary' onClick={toggle}>
-                            Cancel
-                        </Button>
-                    </ModalFooter>
                 </Modal>
             </div>
         </div>

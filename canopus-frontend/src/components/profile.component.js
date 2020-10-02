@@ -10,6 +10,7 @@ import {
     faPen,
     faPlus,
     faFileAlt,
+    faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 import "../stylesheets/profile.css";
 import Loader from "react-loader-spinner";
@@ -24,6 +25,7 @@ import {
     ModalHeader,
     ModalFooter,
     ModalBody,
+    Badge,
 } from "reactstrap";
 import { BlobServiceClient } from "@azure/storage-blob";
 
@@ -332,8 +334,8 @@ export default class Profile extends Component {
                     </div>
                 </Nav>
                 {this.state.profile ? (
-                    <div className='row my-3 mx-3 mx-lg-0 p-2 justify-content-center '>
-                        <div className='col-12 col-lg-3'>
+                    <div className='row my-3 mx-1 mx-lg-5 p-2 px-lg-5 justify-content-center '>
+                        <div className='col-12 col-lg-4'>
                             <div
                                 className='block-noHover row text-dark p-2 mt-3 mb-5 my-lg-0'
                                 style={{
@@ -425,53 +427,83 @@ export default class Profile extends Component {
                                         borderRadius: "0.5rem",
                                     }}>
                                     <div className='m-2 mx-auto'>
-                                        <h6>
-                                            <FontAwesomeIcon
-                                                icon={faUser}
-                                                className='ml-2 mr-3'
-                                            />
-                                            {this.state.profile.firstName}{" "}
-                                            {this.state.profile.lastName}
+                                        <h6 className='row'>
+                                            <div className='col-1 px-0'>
+                                                <FontAwesomeIcon
+                                                    icon={faUser}
+                                                    className='ml-2 mr-3'
+                                                />
+                                            </div>
+                                            <div className='col-11 pl-3'>
+                                                {`${this.state.profile.salutation}. ${this.state.profile.firstName} ${this.state.profile.lastName}`}
+                                            </div>
                                         </h6>
                                     </div>
                                     <div className='m-2 mx-auto'>
-                                        <h6>
-                                            <FontAwesomeIcon
-                                                icon={faBriefcaseMedical}
-                                                className='ml-2 mr-3'
-                                            />
-                                            {this.state.profile.title &&
-                                                this.state.profile.title}
+                                        <h6 className='row'>
+                                            <div className='col-1 px-0'>
+                                                <FontAwesomeIcon
+                                                    icon={faBriefcaseMedical}
+                                                    className='ml-2 mr-3'
+                                                />
+                                            </div>
+                                            <div className='col-11 pl-3'>
+                                                {this.state.profile.title &&
+                                                    this.state.profile.title}
+                                            </div>
                                         </h6>
                                     </div>
                                     {this.state.profile.address && (
                                         <div className='m-2 mx-auto'>
-                                            <h6>
-                                                <FontAwesomeIcon
-                                                    icon={faMapMarkerAlt}
-                                                    className='ml-2 mr-3'
-                                                />
-                                                {
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faMapMarkerAlt}
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div className='col-11 px-0 pl-3'>
+                                                    {this.state.profile.address
+                                                        .city !== "" &&
                                                     this.state.profile.address
-                                                        .city
-                                                }
-                                                ,{" "}
-                                                {this.state.profile.address.pin}
-                                                ,{" "}
-                                                {
+                                                        .state !== "" &&
                                                     this.state.profile.address
-                                                        .country
-                                                }
+                                                        .country !== ""
+                                                        ? `${this.state.profile.address.city}, ${this.state.profile.address.state}, ${this.state.profile.address.country}`
+                                                        : ``}
+                                                </div>
                                             </h6>
                                         </div>
                                     )}
                                     <div className='m-2 mx-auto'>
-                                        <h6>
-                                            <FontAwesomeIcon
-                                                icon={faEnvelope}
-                                                className='ml-2 mr-3'
-                                            />
-                                            {this.state.profile.username}
+                                        <h6 className='row'>
+                                            <div className='col-1 px-0'>
+                                                <FontAwesomeIcon
+                                                    icon={faEnvelope}
+                                                    className='ml-2 mr-3'
+                                                />
+                                            </div>
+                                            <div className='col-11 pl-3'>
+                                                {this.state.profile.username}
+                                            </div>
+                                        </h6>
+                                    </div>
+                                    <div className='m-2 mx-auto'>
+                                        <h6 className='row'>
+                                            <div className='col-1 px-0'>
+                                                <FontAwesomeIcon
+                                                    icon={faPhone}
+                                                    className='ml-2 mr-3'
+                                                    style={{
+                                                        transform:
+                                                            "rotateY(180deg)",
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className='col-11 pl-3'>
+                                                {"+91-"}
+                                                {this.state.profile.phone}
+                                            </div>
                                         </h6>
                                     </div>
                                     {/* {this.state.editable && (
@@ -484,77 +516,24 @@ export default class Profile extends Component {
                                     )} */}
                                 </div>
                             </div>
-                            <div className='p-4 block-noHover row mt-2 mt-lg-4 position-relative'>
-                                {/* {this.state.editable && (
-                                    <button
-                                        className='btn btn-info btn-sm m-2 btn-float'
-                                        style={{ borderRadius: "50%" }}
-                                        onClick={this.toggleAbout}>
-                                        <FontAwesomeIcon icon={faPen} />
-                                    </button>
-                                )} */}
-                                <h2>About</h2>
-                                <hr />
-
-                                <p>{this.state.profile.description}</p>
-                            </div>
                         </div>
 
-                        <div className='col-12 col-lg-7 mt-5 mt-lg-0 ml-sm-0 ml-lg-5 '>
-                            <div className='p-4 block-noHover '>
-                                <h2 className='position-relative'>
-                                    Experience
-                                    {/* {this.state.editable && (
-                                        <button
-                                            className='btn btn-info btn-sm m-2 btn-float'
-                                            style={{ borderRadius: "50%" }}
-                                            onClick={this.toggleExperience}>
-                                            <FontAwesomeIcon icon={faPen} />
-                                        </button>
-                                    )} */}
-                                </h2>
-                                {this.state.profile.experience &&
-                                    this.state.profile.experience.map(
-                                        (data) => (
-                                            <div>
-                                                <hr />
-                                                <Media>
-                                                    <Media body>
-                                                        <Media heading>
-                                                            <h5>
-                                                                <strong>
-                                                                    {data.title}
-                                                                </strong>
-                                                            </h5>
-                                                        </Media>
-                                                        <Media heading>
-                                                            <h6>{data.line}</h6>
-                                                        </Media>
-                                                        <div>{data.time}</div>
-                                                    </Media>
-                                                </Media>
-                                            </div>
-                                        ),
-                                    )}
+                        <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-5 '>
+                            <div className='p-3 block-noHover'>
+                                <h4 className='position-relative text-capitalize'>
+                                    {this.state.profile.title}
+                                </h4>
                             </div>
 
-                            <div className='p-4 block-noHover mt-4'>
-                                <h2 className='position-relative'>
+                            <div className='p-3 block-noHover mt-4'>
+                                <h4 className='position-relative mb-3'>
                                     Education
-                                    {/* {this.state.editable && (
-                                        <button
-                                            className='btn btn-info btn-sm m-2 btn-float'
-                                            style={{ borderRadius: "50%" }}
-                                            onClick={this.toggleEducation}>
-                                            <FontAwesomeIcon icon={faPen} />
-                                        </button>
-                                    )} */}
-                                </h2>
+                                </h4>
 
                                 {this.state.profile.education &&
                                     this.state.profile.education.map((data) => (
                                         <div>
-                                            <hr />
+                                            <hr className='my-2' />
                                             <Media>
                                                 <Media body>
                                                     <Media heading>
@@ -578,67 +557,42 @@ export default class Profile extends Component {
                                         </div>
                                     ))}
                             </div>
-                            {this.state.profile.certificates && (
-                                <div className='p-4 block-noHover mt-4'>
-                                    <h2>Certificates</h2>
-                                    {this.state.profile.certificates.map(
-                                        (certificate) => (
+                            <div className='p-3 block-noHover mt-4'>
+                                <h4 className='position-relative'>
+                                    Availability
+                                </h4>
+
+                                {this.state.profile.availability &&
+                                    this.state.profile.availability.map(
+                                        (data) => (
                                             <div>
                                                 <hr />
-
                                                 <Media>
                                                     <Media body>
-                                                        <Media heading>
-                                                            <h5>
-                                                                <strong>
-                                                                    {
-                                                                        certificate.course
-                                                                    }
-                                                                </strong>
-                                                            </h5>
-                                                        </Media>
-                                                        <Media heading>
-                                                            <h6>
-                                                                <em>
-                                                                    {
-                                                                        certificate.organization
-                                                                    }
-                                                                </em>
-                                                            </h6>
-                                                        </Media>
                                                         <div>
-                                                            issued-date :{" "}
-                                                            {
-                                                                certificate.issuedDate
-                                                            }
-                                                            <br />
-                                                            credential-id :{" "}
-                                                            {
-                                                                certificate.credentialId
-                                                            }
-                                                            <br />
-                                                            <a
-                                                                href={
-                                                                    certificate.url
-                                                                }
-                                                                alt='url'>
-                                                                See Credentials
-                                                            </a>
+                                                            {`${data.startTime} - ${data.endTime} on `}
+                                                            {data.days.map(
+                                                                (day) => (
+                                                                    <Badge className='mx-1'>
+                                                                        {day}
+                                                                    </Badge>
+                                                                ),
+                                                            )}
                                                         </div>
                                                     </Media>
                                                 </Media>
                                             </div>
                                         ),
                                     )}
-                                </div>
-                            )}
+                            </div>
+
                             {!(
                                 typeof this.state.profile.resume ===
                                     "undefined" ||
                                 this.state.profile.resume === ""
                             ) && (
                                 <div className='block-noHover mt-4 p-2 p-sm-3'>
-                                    <h3>Resume</h3>
+                                    <h4>Resume</h4>
 
                                     {(typeof this.state.profile.resume ===
                                         "undefined" ||
@@ -649,7 +603,7 @@ export default class Profile extends Component {
                                                 type='file'
                                                 class='file'
                                                 ref={this.resume}
-                                                accept='.pdf,.doc'
+                                                accept='.pdf,.doc,docx'
                                                 onChange={this.uploadResume}
                                             />
                                             <div className='my-1 mt-3'>
@@ -680,7 +634,7 @@ export default class Profile extends Component {
                                             <div className='col-12 col-sm-8 row justify-content-between'>
                                                 <a
                                                     href={`${this.state.profile.resume}`}
-                                                    className='col-5 btn btn-info btn-sm mr-1'>
+                                                    className=' btn btn-info btn-sm mr-1'>
                                                     View Resume
                                                     <FontAwesomeIcon
                                                         className='ml-2'
@@ -738,7 +692,7 @@ export default class Profile extends Component {
                                 Edit Info
                             </ModalHeader>
                             <ModalBody>
-                                <h3>About</h3>
+                                <h4>About</h4>
                                 <div className='form-group'>
                                     <textarea
                                         className='form-control'

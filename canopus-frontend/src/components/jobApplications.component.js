@@ -9,6 +9,8 @@ import {
     Modal,
     ModalHeader,
     ModalFooter,
+    UncontrolledTooltip,
+    Tooltip,
     ModalBody,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,8 +19,8 @@ import {
     faUser,
     faPen,
     faArrowRight,
-    faArrowDown,
-    faArrowUp,
+    faChevronDown,
+    faChevronUp,
     faCheck,
     faCheckCircle,
     faChartLine,
@@ -52,6 +54,32 @@ const chart = {
         "m21.5 23h-19c-1.379 0-2.5-1.122-2.5-2.5v-17c0-1.378 1.121-2.5 2.5-2.5h19c1.379 0 2.5 1.122 2.5 2.5v17c0 1.378-1.121 2.5-2.5 2.5zm-19-21c-.827 0-1.5.673-1.5 1.5v17c0 .827.673 1.5 1.5 1.5h19c.827 0 1.5-.673 1.5-1.5v-17c0-.827-.673-1.5-1.5-1.5z m23.5 6h-23c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h23c.276 0 .5.224.5.5s-.224.5-.5.5z m7.5 17c-.128 0-.256-.049-.354-.146-.195-.195-.195-.512 0-.707l3.5-3.5c.151-.153.385-.19.577-.094l1.678.839 3.245-3.245c.195-.195.512-.195.707 0s.195.512 0 .707l-3.5 3.5c-.152.152-.385.191-.577.094l-1.678-.839-3.245 3.245c-.097.097-.225.146-.353.146z m16.5 14c-.276 0-.5-.224-.5-.5v-2.5h-2.5c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h3c.276 0 .5.224.5.5v3c0 .276-.224.5-.5.5z",
     ],
 };
+const TT = ({ message, target, direction }) => {
+    const [tooltipOpen, setTooltipOpen] = useState(false);
+
+    const toggle = () => setTooltipOpen(!tooltipOpen);
+
+    return (
+        // <Tooltip
+        //     placement={`${
+        //         direction && direction !== undefined ? direction : "down"
+        //     }`}
+        //     isOpen={tooltipOpen}
+        //     target={target}
+        //     toggle={toggle}>
+        //     {message}
+        // </Tooltip>
+        <UncontrolledTooltip
+            placement={`${
+                direction && direction !== undefined ? direction : "down"
+            }`}
+            target={target}>
+            {message}
+        </UncontrolledTooltip>
+    );
+};
+
+//TODO:
 const ApplicantDetails = ({ applicant }) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(false);
@@ -72,7 +100,7 @@ const ApplicantDetails = ({ applicant }) => {
 const Badges = ({ desc, superSpecialization }) => {
     const superSp = superSpecialization ? superSpecialization : [];
     let badges = [];
-    if (desc && desc.type)
+    if (desc && desc.type && desc.incentives)
         badges = [
             desc.experience,
             // ...desc.type,
@@ -122,7 +150,7 @@ const Job = ({
     };
     const sponsor = () => {
         axios
-            .put(`/api/employer/sponsor/${type2}/${job._id}`)
+            .put(`/api/job/sponsor/${job._id}`, { category: job.category })
             .then((data) => {
                 console.log(data);
                 setMessError("Job Promoted Successfully !");
@@ -140,7 +168,7 @@ const Job = ({
     const accept = (id) => {
         console.log(id);
         axios
-            .put(`/api/employer/apply/${type2}/${job._id}`, { id })
+            .put(`/api/job/apply/${type2}/${job._id}`, { id })
             .then((data) => {
                 console.log(data);
                 setMessError(
@@ -158,28 +186,18 @@ const Job = ({
     };
     const post = () => {
         console.log("posted");
-        if (type2 === "freelance")
-            axios
-                .put(`/api/employer/save/freelance/activate/${job._id}`)
-                .then((data) => {
-                    console.log(data);
-                    if (data.status === 200) {
-                        setMessError("Posted Successfully !");
-                        toggleError();
-                        getSavedJobs();
-                    }
-                })
-                .catch((err) => console.log(err.response));
-        else
-            axios
-                .put(`/api/employer/save/job/activate/${job._id}`)
-                .then((data) => {
-                    if (data.status === 200) {
-                        setMessError("Posted Successfully !");
-                        toggleError();
-                    }
-                })
-                .catch((err) => console.log(err.response));
+
+        axios
+            .put(`/api/job/activate/${job._id}`, { category: job.category })
+            .then((data) => {
+                console.log(data);
+                if (data.status === 200) {
+                    setMessError("Posted Successfully !");
+                    toggleError();
+                    getSavedJobs();
+                }
+            })
+            .catch((err) => console.log(err.response));
     };
     const discard = () => {
         axios
@@ -449,10 +467,12 @@ const Job = ({
                                     {`${job.applicants.length} `}Applications
                                     <span className='float-right'>
                                         {show ? (
-                                            <FontAwesomeIcon icon={faArrowUp} />
+                                            <FontAwesomeIcon
+                                                icon={faChevronUp}
+                                            />
                                         ) : (
                                             <FontAwesomeIcon
-                                                icon={faArrowDown}
+                                                icon={faChevronDown}
                                             />
                                         )}
                                     </span>
@@ -749,12 +769,18 @@ export default class JobApplications extends Component {
                                     <Button
                                         className=' mt-2 my-1 px-2 w-100'
                                         size='sm'
+                                        id='update'
                                         style={{ textAlign: "center" }}
                                         color='info'>
                                         Update Profile
                                         <FontAwesomeIcon
                                             icon={faPen}
                                             className='ml-2'
+                                        />
+                                        <TT
+                                            message='Update Profile'
+                                            target='update'
+                                            direction='down'
                                         />
                                     </Button>
                                 </Link>
@@ -764,12 +790,18 @@ export default class JobApplications extends Component {
                                     <Button
                                         className=' mt-2 my-1 px-2 w-100'
                                         size='sm'
+                                        id='post'
                                         style={{ textAlign: "center" }}
                                         color='primary'>
                                         Post a Job{" "}
                                         <FontAwesomeIcon
                                             icon={faPen}
                                             className='ml-2'
+                                        />
+                                        <TT
+                                            message='Post Job'
+                                            target='post'
+                                            direction='down'
                                         />
                                     </Button>
                                 </Link>

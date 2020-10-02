@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component, Fragment, createRef } from "react";
 import {
     Label,
     Input,
@@ -12,11 +12,13 @@ import {
     NavItem,
     ModalHeader,
     ModalBody,
+    ButtonGroup,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "../stylesheets/updateUser.css";
 // import data from "../data";
 
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, Redirect, useHistory } from "react-router-dom";
 import {
     faPlusCircle,
     faPen,
@@ -24,6 +26,9 @@ import {
     faMinusCircle,
     faPlus,
     faFileAlt,
+    faDumpster,
+    faTrash,
+    faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import InputMap from "./map.component";
 import Axios from "axios";
@@ -31,11 +36,6 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import imageCompression from "browser-image-compression";
 import ImageCarousel from "./imageCarousel.component";
 import Select from "react-select";
-import data from "../data";
-const superSpecializationArray = data.superSpecialization.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
 var weekdays = new Array(
     "Sunday",
     "Monday",
@@ -83,7 +83,9 @@ export default class UpdateUser extends Component {
             endTime: "",
             resume: "",
             days: [],
+            availability: [],
             progress: 0,
+            prevResume: "",
             //===============
             line: "",
             pin: "",
@@ -126,6 +128,7 @@ export default class UpdateUser extends Component {
                 dob: true,
             },
         };
+        this.resume = React.createRef();
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
@@ -145,7 +148,20 @@ export default class UpdateUser extends Component {
             lng: coords.lng,
         });
     }
-    handleChangeSelect(name, value) {
+    handleChangeSelect(name, value, type, i) {
+        if (i !== undefined) {
+            let links = this.state[type];
+            if (name === "days" && value && value.length > 0) {
+                value = value.map((e) => e.value);
+            }
+            let obj = links[i];
+            obj = { ...obj, [name]: value };
+            links[i] = obj;
+            console.log(links);
+            this.setState({
+                [type]: links,
+            });
+        }
         console.log(value, name);
         if (
             (name === "days" || name === "superSpecialization") &&
@@ -153,7 +169,11 @@ export default class UpdateUser extends Component {
             value.length > 0
         ) {
             value = value.map((e) => e.value);
-        }
+        } else if (
+            (name === "days" || name === "superSpecialization") &&
+            value === null
+        )
+            value = [];
         this.setState({
             [name]: value,
             valid: {
@@ -163,12 +183,15 @@ export default class UpdateUser extends Component {
         });
     }
 
-    handleChange(e, index, name) {
+    handleChange(e, index, name, type) {
+        e.preventDefault();
         if (index !== undefined) {
-            let links = this.state.education;
+            let links = this.state[type];
             let obj = links[index];
-            obj.startYear = "1975";
-            obj.endYear = "2020";
+            if (type === "education") {
+                obj.startYear = "1975";
+                obj.endYear = "2020";
+            }
             obj = { ...obj, [name]: e.target.value };
             links[index] = obj;
             console.log(links);
@@ -183,6 +206,7 @@ export default class UpdateUser extends Component {
                     [e.target.name]: e.target.value !== "",
                 },
             });
+        e.preventDefault();
     }
 
     uploadResume(e) {
@@ -192,7 +216,31 @@ export default class UpdateUser extends Component {
             this.setState({ uploaded: false });
 
             const file = files[0];
-
+            console.log("------------------------------");
+            console.log(file.size);
+            // console.log(file);
+            // console.log(file.type.split("."));
+            if (
+                !["pdf", "doc", "docx", "docs", "rtf"].includes(
+                    file.name.split(".")[1],
+                )
+            ) {
+                this.setState({
+                    modalError: true,
+                    modalMess: "Invalid file type",
+                    loading: false,
+                });
+                return;
+            }
+            if (file.size >= 5000000) {
+                this.setState({
+                    modalError: true,
+                    modalMess: "File size should be less than 5MB",
+                    loading: false,
+                });
+                return;
+            }
+            console.log("chal rha h");
             let reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => {
@@ -207,27 +255,38 @@ export default class UpdateUser extends Component {
                     size: file.size,
                 };
                 console.log(resume);
-                Axios.post(`/api/upload`, {
-                    context: `${this.state.id}_${file.name}`,
-                })
-                    .then(({ data }) => {
-                        const sas = data.token;
-                        this.uploadToStorage("canopus", sas, resume).then(
-                            (res) => {
-                                console.log(res);
-                                const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
-                                console.log(url);
-                                this.setState({
-                                    resume: url,
-                                    loading: false,
-                                    uploadingLogo: false,
-                                });
-                                this.update();
-                                this.setState({ uploaded: true });
-                            },
-                        );
+                if (resume.size <= 5000000)
+                    Axios.post(`/api/upload`, {
+                        context: `${this.state.id}_${file.name}`,
                     })
-                    .catch((e) => console.log(e));
+                        .then(({ data }) => {
+                            const sas = data.token;
+                            this.uploadToStorage("canopus", sas, resume).then(
+                                (res) => {
+                                    console.log(res);
+                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                    console.log(url);
+                                    this.setState({
+                                        resume: url,
+                                        prevResume: "",
+                                        loading: false,
+                                        uploadingLogo: false,
+                                    });
+                                    // this.update();
+                                    this.setState({ uploaded: true });
+                                },
+                            );
+                        })
+                        .catch((e) => console.log(e));
+                else {
+                    this.setState({
+                        modalError: true,
+                        modalMess: "File should be less than 5 MB",
+                        uploading: false,
+                        loading: false,
+                    });
+                    this.resume.current.value = "";
+                }
             };
         }
     }
@@ -235,9 +294,20 @@ export default class UpdateUser extends Component {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
+        const emp =
+            this.state.title === "" ||
+            this.state.firstName === "" ||
+            this.state.lastName === "" ||
+            this.state.gender === "" ||
+            this.state.city === "" ||
+            this.state.state === "" ||
+            this.state.phone === "" ||
+            this.state.profession === "" ||
+            this.state.specialization === "";
 
         console.log(isValid);
-        if (!isValid) {
+        console.log(emp);
+        if (!isValid || emp) {
             this.setState({
                 modalError: true,
                 modalMess: "Please fill the required fields !",
@@ -267,23 +337,26 @@ export default class UpdateUser extends Component {
                 specialization: this.state.specialization,
                 superSpecialization: this.state.superSpecialization,
                 education: this.state.education,
-                resume: this.state.resume,
+                resume:
+                    this.state.resume === ""
+                        ? this.state.prevResume
+                        : this.state.resume,
             };
             if (this.state.locum) {
-                const locum = {
-                    startTime:
-                        this.state.startTime === ""
-                            ? "08:00"
-                            : this.state.startTime,
-                    endTime:
-                        this.state.endTime === ""
-                            ? "18:00"
-                            : this.state.endTime,
-                    days: this.state.days,
-                };
+                // const locum = {
+                //     startTime:
+                //         this.state.startTime === ""
+                //             ? "08:00"
+                //             : this.state.startTime,
+                //     endTime:
+                //         this.state.endTime === ""
+                //             ? "18:00"
+                //             : this.state.endTime,
+                //     days: this.state.days,
+                // };
                 user = {
                     ...user,
-                    locum,
+                    availability: this.state.availability,
                 };
             }
             Object.keys(user).forEach(
@@ -300,7 +373,9 @@ export default class UpdateUser extends Component {
                     console.log(data);
                     if (data.status === 200) {
                         // alert("Update successful");
+                        console.log("RED");
                         this.props.setUser(data.data);
+                        this.props.history.push({ pathname: "/profile" });
                         // window.location = "/employer";
                     }
                 })
@@ -323,6 +398,7 @@ export default class UpdateUser extends Component {
                         id: user._id,
                     });
                     this.setState({
+                        username: user.username,
                         id: user._id,
                         title: user.title,
                         firstName: user.firstName,
@@ -330,8 +406,14 @@ export default class UpdateUser extends Component {
                         lastName: user.lastName,
                         gender: user.gender,
                         dob: user.dob,
-                        profession: user.profession,
-                        specialization: user.specialization,
+                        profession:
+                            user.profession === undefined
+                                ? ""
+                                : user.profession,
+                        specialization:
+                            user.specialization === undefined
+                                ? ""
+                                : user.specialization,
                         superSpecialization: user.superSpecialization,
                         city: user.address.city,
                         state: user.address.state,
@@ -345,11 +427,9 @@ export default class UpdateUser extends Component {
                         phone: user.phone,
                         resume: user.resume,
                     });
-                    if (user.locum.startTime)
+                    if (user.availability && user.availability.length !== 0)
                         this.setState({
-                            startTime: user.locum.startTime,
-                            endTime: user.locum.endTime,
-                            days: user.locum.days,
+                            availability: user.availability,
                             locum: true,
                         });
                 }
@@ -422,6 +502,7 @@ export default class UpdateUser extends Component {
                 // ); // true
                 // console.log(`file size ${file.size / 1024 / 1024} MB`); // smaller than maxSizeMB
                 // await uploadToServer(file); // write your own logic
+
                 let reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = () => {
@@ -441,6 +522,7 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
+                            console.log(sas);
                             this.uploadToStorage("canopus", sas, image).then(
                                 (res) => {
                                     const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
@@ -460,12 +542,64 @@ export default class UpdateUser extends Component {
         }
     }
     render() {
+        let degrees = [],
+            speciality = [],
+            professionArray = [],
+            suggestionarray = [],
+            specializationArray = [];
+        let specializationObj = {},
+            superSpecializationObj = {};
+        if (this.props.data) {
+            degrees = this.props.data.degrees.map((degree) => {
+                return {
+                    value: degree,
+                    label: degree,
+                };
+            });
+            speciality = this.props.data.speciality;
+
+            professionArray = this.props.data.specializations.map((obj) => {
+                specializationObj[obj.profession] = obj.specialization.map(
+                    (e) => {
+                        return { label: e, value: e };
+                    },
+                );
+                specializationArray = [
+                    ...specializationArray,
+                    ...obj.specialization,
+                ];
+                return {
+                    value: obj.profession,
+                    label: obj.profession,
+                };
+            });
+            specializationArray = [...new Set(specializationArray)];
+            specializationArray = specializationArray.map((e) => {
+                return { label: e, value: e };
+            });
+            suggestionarray = specializationArray;
+            this.props.data.superSpecializations.forEach((obj) => {
+                const key = `${obj.profession}+${obj.specialization}`;
+                superSpecializationObj[key] = obj.superSpecialization.map(
+                    (e) => {
+                        return { label: e, value: e };
+                    },
+                );
+                suggestionarray = [
+                    ...suggestionarray,
+                    ...superSpecializationObj[key],
+                ];
+            });
+            suggestionarray = suggestionarray.map((e) => e.value);
+            suggestionarray = [...new Set(suggestionarray)];
+            // console.log(suggestionarray);
+        }
         return (
             <div>
                 <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
-                    <div className=' p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className=' p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h4>Details</h4>
+                            <h5>Details</h5>
                         </FormGroup>
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
@@ -537,63 +671,36 @@ export default class UpdateUser extends Component {
                                         )}
                                 </div>
                                 <div className='mx-3 mx-sm-2'>
-                                    <div className='my-1 mt-3'>
-                                        {/* <div className=''>
-                                            <button
-                                                className='btn btn-info btn-sm m-2 btn-float'
-                                                // style={{
-                                                //     borderRadius: "50%",
-                                                // }}
-                                            >
-                                                <label
-                                                    htmlFor='image'
-                                                    style={{
-                                                        display: "inline-block",
-                                                        margin: 0,
-                                                        cursor: "pointer",
-                                                        width: "100%",
-                                                    }}>
-                                                   
-                                                    Upload Logo
-                                                </label>
-                                            </button>
-
-                                            <input
-                                                type='file'
-                                                style={{
-                                                
-                                                    zIndex: "-1",
-                                                    overflow: "hidden",
-                                                    opacity: 0,
-                                                    cursor: "pointer",
-                                                }}
-                                                id='image'
-                                                accept='image/*'
-                                                
-                                                onChange={this.uploadLogo}
-                                            />
-                                        </div> */}
-                                    </div>
+                                    <div className='my-1 mt-3'></div>
                                 </div>
                             </div>
-                            <div className='col-md-9 row'>
-                                <div className='col-12 my-1 my-sm-2'>
-                                    <Label>
-                                        Title{" "}
-                                        <span className='text-danger'>*</span>
+                            <div className='col-md-9 row px-0 pl-sm-3'>
+                                <div className='col-12 my-1 my-sm-0'>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Profile Title{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
                                     <Input
-                                        placeholder='Title'
+                                        placeholder='eg: intervetnional cardilogist'
                                         name='title'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.title}
+                                        value={this.state.title}
                                         invalid={!this.state.valid.title}
+                                        key={"title"}
                                     />
                                 </div>
                                 <div className='col-12 col-sm-7 pr-0 pr-sm-1 row my-1 my-sm-2'>
-                                    <Label className='col-12 px-0'>
-                                        First Name{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='mb-1 col-12'>
+                                        <h6 className='mb-0 small-heading'>
+                                            First Name{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
                                     <div className='col-3 pl-0 pr-0 '>
                                         <Input
@@ -601,7 +708,7 @@ export default class UpdateUser extends Component {
                                             type='select'
                                             className='pl-1'
                                             onChange={this.handleChange}
-                                            defaultValue={this.state.salutation}
+                                            value={this.state.salutation}
                                             invalid={
                                                 !this.state.valid.salutation
                                             }>
@@ -617,7 +724,7 @@ export default class UpdateUser extends Component {
                                             placeholder='First Name'
                                             name='firstName'
                                             onChange={this.handleChange}
-                                            defaultValue={this.state.firstName}
+                                            value={this.state.firstName}
                                             invalid={
                                                 !this.state.valid.firstName
                                             }
@@ -629,7 +736,7 @@ export default class UpdateUser extends Component {
                                         placeholder='Salutation'
                                         type='select'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.salutation}
+                                        value={this.state.salutation}
                                         invalid={!this.state.valid.salutation}>
                                         <option value='Dr'>Dr</option>
                                         <option value='Mr'>Mr</option>
@@ -647,29 +754,36 @@ export default class UpdateUser extends Component {
                                         placeholder='First Name'
                                         name='firstName'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.firstName}
+                                        value={this.state.firstName}
                                         invalid={!this.state.valid.firstName}
                                     />
                                 </div> */}
                                 <div className='col-12 col-sm-5 pl-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label>
-                                        Last Name{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Last Name{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
                                     <Input
                                         placeholder='Last Name'
                                         name='lastName'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.lastName}
+                                        value={this.state.lastName}
                                         invalid={!this.state.valid.lastName}
                                     />
                                 </div>
                                 <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-2'>
-                                    <Label>
-                                        Gender{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Gender{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
-
                                     <Input
                                         placeholder='Gender'
                                         type='select'
@@ -686,40 +800,47 @@ export default class UpdateUser extends Component {
                                     </Input>
                                 </div>
                                 <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label>Date of Birth </Label>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Date of Birth
+                                        </h6>
+                                    </Label>
                                     <Input
                                         type='date'
                                         name='dob'
                                         placeholder='date placeholder'
-                                        className=''
                                         defaultValue={this.state.dob}
                                         onChange={this.handleChange}
                                     />
                                 </div>
                                 <div className='row my-1 my-sm-2'>
-                                    <Label className='col-12 px-0'>
-                                        Location{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='col-12 mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Location{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-4 pl-0 '>
+                                    <div className='col-12 col-sm-4 pl-0 my-1 my-sm-0'>
                                         <Input
                                             placeholder='city'
                                             name='city'
                                             onChange={this.handleChange}
-                                            defaultValue={this.state.city}
+                                            value={this.state.city}
                                             invalid={!this.state.valid.city}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 '>
+                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='state'
                                             name='state'
                                             onChange={this.handleChange}
-                                            defaultValue={this.state.state}
+                                            value={this.state.state}
                                             invalid={!this.state.valid.state}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 '>
+                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='country'
                                             name='country'
@@ -731,10 +852,15 @@ export default class UpdateUser extends Component {
                                     </div>
                                 </div>
                                 <div className='row my-1 my-sm-2 col-12'>
-                                    <Label className='col-12 px-0'>
-                                        Contact Info{" "}
+                                    <Label className='col-12 mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Contact Info{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-6 pr-0 pr-sm-1 '>
+                                    <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='email'
                                             name='email'
@@ -747,12 +873,12 @@ export default class UpdateUser extends Component {
                                             disabled={true}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-6 pl-0 pl-sm-1 '>
+                                    <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='phone'
                                             name='phone'
                                             onChange={this.handleChange}
-                                            defaultValue={this.state.phone}
+                                            value={this.state.phone}
                                             invalid={!this.state.valid.phone}
                                         />
                                     </div>
@@ -760,15 +886,16 @@ export default class UpdateUser extends Component {
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <hr className='d-block d-sm-none' />
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h4>Area of Work</h4>
+                            <h5>Area of Work</h5>
                         </FormGroup>
 
                         <FormGroup className='row'>
                             <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1'>
-                                <Label className='m-1'>
-                                    <h6>
+                                <Label className='mb-0'>
+                                    <h6 className='mb-0 small-heading'>
                                         Profession{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -783,16 +910,13 @@ export default class UpdateUser extends Component {
                                             label: this.state.profession,
                                         }
                                     }
-                                    options={data.professions.map(
-                                        (profession) => {
-                                            return {
-                                                value: profession,
-                                                label: profession,
-                                            };
-                                        },
-                                    )}
+                                    options={professionArray}
                                     onChange={(e) => {
                                         console.log(e);
+                                        this.setState({
+                                            specialization: "",
+                                            superSpecialization: [],
+                                        });
                                         this.handleChangeSelect(
                                             "profession",
                                             e ? e.value : "",
@@ -808,8 +932,8 @@ export default class UpdateUser extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1'>
-                                <Label className='m-1'>
-                                    <h6>
+                                <Label className='mb-0'>
+                                    <h6 className='mb-0 small-heading'>
                                         Specialization{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -824,14 +948,13 @@ export default class UpdateUser extends Component {
                                             label: this.state.specialization,
                                         }
                                     }
-                                    options={data.specializations.map(
-                                        (specialization) => {
-                                            return {
-                                                value: specialization,
-                                                label: specialization,
-                                            };
-                                        },
-                                    )}
+                                    options={
+                                        this.state.profession === ""
+                                            ? specializationArray
+                                            : specializationObj[
+                                                  this.state.profession
+                                              ]
+                                    }
                                     onChange={(e) => {
                                         console.log(e);
                                         this.handleChangeSelect(
@@ -850,20 +973,26 @@ export default class UpdateUser extends Component {
                             </div>
 
                             <div className='col-12  px-0 my-1'>
-                                <Label className='m-1'>
-                                    <h6>Super Specialization </h6>
+                                <Label className='mb-0'>
+                                    <h6 className='mb-0 small-heading'>
+                                        Super/Sub Specialization{" "}
+                                    </h6>
                                 </Label>
                                 <Select
                                     isClearable={true}
                                     isMulti
                                     autosize={true}
-                                    placeholder='superSpecialization'
+                                    placeholder='Super/Sub Specialization'
                                     value={this.state.superSpecialization.map(
                                         (e) => {
                                             return { value: e, label: e };
                                         },
                                     )}
-                                    options={superSpecializationArray}
+                                    options={
+                                        superSpecializationObj[
+                                            `${this.state.profession}+${this.state.specialization}`
+                                        ]
+                                    }
                                     onChange={(e) => {
                                         console.log(e);
                                         this.handleChangeSelect(
@@ -875,46 +1004,85 @@ export default class UpdateUser extends Component {
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <hr className='d-block d-sm-none' />
+
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup className='row'>
-                            <h4 className='col-8 col-sm-10 px-0'>Education</h4>
-                            <div className='col-4 col-sm-2 row justify-content-end px-0'>
+                            <h5 className='col-8 col-sm-10 px-0'>Education</h5>
+                            <div className='col-4 col-sm-2 row justify-content-end px-0 d-none d-sm-flex'>
                                 <Button
                                     color='info'
                                     size='sm'
                                     onClick={() => {
-                                        let education = this.state.education;
-                                        education.push({
-                                            degree: "",
-                                            speciality: "",
-                                            startYear: "1975",
-                                            endYear: "2020",
-                                        });
-                                        this.setState({
-                                            education: education,
-                                        });
+                                        if (this.state.education.length <= 4) {
+                                            let education = this.state
+                                                .education;
+                                            education.push({
+                                                degree: "",
+                                                speciality: "",
+                                            });
+                                            this.setState({
+                                                education: education,
+                                            });
+                                        } else {
+                                            this.setState({
+                                                modalError: true,
+                                                modalMess:
+                                                    "Only 5 education allowed !",
+                                            });
+                                        }
                                     }}>
-                                    Add
                                     <FontAwesomeIcon
-                                        className='ml-1'
+                                        className='mr-1'
                                         icon={faPlus}
                                     />
+                                    Add Education
                                 </Button>
+                            </div>
+                        </FormGroup>
+                        <FormGroup className='row d-none d-sm-flex mb-0'>
+                            <div className='col-3 px-0'>
+                                <Label className='ml-1 mb-0'>
+                                    <h6 className='mb-0 small-heading'>
+                                        Degree{" "}
+                                    </h6>
+                                </Label>
+                            </div>
+                            <div className='px-0 col-5'>
+                                <Label className='ml-1 px-0 mb-0'>
+                                    <h6 className='mb-0 small-heading'>
+                                        Speciality{" "}
+                                    </h6>
+                                </Label>
+                            </div>
+                            <div className='px-0 col-3 row'>
+                                <div className='px-0 col-6'>
+                                    <Label className='ml-1 px-0 mb-0'>
+                                        <h6 className='mb-0 small-heading'>
+                                            From{" "}
+                                        </h6>
+                                    </Label>
+                                </div>
+                                <div className='px-0 col-6'>
+                                    <Label className='ml-1 px-0 mb-0'>
+                                        <h6 className='mb-0 small-heading'>
+                                            To{" "}
+                                        </h6>
+                                    </Label>
+                                </div>
                             </div>
                         </FormGroup>
 
                         {this.state.education.map((x, i) => (
-                            <div>
-                                <hr />
-                                <div className='my-1 row'>
-                                    <h5 className='col-9 col-sm-10 col-md-11 my-1 pl-0'>
-                                        Education {i + 1}
-                                    </h5>
+                            <div className='row border-sm my-2 p-2 p-sm-1 my-sm-1'>
+                                <div className='col-12 row position-relative justify-content-between d-flex d-sm-none'>
                                     <FontAwesomeIcon
-                                        icon={faMinusCircle}
-                                        className='text-danger my-auto col-3 col-sm-1 col-md-1 pr-0'
-                                        size='md'
-                                        style={{ cursor: "pointer" }}
+                                        icon={faTimes}
+                                        className=' mb-1 float-right ml-auto mr-1 mt-1'
+                                        size='sm'
+                                        style={{
+                                            cursor: "pointer",
+                                        }}
                                         onClick={(e) => {
                                             let education = this.state
                                                 .education;
@@ -925,38 +1093,50 @@ export default class UpdateUser extends Component {
                                         }}
                                     />
                                 </div>
-                                <div className='row'>
-                                    <div className='col-12 col-sm-3 pr-0 pr-sm-1 my-1'>
-                                        {i + 1 === 1 && (
-                                            <Label className='m-1'>
-                                                <h6>Degree </h6>
-                                            </Label>
-                                        )}
-                                        <Input
-                                            id={i}
+
+                                <div className='row col-12'>
+                                    <div className='col-12 col-sm-3 pr-0 pr-sm-1 my-1 '>
+                                        <Select
+                                            autosize={true}
+                                            isClearable={true}
                                             placeholder='Degree'
-                                            name='degree'
-                                            onChange={(e) =>
+                                            value={
+                                                this.state.education[i] &&
+                                                this.state.education[i]
+                                                    .degree !== "" && {
+                                                    value: this.state.education[
+                                                        i
+                                                    ].degree,
+                                                    label: this.state.education[
+                                                        i
+                                                    ].degree,
+                                                }
+                                            }
+                                            options={degrees}
+                                            onChange={(e) => {
+                                                e = {
+                                                    target: {
+                                                        name: "degree",
+                                                        value: e ? e.value : "",
+                                                    },
+                                                };
                                                 this.handleChange(
                                                     e,
                                                     i,
                                                     "degree",
-                                                )
-                                            }
-                                            value={
-                                                this.state.education[i]
-                                                    ? this.state.education[i]
-                                                          .degree
-                                                    : ""
-                                            }
+                                                    "education",
+                                                );
+                                            }}
+                                            // className={
+                                            //     this.state.valid.profession !==
+                                            //         undefined &&
+                                            //     !this.state.valid.profession
+                                            //         ? "border-invalid"
+                                            //         : ""
+                                            // }
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-6 px-0 pl-sm-1 pr-sm-1 my-1'>
-                                        {i + 1 === 1 && (
-                                            <Label className='m-1'>
-                                                <h6>Speciality </h6>
-                                            </Label>
-                                        )}
+                                    <div className='col-12 col-md-5 col-sm-4 px-0 pr-sm-1 my-1'>
                                         <Input
                                             id={i}
                                             placeholder='Speciality'
@@ -966,6 +1146,7 @@ export default class UpdateUser extends Component {
                                                     e,
                                                     i,
                                                     "speciality",
+                                                    "education",
                                                 )
                                             }
                                             value={
@@ -974,16 +1155,51 @@ export default class UpdateUser extends Component {
                                                           .speciality
                                                     : ""
                                             }
+                                            list={`specialities${i}`}
                                         />
+                                        <datalist id={`specialities${i}`}>
+                                            {/* {this.state.superSpecialization
+                                                .length === 0 ? (
+                                                <option
+                                                    value={
+                                                        this.state
+                                                            .profession !==
+                                                            "" &&
+                                                        this.state
+                                                            .specialization !==
+                                                            ""
+                                                            ? `${this.state.education[i].degree} with ${this.state.specialization}`
+                                                            : ``
+                                                    }
+                                                />
+                                            ) : (
+                                                this.state.superSpecialization.map(
+                                                    (e) => (
+                                                        <option
+                                                            value={
+                                                                this.state
+                                                                    .profession !==
+                                                                    "" &&
+                                                                this.state
+                                                                    .specialization !==
+                                                                    "" &&
+                                                                `${this.state.education[i].degree} with ${this.state.specialization} in ${e}`
+                                                            }
+                                                        />
+                                                    ),
+                                                )
+                                            )} */}
+                                            {suggestionarray.map((x) => (
+                                                <option>{x}</option>
+                                            ))}
+                                        </datalist>
                                     </div>
-                                    <div className='col-12 col-sm-3 px-0 row my-1'>
-                                        <div className='col-12 col-md-12 pl-sm-1 row'>
+                                    <div className='col-12 col-md-3 col-sm-4 px-0 row my-1'>
+                                        <div className='col-12 px-0 pl-sm-1 pr-sm-1 row'>
                                             <div className='col-6 pr-1 pl-0'>
-                                                {i + 1 === 1 && (
-                                                    <Label className='m-1'>
-                                                        <h6>From</h6>
-                                                    </Label>
-                                                )}
+                                                {/* <Label className='m-1 d-block d-sm-none'>
+                                                    <h6>From </h6>
+                                                </Label> */}
                                                 <Input
                                                     placeholder='startYear'
                                                     type='select'
@@ -993,15 +1209,22 @@ export default class UpdateUser extends Component {
                                                             e,
                                                             i,
                                                             "startYear",
+                                                            "education",
                                                         );
                                                     }}
                                                     defaultValue={
+                                                        this.state.education[
+                                                            i
+                                                        ] &&
                                                         this.state.education[i]
-                                                            ? this.state
-                                                                  .education[i]
-                                                                  .startYear
-                                                            : ""
+                                                            .startYear
                                                     }>
+                                                    <option
+                                                        value='from'
+                                                        disabled
+                                                        selected>
+                                                        From
+                                                    </option>
                                                     {Array(
                                                         Number(
                                                             new Date().getFullYear(),
@@ -1022,11 +1245,9 @@ export default class UpdateUser extends Component {
                                                 </Input>
                                             </div>
                                             <div className='col-6 pl-1 pr-0'>
-                                                {i + 1 === 1 && (
-                                                    <Label className='m-1'>
-                                                        <h6>To</h6>
-                                                    </Label>
-                                                )}
+                                                {/* <Label className='m-1 d-block d-sm-none'>
+                                                    <h6>To </h6>
+                                                </Label> */}
                                                 <Input
                                                     placeholder='endYear'
                                                     type='select'
@@ -1036,6 +1257,7 @@ export default class UpdateUser extends Component {
                                                             e,
                                                             i,
                                                             "endYear",
+                                                            "education",
                                                         );
                                                     }}
                                                     defaultValue={
@@ -1043,8 +1265,14 @@ export default class UpdateUser extends Component {
                                                             ? this.state
                                                                   .education[i]
                                                                   .endYear
-                                                            : ""
+                                                            : "To"
                                                     }>
+                                                    <option
+                                                        disabled
+                                                        selected
+                                                        value='to'>
+                                                        To
+                                                    </option>
                                                     {Array(
                                                         Number(
                                                             new Date().getFullYear(),
@@ -1068,10 +1296,10 @@ export default class UpdateUser extends Component {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <div className='col-sm-1'>
+                                    <div className='col-sm-1 d-flex flex-column justify-content-center text-align-center'>
                                         <FontAwesomeIcon
-                                            icon={faMinusCircle}
-                                            className='text-danger my-auto '
+                                            icon={faTrash}
+                                            className='d-none d-sm-flex text-danger my-auto ml-auto'
                                             style={{
                                                 cursor: "pointer",
                                             }}
@@ -1084,89 +1312,148 @@ export default class UpdateUser extends Component {
                                                 });
                                             }}
                                         />
-                                    </div> */}
+                                    </div>
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
-                        <FormGroup>
-                            <h4>Resume</h4>
-                        </FormGroup>
-                        {this.state.resume === undefined ||
-                        (this.state.resume === "" &&
-                            this.state.progress !== 1) ? (
-                            <div>
-                                <input
-                                    type='file'
-                                    class='file'
-                                    accept='.pdf,.doc'
-                                    onChange={this.uploadResume}
+                        <div className='col-12 d-block d-sm-none'>
+                            <Button
+                                color='info'
+                                className='w-100'
+                                size='sm'
+                                onClick={() => {
+                                    let education = this.state.education;
+                                    education.push({
+                                        degree: "",
+                                        speciality: "",
+                                    });
+                                    this.setState({
+                                        education: education,
+                                    });
+                                }}>
+                                <FontAwesomeIcon
+                                    className='mr-1'
+                                    icon={faPlus}
                                 />
-                                <div className='my-1 mt-3'>
-                                    <Progress
-                                        animated
-                                        color='info'
-                                        value={this.state.progress * 100}>
-                                        <h6 className='m-0'>
-                                            {Math.round(
-                                                this.state.progress * 100,
-                                            )}
-                                            {"%"}
-                                        </h6>
-                                    </Progress>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className='row'>
-                                <div className='col-12 col-sm-4'>
-                                    <h5>Uploaded !</h5>
-                                </div>
-
-                                <div className='col-12 col-sm-8 row justify-content-between'>
-                                    <a
-                                        href={`${this.state.resume}`}
-                                        className='col-5 btn btn-info btn-sm mr-1'>
-                                        View Resume
-                                        <FontAwesomeIcon
-                                            className='ml-2'
-                                            icon={faFileAlt}
-                                        />
-                                    </a>
-                                    {this.state.resume !== "" && (
-                                        <button
-                                            className='col-6 btn btn-sm btn-primary'
-                                            onClick={() => {
-                                                this.setState({
-                                                    resume: "",
-                                                });
-                                                this.update();
-                                            }}>
-                                            Change Resume
-                                            <FontAwesomeIcon
-                                                className='ml-2'
-                                                icon={faPen}
-                                            />
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        )}
+                                Add Education
+                            </Button>
+                        </div>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <hr className='d-block d-sm-none' />
+
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h4>Availability</h4>
+                            <h5>Resume</h5>
                         </FormGroup>
+
+                        <div className='row'>
+                            {this.state.loading ? (
+                                <h6>
+                                    <span className='my-auto'>
+                                        Uploading File
+                                    </span>
+                                    <div
+                                        class='spinner-border spinner-border-sm ml-2 my-auto'
+                                        role='status'>
+                                        <span class='sr-only'>Loading...</span>
+                                    </div>
+                                </h6>
+                            ) : (
+                                <div className='col-12 row justify-content-start'>
+                                    <div className=' pl-0 pr-0'>
+                                        <div
+                                            className='position-relative'
+                                            style={{
+                                                height: "100%",
+                                            }}>
+                                            <button className='btn btn-primary'>
+                                                <label
+                                                    htmlFor='file'
+                                                    style={{
+                                                        display:
+                                                            "inline-block-noHover",
+                                                        margin: 0,
+                                                        cursor: "pointer",
+                                                        width: "100%",
+                                                    }}>
+                                                    Update Resume
+                                                    <FontAwesomeIcon
+                                                        className='ml-2'
+                                                        icon={faPen}
+                                                    />
+                                                </label>
+                                            </button>
+
+                                            <input
+                                                style={{
+                                                    position: "absolute",
+                                                    zIndex: "-5",
+                                                    overflow: "hidden",
+                                                    opacity: 0,
+                                                    width: "0.1px",
+                                                    height: "0.1px",
+                                                }}
+                                                className='p-0 file'
+                                                id='file'
+                                                type='file'
+                                                accept='.pdf,.doc,.docx,.docs,.rtf'
+                                                onChange={this.uploadResume}
+                                                ref={this.resume}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='pl-1 pr-0'>
+                                        {this.state.resume !== undefined &&
+                                            this.state.resume !== "" && (
+                                                <a
+                                                    href={`${this.state.resume}`}
+                                                    className='btn btn-info '>
+                                                    View Resume
+                                                    <FontAwesomeIcon
+                                                        className='ml-2'
+                                                        icon={faFileAlt}
+                                                    />
+                                                </a>
+                                            )}
+                                    </div>
+                                </div>
+                            )}
+                            {this.state.progress !== 1 &&
+                                this.state.progress !== 0 && (
+                                    <div className='my-1 mt-3 col-12'>
+                                        <Progress
+                                            animated
+                                            color='info'
+                                            value={this.state.progress * 100}>
+                                            <h6 className='m-0'>
+                                                {Math.round(
+                                                    this.state.progress * 100,
+                                                )}
+                                                {"%"}
+                                            </h6>
+                                        </Progress>
+                                    </div>
+                                )}
+                        </div>
+                        {/* )} */}
+                    </div>
+                    <hr className='d-block d-sm-none' />
+
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h5 className='position-relative pl-2 row'>
-                                <div className='position-relative ml-3 mr-2'>
+                            <h5>Availability</h5>
+                        </FormGroup>
+                        <FormGroup className='row'>
+                            <h5 className='position-relative pl-3 pr-0 row col-12 col-sm-10'>
+                                <div className='position-relative ml-1 mr-1'>
                                     <Input
                                         type='checkbox'
                                         style={{
-                                            height: "1.2rem",
-                                            width: "1.2rem",
+                                            height: ".78rem",
+                                            width: ".78rem",
                                             position: "absolute",
                                         }}
+                                        className='mt-2'
                                         checked={this.state.locum}
                                         onChange={(e) => {
                                             this.setState({
@@ -1174,126 +1461,313 @@ export default class UpdateUser extends Component {
                                             });
                                         }}
                                     />
-                                    <span className='pl-2'>
+                                    <span className='pl-0 small-checkbox'>
                                         I'm interested in Day Jobs or Locum
                                         Positions
                                     </span>
                                 </div>
                             </h5>
+                            {this.state.locum && (
+                                <div className='col-0 col-sm-2 px-0 d-none d-sm-flex row justify-content-end'>
+                                    <Button
+                                        color='info'
+                                        size='sm'
+                                        onClick={() => {
+                                            let availability = this.state
+                                                .availability;
+                                            availability.push({
+                                                startTime: "",
+                                                endTime: "",
+                                                days: [],
+                                            });
+                                            this.setState({
+                                                availability: availability,
+                                            });
+                                        }}>
+                                        <FontAwesomeIcon
+                                            className='mr-1'
+                                            icon={faPlus}
+                                        />
+                                        Add Time slot
+                                    </Button>
+                                </div>
+                            )}
                         </FormGroup>
                         {this.state.locum && (
-                            <FormGroup className='row'>
-                                <InputGroup className='col-12 col-sm-6 my-1 pr-0 pr-sm-1'>
-                                    <Label
-                                        className='pr-2 col-12'
-                                        for='exampleDate'>
-                                        <h6>
-                                            Start Time{" "}
-                                            <span className='text-danger'>
-                                                *
-                                            </span>
-                                        </h6>
-                                    </Label>
-                                    {/* <Label for='exampleTime'>Time</Label> */}
-                                    <Input
-                                        type='time'
-                                        name='startTime'
-                                        id='exampleTime'
-                                        placeholder='time placeholder'
-                                        onChange={this.handleChange}
-                                        defaultValue={
-                                            this.state.startTime ===
-                                                undefined ||
-                                            this.state.startTime === ""
-                                                ? "08:00"
-                                                : this.state.startTime
-                                        }
-                                        invalid={
-                                            this.state.valid.startTime ===
-                                            undefined
-                                                ? false
-                                                : !this.state.valid.startTime
-                                        }
-                                    />
-                                </InputGroup>
-                                <InputGroup className='col-12 col-sm-6 my-1 pl-0 pl-sm-1'>
-                                    <Label
-                                        className='pr-2 col-12'
-                                        for='exampleDate'>
-                                        <h6>
-                                            End Time{" "}
-                                            <span className='text-danger'>
-                                                *
-                                            </span>
-                                        </h6>
-                                    </Label>
-                                    {/* <Label for='exampleTime'>Time</Label> */}
-                                    <Input
-                                        type='time'
-                                        name='endTime'
-                                        id='exampleTime'
-                                        placeholder='time placeholder'
-                                        className=''
-                                        onChange={this.handleChange}
-                                        defaultValue={
-                                            this.state.endTime === undefined ||
-                                            this.state.endTime === ""
-                                                ? "18:00"
-                                                : this.state.endTime
-                                        }
-                                        invalid={
-                                            this.state.valid.startTime ===
-                                            undefined
-                                                ? false
-                                                : !this.state.valid.startTime
-                                        }
-                                    />
-                                </InputGroup>
-                                <InputGroup className='col-12 px-0 my-1'>
-                                    <Label className='m-1 col-12'>
-                                        <h6>Days </h6>
-                                    </Label>
-                                    <Select
-                                        isClearable={true}
-                                        isMulti
-                                        className='w-100'
-                                        autosize={true}
-                                        placeholder='days'
-                                        value={this.state.days.map((e) => {
-                                            return { value: e, label: e };
-                                        })}
-                                        options={daysArray}
-                                        onChange={(e) => {
-                                            console.log(e);
-                                            this.handleChangeSelect("days", e);
-                                        }}
-                                    />
-                                </InputGroup>
-                            </FormGroup>
+                            <div>
+                                {this.state.availability.map((x, i) => (
+                                    <FormGroup className='row border-sm p-1 p-sm-0'>
+                                        <div className='col-12 row position-relative justify-content-between d-flex d-sm-none'>
+                                            <FontAwesomeIcon
+                                                icon={faTimes}
+                                                className=' mb-1 float-right ml-auto mr-1 mt-1'
+                                                size='sm'
+                                                style={{
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={(e) => {
+                                                    let availability = this
+                                                        .state.availability;
+                                                    availability.splice(i, 1);
+                                                    this.setState({
+                                                        availability: availability,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+
+                                        <div className='col-12 col-sm-4 row px-0'>
+                                            <InputGroup className='col-6 px-2 px-sm-0 my-1 pr-sm-1'>
+                                                <Label
+                                                    className='pr-2 col-12 mb-0'
+                                                    for='exampleDate'>
+                                                    <h6 className='mb-0 small-heading'>
+                                                        Start Time
+                                                    </h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='startTime'
+                                                    id='exampleTime'
+                                                    step='1800'
+                                                    placeholder='time placeholder'
+                                                    onChange={(e) => {
+                                                        this.handleChange(
+                                                            e,
+                                                            i,
+                                                            "startTime",
+                                                            "availability",
+                                                        );
+                                                    }}
+                                                    defaultValue={
+                                                        this.state.availability[
+                                                            i
+                                                        ] &&
+                                                        this.state.availability[
+                                                            i
+                                                        ].startTime
+                                                    }
+                                                    invalid={
+                                                        this.state.valid
+                                                            .startTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !this.state.valid
+                                                                  .startTime
+                                                    }
+                                                />
+                                            </InputGroup>
+                                            <InputGroup className='col-6 my-1 px-2 px-sm-0 pl-1'>
+                                                <Label
+                                                    className=' col-12 mb-0'
+                                                    for='exampleDate'>
+                                                    <h6 className='mb-0 small-heading'>
+                                                        End Time
+                                                    </h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='endTime'
+                                                    id='exampleTime'
+                                                    placeholder='time placeholder'
+                                                    className=''
+                                                    step='1800'
+                                                    onChange={(e) => {
+                                                        this.handleChange(
+                                                            e,
+                                                            i,
+                                                            "endTime",
+                                                            "availability",
+                                                        );
+                                                    }}
+                                                    defaultValue={
+                                                        this.state.availability[
+                                                            i
+                                                        ] &&
+                                                        this.state.availability[
+                                                            i
+                                                        ].endTime
+                                                    }
+                                                    invalid={
+                                                        this.state.valid
+                                                            .startTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !this.state.valid
+                                                                  .startTime
+                                                    }
+                                                />
+                                            </InputGroup>
+                                        </div>
+
+                                        <InputGroup className='col-12 col-sm-7 px-0 my-1 pl-sm-1 pl-sm-1'>
+                                            <Label
+                                                className='d-none d-sm-block col-12 mb-0 pl-sm-4'
+                                                for='exampleDate'>
+                                                <h6 className='mb-0 small-heading'>
+                                                    Days
+                                                </h6>
+                                            </Label>
+                                            {/* <Select
+                                                isClearable={true}
+                                                isMulti
+                                                className='w-100'
+                                                autosize={true}
+                                                placeholder='days'
+                                                value={
+                                                    this.state.availability[i]
+                                                        .days &&
+                                                    this.state.availability[
+                                                        i
+                                                    ].days.map((e) => {
+                                                        return {
+                                                            value: e,
+                                                            label: e,
+                                                        };
+                                                    })
+                                                }
+                                                options={daysArray}
+                                                onChange={(e) => {
+                                                    console.log(e);
+                                                    this.handleChangeSelect(
+                                                        "days",
+                                                        e,
+                                                        "availability",
+                                                        i,
+                                                    );
+                                                }}
+                                            /> */}
+                                            <ButtonGroup
+                                                className='col-12 row px-0 pl-sm-4 justify-content-center justify-content-sm-start'
+                                                size='sm'>
+                                                {weekdays.map((day, index) => (
+                                                    <div className='pr-1'>
+                                                        <Button
+                                                            size={"sm"}
+                                                            className='px-1 px-sm-2'
+                                                            color={
+                                                                this.state.availability[
+                                                                    i
+                                                                ].days.includes(
+                                                                    weekdays[
+                                                                        index
+                                                                    ],
+                                                                )
+                                                                    ? "success"
+                                                                    : "light"
+                                                            }
+                                                            onClick={(e) => {
+                                                                let links = this
+                                                                    .state
+                                                                    .availability;
+                                                                let obj =
+                                                                    links[i];
+
+                                                                if (
+                                                                    obj.days.includes(
+                                                                        weekdays[
+                                                                            index
+                                                                        ],
+                                                                    )
+                                                                ) {
+                                                                    obj.days.splice(
+                                                                        obj.days.indexOf(
+                                                                            weekdays[
+                                                                                index
+                                                                            ],
+                                                                        ),
+                                                                        1,
+                                                                    );
+                                                                } else
+                                                                    obj.days = [
+                                                                        ...obj.days,
+                                                                        weekdays[
+                                                                            index
+                                                                        ],
+                                                                    ];
+                                                                links[i] = obj;
+                                                                this.setState({
+                                                                    availability: links,
+                                                                });
+                                                            }}>
+                                                            {day.substring(
+                                                                0,
+                                                                3,
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </ButtonGroup>
+                                        </InputGroup>
+                                        <div className='col-sm-1 d-none d-sm-flex flex-column justify-content-end '>
+                                            <FontAwesomeIcon
+                                                icon={faTrash}
+                                                size='lg'
+                                                className='pt-3 text-danger mt-auto mb-0 ml-auto'
+                                                style={{
+                                                    cursor: "pointer",
+                                                    height: "100%",
+                                                }}
+                                                onClick={(e) => {
+                                                    let availability = this
+                                                        .state.availability;
+                                                    availability.splice(i, 1);
+                                                    this.setState({
+                                                        availability: availability,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                    </FormGroup>
+                                ))}
+                            </div>
+                        )}
+                        {this.state.locum && (
+                            <Button
+                                color='info'
+                                className='w-100 d-block d-sm-none'
+                                onClick={() => {
+                                    let availability = this.state.availability;
+                                    availability.push({
+                                        startTime: "",
+                                        endTime: "",
+                                        days: [],
+                                    });
+                                    this.setState({
+                                        availability: availability,
+                                    });
+                                }}>
+                                <FontAwesomeIcon
+                                    className='mr-1'
+                                    icon={faPlus}
+                                />
+                                Add Time Slot
+                            </Button>
                         )}
                     </div>
-                    <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>
-                        {this.state.loading ? (
-                            <Button
-                                // onClick={this.update}
-                                // className='w-25'
-                                size='lg'
-                                color='primary'>
-                                Uploading Image
-                                <div class='spinner-border ml-2' role='status'>
+                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-start'>
+                        {/* {this.state.loading ? (
+                            <Button disabled={true} color='primary'>
+                                <span className='my-auto'>Uploading File</span>
+
+                                <div
+                                    class='spinner-border spinner-border-sm ml-2 my-auto'
+                                    role='status'>
                                     {" "}
                                     <span class='sr-only'>Loading...</span>
                                 </div>
                             </Button>
-                        ) : (
-                            <Button
-                                onClick={this.update}
-                                // className='w-25'
-                                size='lg'
-                                color='primary'>
-                                Update
-                            </Button>
-                        )}
+                        ) : ( */}
+                        <Button
+                            onClick={this.update}
+                            // className='w-25'
+                            disabled={this.state.loading}
+                            color='primary'>
+                            Update Profile
+                        </Button>
+                        {/* )} */}
                     </div>
                 </div>
                 <Modal

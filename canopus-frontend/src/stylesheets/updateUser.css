@@ -1,0 +1,13 @@
+.small-heading {
+    font-size: .9em;
+}
+
+.small-checkbox {
+    font-size: .77rem
+}
+
+@media (min-width: 576px) {
+    .small-checkbox {
+        font-size: 1rem
+    }
+}

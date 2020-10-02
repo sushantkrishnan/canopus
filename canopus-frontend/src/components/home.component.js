@@ -3,17 +3,18 @@ import Select from "react-select";
 import "../stylesheets/home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import doctor from "../images/doctor.png";
-import data from "../data";
+
 import { Button, Alert } from "reactstrap";
 import { Redirect, Link } from "react-router-dom";
+import video from "../images/video.mp4";
 
 const Home = (props) => {
     let professionArray = [];
     console.log(props.data);
     if (props.data) {
-        professionArray = props.data.professions.map((opt) => ({
-            label: opt,
-            value: opt,
+        professionArray = props.data.specializations.map((opt) => ({
+            label: opt.profession,
+            value: opt.profession,
         }));
     }
     const profession = useRef(null);
@@ -21,7 +22,7 @@ const Home = (props) => {
     const [alert, setAlert] = useState(true);
     return (
         <div>
-            {props.location.search !== "" && (
+            {props.location && props.location.search !== "" && (
                 <Alert
                     color='danger'
                     className='mb-0'
@@ -36,9 +37,22 @@ const Home = (props) => {
                 </Alert>
             )}
             <div className='flex flex-column justify-content-between main-container'>
+                {/* <a
+                    href='https://canopus.blob.core.windows.net/mail-image/privacy_temp.html'
+                    target='_blank'>
+                    Privacy
+                </a> */}
                 <div
-                    className='main py-5 '
+                    className='main py-5 position-relative'
                     style={{ height: "100%", flexGrow: 1 }}>
+                    <video
+                        className='d-none d-sm-block'
+                        playsinline='playsinline'
+                        autoplay='autoplay'
+                        muted='muted'
+                        loop='loop'>
+                        <source src={video} type='video/mp4' />
+                    </video>
                     <h1
                         className='text-white px-2'
                         style={{ textAlign: "center" }}>

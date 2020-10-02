@@ -46,12 +46,7 @@ export default class Employer extends Component {
     toggleTab(tab) {
         if (this.state.activeTab !== tab) this.setState({ activeTab: tab });
     }
-    // componentDidMount() {
-    //     this.setState({
-    //         id: this.props.user ? this.props.user._id : null,
-    //     });
-    //     console.log(this.props);
-    // }
+
     render() {
         return (
             <div>
@@ -62,28 +57,14 @@ export default class Employer extends Component {
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
                                 className='p-1 p-sm-2 active-tab nav-link'
-                                to='/employer'
-                                // onClick={() => {
-                                //     this.toggleTab("1");
-                                // }}
-                                // className={`${
-                                //     this.state.activeTab === "1" && "active-tab"
-                                // } p-1 p-sm-2 tab`}
-                            >
+                                to='/employer'>
                                 <h6>Overview</h6>
                             </NavLink>
                         </NavItem>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
                                 className='nav-link p-1 p-sm-2 '
-                                to='/applications'
-                                // onClick={() => {
-                                //     this.toggleTab("2");
-                                // }}
-                                // className={`${
-                                //     this.state.activeTab === "2" && "active-tab"
-                                // } p-1 p-sm-2 tab`}
-                            >
+                                to='/applications'>
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem>
@@ -122,84 +103,6 @@ export default class Employer extends Component {
                     </div>
                 </Nav>
                 <Overview />
-                {/* <TabContent activeTab={this.state.activeTab}>
-                    <TabPane tabId='1'>
-                        <Row>
-                            <Col sm='12' className='px-0'>
-                                <Overview />
-                            </Col>
-                        </Row>
-                    </TabPane>
-                    <TabPane tabId='2'>
-                        <Row>
-                            <JobApplications />
-                        </Row>
-                    </TabPane>
-                </TabContent> */}
-                {/* <div
-                    className='row align-content-center'
-                    style={{ margin: "0" }}>
-                    <div
-                        className='col-12 col-lg-6 py-5 p-2'
-                        style={{
-                            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)),url(${bg1})`,
-                            backgroundAttachment: "contain",
-                            backgroundSize: "cover",
-                            backgroundRepeat: "no-repeat",
-                            backgroundPosition: "center",
-                        }}>
-                        <div
-                            className='col-12 '
-                            style={{ textAlign: "center" }}>
-                            <img
-                                src={job}
-                                className='img-fluid'
-                                alt=''
-                                style={{ maxWidth: "300px" }}
-                            />
-                        </div>
-                        <div
-                            className='col-12 mt-3'
-                            style={{ textAlign: "center" }}>
-                            <h1>Post a job</h1>
-                            <Link to='/post'>
-                                <Button outline='true' color='info'>
-                                    Post
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                    <div
-                        className='col-12 col-lg-6 py-5 p-2'
-                        style={{
-                            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),url(${bg2})`,
-                            backgroundAttachment: "contain",
-                            backgroundSize: "cover",
-                            backgroundRepeat: "no-repeat",
-                            backgroundPosition: "center",
-                        }}>
-                        <div
-                            className='col-12 '
-                            style={{ textAlign: "center" }}>
-                            <img
-                                src={applicants}
-                                className='img-fluid'
-                                alt=''
-                                style={{ maxWidth: "300px" }}
-                            />
-                        </div>
-                        <div
-                            className='col-12 mt-3'
-                            style={{ textAlign: "center" }}>
-                            <h1>View job applicants</h1>
-                            <Link to='/applications'>
-                                <Button outline='true' color='primary'>
-                                    View
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </div> */}
             </div>
         );
     }

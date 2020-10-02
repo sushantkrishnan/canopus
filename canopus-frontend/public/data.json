@@ -1,81 +1,325 @@
 {
+    "degrees": [
+        "MBBS",
+        "BAMS",
+        "BUMS",
+        "BHMS",
+        "BP&O",
+        "BASLP",
+        "B.OTh.",
+        "MD",
+        "MS",
+        "DNB",
+        "DM",
+        "FNB",
+        "Diploma",
+        "BDS",
+        "MDS",
+        "B.Sc.",
+        "M.Sc",
+        "M.Phil",
+        "PhD",
+        "B.Pth.",
+        "B.Pharm",
+        "M.Pharm",
+        "GNM",
+        "ANM",
+        "Certificate",
+        "MPT",
+        "MBA",
+        "B.Pharm. (Hons.)",
+        "B.Pharm + M.B.A.",
+        "MCh"
+    ],
+    "instituteType": [
+        "Government Hospital",
+        "Corporate Hospital",
+        "Multi-Speciality Hospital",
+        "Single-Speciality Hospital",
+        "Charitable Hospital",
+        "Medical College",
+        "Pathology Lab",
+        "Pharmaceutical",
+        "Other"
+    ],
+    "instituteSpecialty": [
+        "Multi-Speciality",
+        "Single Specialty"
+    ],
+    "speciality": [
+        "Multi Speciality Hospital",
+        "Single Speciality Hospital",
+        "Primary Health Care Center",
+        "Tertiary Care Institute",
+        "Single Speciality Diagnostic",
+        "Multi Speciality Diagnostic"
+    ],
+    "type": [
+        "Full time",
+        "Locum Position",
+        "Day Job",
+        "Part time",
+        "Freelance",
+        "Contract",
+        "Internhip",
+        "Paid Fellowship",
+        "Consultant"
+    ],
+    "locumtype": [
+        "Locum Position",
+        "Day Job"
+    ],
+    "jobtype": [
+        "Full time",
+        "Part time",
+        "Freelance",
+        "Contract",
+        "Internhip",
+        "Paid Fellowship",
+        "Consultant"
+    ],
+    "experience": [
+        "New Graduate",
+        "1-2 Years",
+        "2-5 Years",
+        "5-10 Years",
+        "0-15 Years",
+        "More than 15 Years"
+    ],
+    "incentive": [
+        "Accomodation for Self",
+        "Accomodation for Spouse",
+        "No Emergency Calls",
+        "Emergency Calls Only",
+        "Shift Duty",
+        "Fixed Hour Duty",
+        "Travel Allowance",
+        "Accomodation Allowance",
+        "Case-wise Incentives"
+    ],
     "professions": [
-        "Physician",
-        "Surgeon",
+        "Physician/Surgeon",
         "Dentist",
         "Nurse",
         "Therapist",
         "Technicians",
         "Pharmacist",
         "Medical Translator",
-        "Extra"
-    ],
-    "experience": [
-        "Any",
-        "0-2 Years",
-        "2-5 Years",
-        "5-10 Years",
-        "10-15 Years",
-        "15+ Years"
-    ],
-    "orgType": [
-        "Business organization",
-        "NGO",
-        "Pharmaceutical and Biotechnology Company",
-        "Government org",
-        "other"
-    ],
-    "speciality": [
-        "Multi Speciality Hospital",
-        "Single Speciality Hospital",
-        "Primary Health care center",
-        "tertiary care institute",
-        "single speciality diagnostic",
-        "multi speciality diagnostic"
+        "Dietician"
     ],
     "specializations": [
-        "Anaesthesiology",
-        "Ear, Nose and Throat",
-        "Biochemistry",
-        "General Surgery",
-        "Anatomy",
-        "Community Health",
-        "Ophthalmology",
-        "Dermatology",
-        "NEW"
-    ],
-    "incentive": [
-        "Accomadation for self",
-        "Accomadation for spouse",
-        "No emergency calls",
-        "Emergency calls only",
-        "Shift Duty",
-        "Fixed Hour Duty",
-        "Travel allowance",
-        "Accomadation allowance",
-        "Case wise incentive"
-    ],
-    "type": ["Day Job", "Locum Position", "Full-time", "Part-time"],
-    "superSpecialization": [
-        "Anaesthesiology",
-        "Ear, Nose and Throat",
-        "Biochemistry",
-        "General Surgery",
-        "Anatomy",
-        "Community Health",
-        "Ophthalmology",
-        "Dermatology"
-    ],
-    "tags": ["COVID", "Urgent", "Floods"],
-    "location": [{
-            "id": "1",
-            "name": "Mumbai",
-            "state": "Maharashtra"
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": [
+                "General Medicine",
+                "General Surgery",
+                "Pediatrics",
+                "Anaesthesia",
+                "Radiology",
+                "Psychiatry",
+                "Pathology",
+                "Pharmacology",
+                "Obstetrics and Gynecology",
+                "Orthopedic Surgery",
+                "Opthalmology",
+                "Biophysics",
+                "Community Health Admin",
+                "Dermatology",
+                "Emergency Critical Care",
+                "Family Medicine",
+                "Forensic Medicine",
+                "Geriatric Medicine",
+                "Microbiology",
+                "Nuclear Medicine",
+                "Otorhinolaryngology",
+                "Palliative Medicine",
+                "Physical Medicine Rehabilitation",
+                "Preventive Social Medicine",
+                "Radio Therapy",
+                "TB/Respiratory Diseases",
+                "Transfusion Medicine",
+                "Tropical Medicine",
+                "Sports Medicine"
+            ]
         },
         {
-            "id": "2",
-            "name": "Delhi",
-            "state": "Delhi"
+            "profession": "Dentist",
+            "specialization": [
+                "Operative Conservative Dentistry",
+                "Oral and Maxillofacial Surgery",
+                "Oral Medicine and Radiology",
+                "Oral Pathology",
+                "Orthodontia",
+                "Pedodontics and Preventive Surgery",
+                "Periodontia",
+                "Preventive and Social Dentistry",
+                "Prosthetic and Implantology"
+            ]
+        },
+        {
+            "profession": "Nurse",
+            "specialization": [
+                "Nursing"
+            ]
+        },
+        {
+            "profession": "Pharmacist",
+            "specialization": [
+                "Pharmacy"
+            ]
+        },
+        {
+            "profession": "Therapist",
+            "specialization": [
+                "Physiotherapy",
+                "Psychology"
+            ]
+        },
+        {
+            "profession": "Technicians",
+            "specialization": [
+                "CT Scan",
+                "Anesthesia",
+                "Laboratory",
+                "MRI",
+                "X-Ray",
+                "Dental Mechanics",
+                "Operation Theatre",
+                "Pathology",
+                "Optical Laboratory",
+                "Sleep Laboratory",
+                "Physiotherapy",
+                "Plaster",
+                "Renal Dialysis",
+                "Radiology"
+            ]
         }
+    ],
+    "superSpecializations": [
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": [
+                "Cardiology",
+                "Clinical Immunology and Rheumatology",
+                "Rheumatology",
+                "Endocrinology",
+                "Gastroenterology",
+                "Hepatology",
+                "Infectious Disease",
+                "Medical Genetics",
+                "Medical Oncology",
+                "Nephrology",
+                "Neurology",
+                "Paediatric Neurology",
+                "Pulmonary Medicine",
+                "Critical Care Medicine",
+                "Interventional Cardiology",
+                "Reproductive Medicine",
+                "Sports Medicine"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": [
+                "Endocrine Surgery",
+                "Head & Neck Surgery",
+                "Surgical Gastroenterology",
+                "HepatoPancreatto Billary Surgery",
+                "Neuro Surgery",
+                "Paediatrics Surgery",
+                "Plastic & Reconstructructive Surgery",
+                "Surgical Oncology",
+                "Urology",
+                "Peripheral Vascular Surgery",
+                "Cardio Vascular & Thoracic Surgery",
+                "Thoracic Surgery",
+                "Minimal Access Surgery"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": [
+                "Paediatric Neurology",
+                "Pediatric Hepatology",
+                "Pediatric Intensive Care",
+                "Paediatric Oncology",
+                "Paediatrics Gastroenterology",
+                "Neonatology",
+                "Pediatric Cardiology",
+                "Pediatric Hemato Oncology"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Anaesthesia",
+            "superSpecialization": [
+                "Cardiac Anaesthesia",
+                "Neuro Anaesthesia and Critical Care",
+                "Critical Care Medicine"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Radiology",
+            "superSpecialization": [
+                "Interventional Radiology",
+                "Endovascular and Interventional Radiology",
+                "Neuro-Radiology"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Psychiatry",
+            "superSpecialization": [
+                "Geriatric Mental Health"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pathology",
+            "superSpecialization": [
+                "Clinical Haematology",
+                "Hematology",
+                "Onco Pathology",
+                "Laboratory Medicine"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pharmacology",
+            "superSpecialization": [
+                "Clinical Pharmacology"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Obstetrics and Gynecology",
+            "superSpecialization": [
+                "Gynecological Oncology",
+                "Reproductive Medicine & Surgery",
+                "Pregnancy & Perinatology"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Orthopedic surgery",
+            "superSpecialization": [
+                "Hand & Micro Surgery",
+                "Spine Surgery"
+            ]
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Opthalmology",
+            "superSpecialization": [
+                "Vitreo Retinal Surgery"
+            ]
+        }
+    ],
+    "tags": [
+        "Covid-19"
     ]
 }

@@ -29,10 +29,10 @@ export default class Overview extends Component {
                 console.log(data);
                 this.setState({ employer: data });
             })
-            .catch(({ response }) => {
-                console.log(response);
-                if (response.data) {
-                    alert(response.data.err);
+            .catch((err) => {
+                console.log(err);
+                const response = err.response;
+                if (response && response.data) {
                     window.location = "/";
                 }
             });

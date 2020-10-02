@@ -40,3 +40,7 @@ a:hover {
     border: 1px solid #575757;
     border-radius: 0.5rem;
 }
+
+.tooltip.show {
+    opacity: 1;
+}

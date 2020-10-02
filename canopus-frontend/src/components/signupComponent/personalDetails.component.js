@@ -31,7 +31,9 @@ export default class PersonalDetails extends Component {
         return (
             <div>
                 {/* <NavbarComponent /> */}
-                <Form className=' p-4 p-lg-5 mx-4 mx-lg-5 m-3' style={block}>
+                <Form
+                    className='mx-2 mx-sm-4 p-3 p-sm-4 p-lg-5 m-1 m-sm-3'
+                    style={block}>
                     <h4>User Details</h4>
                     <FormGroup className='row'>
                         <div className='col-4 col-md-2 p-0 pr-1'>
@@ -72,7 +74,7 @@ export default class PersonalDetails extends Component {
                             <Input
                                 placeholder='Gender'
                                 type='select'
-                                onClick={() => {
+                                onChange={() => {
                                     this.props.handleChange("gender");
                                     console.log("dasdsas");
                                 }}

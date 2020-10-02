@@ -1,11 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Chivo:wght@400&famliy=Lobster&display=swap");
+html {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
 body {
     margin: 0;
     font-family: "Chivo", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    width: "100vw";
+    max-width: 100vw;
 }
 
 html[data-theme="dark"] {
@@ -35,7 +40,7 @@ input::-webkit-inner-spin-button {
 
 /* Firefox */
 
-input[type=number] {
+input[type="number"] {
     -moz-appearance: textfield;
 }
 
@@ -60,7 +65,7 @@ a:hover {
     border-radius: 0.25rem;
     border: 0.05rem solid lightgrey;
     /* background-color: rgba(0, 0, 0, 0.15); */
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3); */
     transition: 0.3s ease-in-out;
 }
 
@@ -145,9 +150,29 @@ th {
     }
 }
 
+.border-sm {
+    border: 0px solid transparent;
+}
+
+.block-sm {
+    border-radius: 0.25rem;
+    border: 0.05rem solid lightgrey;
+    transition: 0.3s ease-in-out;
+}
+
+@media (max-width: 575px) {
+    .border-sm {
+        border: 1px solid rgb(201, 201, 201);
+        border-radius: 0.2rem;
+    }
+    .block-sm {
+        border: 0px solid transparent;
+    }
+}
+
 .border-invalid {
     border: 1.4px solid #dc3545;
-    border-radius: .25rem
+    border-radius: 0.25rem;
 }
 
 .nav-tabs .nav-link:hover {
@@ -156,7 +181,7 @@ th {
 }
 
 .active-tab.nav-link.active {
-    border-color: transparent
+    border-color: transparent;
 }
 
 .active-tab {
@@ -168,4 +193,17 @@ th {
     border: transparent;
     /* border-bottom: 4px solid transparent; */
     transition: 0.1s ease-in-out;
+}
+
+.link {
+    color: #138496
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.btn-linkedin {
+    background-color: #0e76a8;
+    color: white
 }

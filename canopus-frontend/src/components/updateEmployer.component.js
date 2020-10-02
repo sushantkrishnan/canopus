@@ -92,6 +92,7 @@ export default class UpdateEmployer extends Component {
         this.uploadImage = this.uploadImage.bind(this);
         this.uploadLogo = this.uploadLogo.bind(this);
         this.toggleModalError = this.toggleModalError.bind(this);
+        this.getGeoLocation = this.getGeoLocation.bind(this);
     }
     toggleModalError() {
         this.setState({
@@ -199,6 +200,23 @@ export default class UpdateEmployer extends Component {
                 .catch(({ response }) => alert(response.err));
         }
     }
+    getGeoLocation() {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude,
+                    lng = position.coords.longitude;
+
+                this.setState({ lat, lng });
+            },
+            (err) => {
+                console.log(err);
+                this.setState({
+                    lat: 20,
+                    lng: 120,
+                });
+            },
+        );
+    }
     componentDidMount() {
         Axios.get("/api/employer/profile")
             .then(({ data }) => {
@@ -209,6 +227,7 @@ export default class UpdateEmployer extends Component {
                     this.setState({
                         id: user._id,
                     });
+                    if (!user.address.coordinates) this.getGeoLocation();
                     this.setState({
                         id: user._id,
                         // });
@@ -420,6 +439,49 @@ export default class UpdateEmployer extends Component {
         }
     }
     render() {
+        let orgTypeArray = [],
+            stateArray = [],
+            cityArray = [],
+            specialityArray = [];
+        let locationArray = {};
+        if (this.props.data) {
+            orgTypeArray = this.props.data.instituteType.map((degree) => {
+                return {
+                    value: degree,
+                    label: degree,
+                };
+            });
+            specialityArray = this.props.data.speciality.map((degree) => {
+                return {
+                    value: degree,
+                    label: degree,
+                };
+            });
+        }
+        if (this.props.locationData) {
+            stateArray = this.props.locationData.location.map((obj) => {
+                return obj.state;
+            });
+            stateArray = [...new Set(stateArray)];
+            cityArray = this.props.locationData.location.map((obj) => {
+                return obj.name;
+            });
+            for (let i = 0; i < stateArray.length; i++) {
+                locationArray[stateArray[i]] = [];
+            }
+            // console.log(locationArray);
+
+            this.props.locationData.location.forEach((obj) => {
+                locationArray[obj.state] = [
+                    ...locationArray[obj.state],
+                    obj.name,
+                ];
+            });
+
+            // console.log(locationArray);
+            // console.log(stateArray);
+            // console.log(cityArray);
+        }
         return (
             <div>
                 <Nav tabs className='justify-content-between '>
@@ -590,9 +652,7 @@ export default class UpdateEmployer extends Component {
                                                 ? "border-invalid"
                                                 : ""
                                         }
-                                        options={data.orgType.map((type) => {
-                                            return { label: type, value: type };
-                                        })}
+                                        options={orgTypeArray}
                                         onChange={(e) => {
                                             console.log(e);
                                             this.handleChangeSelect(
@@ -622,12 +682,7 @@ export default class UpdateEmployer extends Component {
                                                 : ""
                                         }
                                         placeholder='Organization Type'
-                                        value={
-                                            this.state.speciality !== "" && {
-                                                value: this.state.speciality,
-                                                label: this.state.speciality,
-                                            }
-                                        }
+                                        value={specialityArray}
                                         options={data.speciality.map((type) => {
                                             return { label: type, value: type };
                                         })}
@@ -715,7 +770,28 @@ export default class UpdateEmployer extends Component {
                                             onChange={this.handleChange}
                                             defaultValue={this.state.city}
                                             invalid={!this.state.valid.city}
+                                            list='cities'
                                         />
+                                        <datalist id='cities'>
+                                            {this.state.state === "" ||
+                                            !locationArray[this.state.state]
+                                                ? cityArray.length !== 0 &&
+                                                  cityArray.map((city) => (
+                                                      <option value={city}>
+                                                          {city}
+                                                      </option>
+                                                  ))
+                                                : locationArray[
+                                                      this.state.state
+                                                  ] &&
+                                                  locationArray[
+                                                      this.state.state
+                                                  ].map((city) => (
+                                                      <option value={city}>
+                                                          {city}
+                                                      </option>
+                                                  ))}
+                                        </datalist>
                                     </div>
                                 </FormGroup>
                                 <FormGroup>
@@ -731,7 +807,16 @@ export default class UpdateEmployer extends Component {
                                         invalid={!this.state.valid.state}
                                         // onChange={this.props.handleChange("email")}
                                         // defaultValue={values.email}
+                                        list='states'
                                     />
+                                    <datalist id='states'>
+                                        {stateArray.length !== 0 &&
+                                            stateArray.map((state) => (
+                                                <option value={state}>
+                                                    {state}
+                                                </option>
+                                            ))}
+                                    </datalist>
                                 </FormGroup>
                                 <FormGroup className='row '>
                                     <div className='col-12 col-sm-6 pr-1'>
@@ -759,7 +844,7 @@ export default class UpdateEmployer extends Component {
 
                             <div className='col-12 col-lg-6'>
                                 <FormGroup className='img-thumbnail'>
-                                    {this.state.lat && this.state.lng ? (
+                                    {this.state.lat && this.state.lng && (
                                         <InputMap
                                             setCoordinates={this.setCoordinates}
                                             coordinates={{
@@ -767,12 +852,13 @@ export default class UpdateEmployer extends Component {
                                                 lng: this.state.lng,
                                             }}
                                         />
-                                    ) : (
+                                    )}
+                                    {/* ) : (
                                         <InputMap
                                             setCoordinates={this.setCoordinates}
                                             coordinates={null}
                                         />
-                                    )}
+                                    )} */}
                                 </FormGroup>
                             </div>
                         </div>
@@ -789,7 +875,7 @@ export default class UpdateEmployer extends Component {
                                     type='number'
                                     placeholder='Number of beds'
                                     name='beds'
-                                    defaultValue={this.state.beds}
+                                    value={Number(this.state.beds)}
                                     onChange={this.handleChange}
                                     // defaultValue={`${this.state.beds}`}
                                 />
@@ -801,7 +887,7 @@ export default class UpdateEmployer extends Component {
                                     placeholder='Number of ICUs'
                                     name='ICUs'
                                     onChange={this.handleChange}
-                                    defaultValue={Number(this.state.ICUs)}
+                                    value={Number(this.state.ICUs)}
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
@@ -811,7 +897,7 @@ export default class UpdateEmployer extends Component {
                                     placeholder='Number of OTs'
                                     name='OTs'
                                     onChange={this.handleChange}
-                                    defaultValue={Number(this.state.OTs)}
+                                    value={Number(this.state.OTs)}
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
@@ -821,9 +907,7 @@ export default class UpdateEmployer extends Component {
                                     placeholder='Number of OTs'
                                     name='employeeCount'
                                     onChange={this.handleChange}
-                                    defaultValue={Number(
-                                        this.state.employeeCount,
-                                    )}
+                                    value={Number(this.state.employeeCount)}
                                 />
                             </div>
                         </FormGroup>

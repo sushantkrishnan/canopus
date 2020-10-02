@@ -19,7 +19,7 @@ export default class UserDetails extends Component {
         return (
             <div className='mx-0 mx-lg-5 px-0 px-lg-5'>
                 <Form
-                    className=' p-4 p-lg-5 mx-4 m-3 mx-lg-5'
+                    className='mx-2 mx-sm-4 p-3 p-sm-4 p-lg-5 m-1 m-sm-3'
                     style={block}
                     noValidate>
                     <h3>Sign Up</h3>

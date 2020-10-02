@@ -77,7 +77,9 @@ export default class Confirmation extends Component {
         return (
             <div>
                 {/* <NavbarComponent /> */}
-                <div className='mx-4 p-4 p-lg-5 m-3' style={block}>
+                <div
+                    className='mx-2 mx-sm-4 p-3 p-sm-4 p-lg-5 m-1 m-sm-3'
+                    style={block}>
                     <h3>Details</h3>
                     {/* <ListGroup style={{ background: "rgba(0,0,0,0)" }}>
                         <ListGroupItem>
@@ -111,28 +113,30 @@ export default class Confirmation extends Component {
                             </ListGroupItemText>
                         </ListGroupItem>
                     </ListGroup> */}
-                    <Table>
-                        <tr>
-                            <td>Name : </td>
-                            <td>{`${salutation} ${firstName} ${lastName}`}</td>
-                        </tr>
-                        <tr>
-                            <td>Gender : </td>
-                            <td>{`${gender}`}</td>
-                        </tr>
-                        <tr>
-                            <td>DOB : </td>
-                            <td>{`${dob}`}</td>
-                        </tr>
-                        <tr>
-                            <td>Address : </td>
-                            <td>{`${city}, ${pin}, ${state}, ${"India"}`}</td>
-                        </tr>
-                        <tr>
-                            <td>Email : </td>
-                            <td>{`${email}`}</td>
-                        </tr>
-                    </Table>
+                    <div className='table-responsive'>
+                        <Table>
+                            <tr>
+                                <td classname='text-align-left'>Name : </td>
+                                <td classname='text-align-left'>{`${salutation} ${firstName} ${lastName}`}</td>
+                            </tr>
+                            <tr>
+                                <td classname='text-align-left'>Gender : </td>
+                                <td classname='text-align-left'>{`${gender}`}</td>
+                            </tr>
+                            <tr>
+                                <td classname='text-align-left'>DOB : </td>
+                                <td classname='text-align-left'>{`${dob}`}</td>
+                            </tr>
+                            <tr>
+                                <td classname='text-align-left'>Address : </td>
+                                <td classname='text-align-left'>{`${city}, ${pin}, ${state}, ${"India"}`}</td>
+                            </tr>
+                            <tr>
+                                <td classname='text-align-left'>Email : </td>
+                                <td classname='text-align-left'>{`${email}`}</td>
+                            </tr>
+                        </Table>
+                    </div>
                     <div className='row justify-content-start  mx-auto mr-3 mt-2'>
                         <Button onClick={this.back} className='mr-1'>
                             Back

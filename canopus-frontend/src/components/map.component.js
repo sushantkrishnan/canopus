@@ -9,13 +9,13 @@ const InputMap = ({ setCoordinates, coordinates }) => {
     };
 
     const defaultCenter =
-        coordinates === null
+        coordinates.lng === null
             ? {
-                  lat: 120.4,
+                  lat: 20.4,
                   lng: 120.7,
               }
             : coordinates;
-    const [currentPosition, setCurrentPosition] = useState(coordinates);
+    const [currentPosition, setCurrentPosition] = useState(defaultCenter);
 
     const success = (position) => {
         const currentPosition = {
@@ -26,16 +26,16 @@ const InputMap = ({ setCoordinates, coordinates }) => {
         setCoordinates(currentPosition);
         setCurrentPosition(currentPosition);
     };
-    useEffect(() => {
-        console.log(coordinates);
-        if (!coordinates) {
-            navigator.geolocation.getCurrentPosition(success, (err) => {
-                console.log(err);
-                setCurrentPosition({ lat: 29.4, lng: 77.7 });
-                setCoordinates({ lat: 29.4, lng: 77.7 });
-            });
-        }
-    }, []);
+    // useEffect(() => {
+    //     console.log(coordinates);
+    //     if (!coordinates) {
+    //         navigator.geolocation.getCurrentPosition(success, (err) => {
+    //             console.log(err);
+    //             setCurrentPosition({ lat: 29.4, lng: 77.7 });
+    //             setCoordinates({ lat: 29.4, lng: 77.7 });
+    //         });
+    //     }
+    // }, []);
     const onMarkerDragEnd = (e) => {
         const lat = e.latLng.lat();
         const lng = e.latLng.lng();

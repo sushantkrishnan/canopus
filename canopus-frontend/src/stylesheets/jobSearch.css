@@ -54,7 +54,7 @@
     border-radius: 0.25rem;
     border: 0.15rem solid #17a2b8;
     /* background-color: rgba(0, 0, 0, 0.15); */
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3); */
     transition: 0.3s ease-in-out;
 }
 
@@ -64,7 +64,7 @@
     
     box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
     transition: 0.3s ease-in-out; */
-    border: 0.12rem solid rgb(150, 150, 150);
+    /* border: 0.12rem solid rgb(150, 150, 150); */
     box-shadow: 5px 5px 7px rgba(2, 160, 152, 0.555);
     transition: 0.2s ease-in-out;
     /* transform: scale(1.0001); */
@@ -99,7 +99,7 @@
     background: rgb(161, 161, 161);
     border-radius: 40px;
     position: relative;
-    transition: background-color .2s;
+    transition: background-color 0.2s;
     transform: scale(0.8);
 }
 
@@ -110,7 +110,7 @@
 }
 
 .react-switch-label .react-switch-button {
-    content: '';
+    content: "";
     position: absolute;
     top: 2px;
     left: 2px;
@@ -163,9 +163,11 @@ width: 110px;
 }
 */
 
+
+/* 
 .job-found {
-    padding-top: .94rem;
-    font-size: 1.25rem
+    padding-top: 0.94rem;
+    font-size: 1.25rem;
 }
 
 @media (max-width: 576px) {
@@ -173,4 +175,21 @@ width: 110px;
         padding-top: 0.5rem;
         font-size: 1.2rem;
     }
+} */
+
+div.custom-control-right {
+    padding-right: 24px;
+    padding-left: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+div.custom-control-right .custom-control-label::after {
+    right: -1.5rem;
+    left: auto;
+}
+
+div.custom-control-right .custom-control-label::before {
+    right: -2.35rem;
+    left: auto;
 }

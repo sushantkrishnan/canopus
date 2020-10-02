@@ -13,12 +13,13 @@ const block = {
     transition: "0.3s ease-in-out",
 };
 
-export default class Test extends Component {
+export default class EnterPassword extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            password: "",
             email: "",
+            password: "",
+            role: null,
         };
         this.handleChange = this.handleChange.bind(this);
         this.signUp = this.signUp.bind(this);
@@ -31,21 +32,34 @@ export default class Test extends Component {
     signUp(e) {
         e.preventDefault();
         const employer = {
-            username: this.state.email,
             password: this.state.password,
         };
         console.log(employer);
-        // Axios.post(`/api/employer`, employer)
-        //     .then((data) => {
-        //         console.log(data);
-        //         if (data.status === 200) {
-        //             window.location = "/employer/update";
-        //         }
-        //     })
-        //     .catch(({ response }) => {
-        //         console.log(response);
-        //         alert(response.data.err.message);
-        //     });
+        const token = window.location.pathname.split("/")[3];
+        Axios.put(`/api/${this.state.role}/forgot/${token}`, employer)
+            .then((data) => {
+                console.log(data);
+                if (data.status === 200) {
+                    console.log("200");
+                    window.location =
+                        this.state.role === "employer"
+                            ? "/employer/update"
+                            : "/search-jobs";
+                }
+            })
+            .catch((data) => {
+                console.log(data);
+                const { response } = data;
+                console.log(response);
+
+                if (response && response.data && response.data.err)
+                    alert(response.data.err.message);
+            });
+    }
+    componentDidMount() {
+        console.log(window.location.pathname.split("/"));
+        const role = window.location.pathname.split("/")[1];
+        this.setState({ role });
     }
     render() {
         return (
@@ -55,19 +69,9 @@ export default class Test extends Component {
                     style={block}
                     onSubmit={this.signUp}>
                     <FormGroup>
-                        <h4>Sign Up</h4>
+                        <h4>Enter New Password</h4>
                     </FormGroup>
 
-                    <FormGroup>
-                        <Label>Email</Label>
-                        <Input
-                            type='email'
-                            placeholder='Email Address'
-                            name='email'
-                            onChange={this.handleChange}
-                            required
-                        />
-                    </FormGroup>
                     <FormGroup>
                         <Label>Password</Label>
                         <Input
@@ -78,9 +82,10 @@ export default class Test extends Component {
                             required
                         />
                     </FormGroup>
+
                     <div className=' d-flex justify-content-end'>
                         <Button type='submit' color='primary'>
-                            Sign Up
+                            Reset Password
                         </Button>
                     </div>
                 </Form>
