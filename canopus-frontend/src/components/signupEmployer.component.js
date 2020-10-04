@@ -11,6 +11,7 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
+    Alert,
 } from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,37 +35,21 @@ export default class SignupEmployer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            firstName: "",
-            lastName: "",
             password: "",
             recaptcha: "",
             email: "",
-            line: "",
-            pin: "",
-            city: "",
-            state: "",
-            links: [""],
-            youtube: [""],
-            image: [],
-            about: "",
-            about2: "",
-            employeeCount: 0,
-            noLinks: 1,
-            noYoutube: 1,
-            lat: null,
-            lng: null,
-            validate: {
-                // email: false,
-                // password: false,
-            },
+            validate: {},
             Errormodal: false,
             ErrorModalMess: "",
+            showError: false,
+            error: "",
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeRecaptcha = this.handleChangeRecaptcha.bind(this);
         this.signUp = this.signUp.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
         this.check = this.check.bind(this);
+        this.recaptcha = React.createRef(null);
         this.toggleErrorModal = this.toggleErrorModal.bind(this);
     }
     toggleErrorModal() {
@@ -129,37 +114,41 @@ export default class SignupEmployer extends Component {
     }
     async signUp(e) {
         e.preventDefault();
-        let token;
+
+        const employer = {
+            username: this.state.email,
+            password: this.state.password,
+            captcha: this.state.recaptcha,
+        };
+        console.log(employer);
+        if (this.state.validate.email && this.state.validate.password)
+            Axios.post(`/api/employer`, employer)
+                .then((data) => {
+                    console.log(data);
+                    if (data.status === 200)
+                        window.location = "/employer/verify";
+                })
+                .catch((err) => {
+                    console.log(err);
+                    let response = err.response;
+                    console.log(response);
+                    if (response && response.data && response.data.err)
+                        this.setState({
+                            showError: true,
+                            error: response.data.err.message,
+                        });
+                    this.recaptcha.current.reset();
+                    this.recaptcha.current.execute();
+                });
+    }
+    async componentDidMount() {
         try {
-            token = await this.recaptcha.current.executeAsync();
-            const employer = {
-                username: this.state.email,
-                password: this.state.password,
-                captcha: token,
-            };
-            console.log(employer);
-            if (this.state.validate.email && this.state.validate.password)
-                Axios.post(`/api/employer`, employer)
-                    .then((data) => {
-                        console.log(data);
-                        if (data.status === 200)
-                            window.location = "/employer/verify";
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        let response = err.response;
-                        console.log(response);
-                        if (response && response.data && response.data.err)
-                            this.setState({
-                                ErrorModalMess: response.data.err.message,
-                                Errormodal: true,
-                            });
-                    });
+            const token = await this.recaptcha.current.executeAsync();
+            this.setState({ recaptcha: token });
         } catch (e) {
-            console.log(e);
             this.setState({
-                Errormodal: true,
-                ErrorModalMessage: "Captcha problem",
+                showError: true,
+                error: "Captcha problem",
             });
         }
     }
@@ -191,7 +180,14 @@ export default class SignupEmployer extends Component {
                         </NavItem>
                     </div>
                 </Nav>
-
+                <Alert
+                    color='danger'
+                    isOpen={this.state.showError}
+                    toggle={() => {
+                        this.setState({ showError: false });
+                    }}>
+                    {this.state.error}
+                </Alert>
                 <div className='row m-1 m-sm-2 '>
                     <Form
                         className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4 '
@@ -241,7 +237,7 @@ export default class SignupEmployer extends Component {
                             />
                         </FormGroup>
                         <ReCAPTCHA
-                            sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
+                            sitekey={`${process.env.REACT_APP_CAPTCHA_INVISIBLE}`}
                             name='recaptcha'
                             size='invisible'
                             badge='bottomleft'

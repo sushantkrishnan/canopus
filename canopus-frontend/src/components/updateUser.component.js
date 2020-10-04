@@ -13,6 +13,7 @@ import {
     ModalHeader,
     ModalBody,
     ButtonGroup,
+    Alert,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../stylesheets/updateUser.css";
@@ -64,7 +65,7 @@ export default class UpdateUser extends Component {
             salutation: "",
             firstName: "",
             lastName: "",
-            gender: "",
+            gender: "Male",
             dob: "",
             email: "",
             phone: null,
@@ -112,6 +113,8 @@ export default class UpdateUser extends Component {
             ICUs: 0,
             modalError: false,
             modalMess: "",
+            showError: false,
+            resumeError: "",
             valid: {
                 organization: true,
                 type: true,
@@ -184,7 +187,7 @@ export default class UpdateUser extends Component {
     }
 
     handleChange(e, index, name, type) {
-        e.preventDefault();
+        // e.preventDefault();
         if (index !== undefined) {
             let links = this.state[type];
             let obj = links[index];
@@ -206,7 +209,7 @@ export default class UpdateUser extends Component {
                     [e.target.name]: e.target.value !== "",
                 },
             });
-        e.preventDefault();
+        // e.preventDefault();
     }
 
     uploadResume(e) {
@@ -221,24 +224,31 @@ export default class UpdateUser extends Component {
             // console.log(file);
             // console.log(file.type.split("."));
             if (
-                !["pdf", "doc", "docx", "docs", "rtf"].includes(
-                    file.name.split(".")[1],
-                )
+                !["pdf", "doc", "docx", "rtf"].includes(file.name.split(".")[1])
             ) {
                 this.setState({
-                    modalError: true,
-                    modalMess: "Invalid file type",
+                    // modalError: true,
+                    // modalMess: "Invalid file type",
                     loading: false,
+                    showError: true,
+                    resumeError:
+                        "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                 });
                 return;
-            }
-            if (file.size >= 5000000) {
+            } else if (file.size >= 5000000) {
                 this.setState({
-                    modalError: true,
-                    modalMess: "File size should be less than 5MB",
+                    // modalError: true,
+                    // modalMess: "File size should be less than 5MB",
                     loading: false,
+                    showError: true,
+                    resumeError:
+                        "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                 });
                 return;
+            } else {
+                this.setState({
+                    showError: false,
+                });
             }
             console.log("chal rha h");
             let reader = new FileReader();
@@ -271,6 +281,7 @@ export default class UpdateUser extends Component {
                                         prevResume: "",
                                         loading: false,
                                         uploadingLogo: false,
+                                        showError: false,
                                     });
                                     // this.update();
                                     this.setState({ uploaded: true });
@@ -280,8 +291,9 @@ export default class UpdateUser extends Component {
                         .catch((e) => console.log(e));
                 else {
                     this.setState({
-                        modalError: true,
-                        modalMess: "File should be less than 5 MB",
+                        showError: true,
+                        resumeError:
+                            "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                         uploading: false,
                         loading: false,
                     });
@@ -396,15 +408,19 @@ export default class UpdateUser extends Component {
                 if (user) {
                     this.setState({
                         id: user._id,
+                        username: user.username,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
                     });
                     this.setState({
-                        username: user.username,
                         id: user._id,
-                        title: user.title,
+                        username: user.username,
                         firstName: user.firstName,
-                        logo: user.image,
                         lastName: user.lastName,
+                        title: user.title,
                         gender: user.gender,
+                        logo: user.image,
+
                         dob: user.dob,
                         profession:
                             user.profession === undefined
@@ -418,7 +434,6 @@ export default class UpdateUser extends Component {
                         city: user.address.city,
                         state: user.address.state,
                         education: user.education,
-                        username: user.username,
 
                         email:
                             user.email && user.email !== ""
@@ -864,12 +879,8 @@ export default class UpdateUser extends Component {
                                         <Input
                                             placeholder='email'
                                             name='email'
-                                            onChange={this.handleChange}
-                                            defaultValue={
-                                                this.state.username !== ""
-                                                    ? this.state.username
-                                                    : this.state.email
-                                            }
+                                            // onChange={this.handleChange}
+                                            value={this.state.username}
                                             disabled={true}
                                         />
                                     </div>
@@ -1013,6 +1024,7 @@ export default class UpdateUser extends Component {
                                 <Button
                                     color='info'
                                     size='sm'
+                                    disabled={this.state.education.length > 4}
                                     onClick={() => {
                                         if (this.state.education.length <= 4) {
                                             let education = this.state
@@ -1321,6 +1333,7 @@ export default class UpdateUser extends Component {
                                 color='info'
                                 className='w-100'
                                 size='sm'
+                                disabled={this.state.education.length > 4}
                                 onClick={() => {
                                     let education = this.state.education;
                                     education.push({
@@ -1360,7 +1373,21 @@ export default class UpdateUser extends Component {
                                 </h6>
                             ) : (
                                 <div className='col-12 row justify-content-start'>
-                                    <div className=' pl-0 pr-0'>
+                                    <div className='pr-1 pl-0'>
+                                        {this.state.resume !== undefined &&
+                                            this.state.resume !== "" && (
+                                                <a
+                                                    href={`${this.state.resume}`}
+                                                    className='btn btn-info '>
+                                                    View Resume
+                                                    <FontAwesomeIcon
+                                                        className='ml-2'
+                                                        icon={faFileAlt}
+                                                    />
+                                                </a>
+                                            )}
+                                    </div>
+                                    <div className=' pr-0 pl-1'>
                                         <div
                                             className='position-relative'
                                             style={{
@@ -1396,28 +1423,34 @@ export default class UpdateUser extends Component {
                                                 className='p-0 file'
                                                 id='file'
                                                 type='file'
-                                                accept='.pdf,.doc,.docx,.docs,.rtf'
+                                                accept='.pdf,.doc,.docx,.rtf'
                                                 onChange={this.uploadResume}
                                                 ref={this.resume}
                                             />
                                         </div>
                                     </div>
-                                    <div className='pl-1 pr-0'>
-                                        {this.state.resume !== undefined &&
-                                            this.state.resume !== "" && (
-                                                <a
-                                                    href={`${this.state.resume}`}
-                                                    className='btn btn-info '>
-                                                    View Resume
-                                                    <FontAwesomeIcon
-                                                        className='ml-2'
-                                                        icon={faFileAlt}
-                                                    />
-                                                </a>
-                                            )}
+                                    <div
+                                        className='pl-3 my-auto text-black-50'
+                                        style={{ height: "max-content" }}>
+                                        Files Allowed: docx, doc, rtf, pdf, upto
+                                        5MB in size
                                     </div>
                                 </div>
                             )}
+
+                            {this.state.showError && (
+                                <div className='my-1 mt-3 col-12 text-danger'>
+                                    {this.state.resumeError}
+                                </div>
+                            )}
+                            {/* <Alert
+                                color='danger'
+                                isOpen={this.state.showError}
+                                toggle={() => {
+                                    this.setState({ showError: false });
+                                }}>
+                                {this.state.resumeError}
+                            </Alert> */}
                             {this.state.progress !== 1 &&
                                 this.state.progress !== 0 && (
                                     <div className='my-1 mt-3 col-12'>
@@ -1472,6 +1505,9 @@ export default class UpdateUser extends Component {
                                     <Button
                                         color='info'
                                         size='sm'
+                                        disabled={
+                                            this.state.availability.length > 4
+                                        }
                                         onClick={() => {
                                             let availability = this.state
                                                 .availability;
@@ -1728,6 +1764,7 @@ export default class UpdateUser extends Component {
                             <Button
                                 color='info'
                                 className='w-100 d-block d-sm-none'
+                                disabled={this.state.availability.length > 4}
                                 onClick={() => {
                                     let availability = this.state.availability;
                                     availability.push({

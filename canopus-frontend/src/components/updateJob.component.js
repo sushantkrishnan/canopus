@@ -225,7 +225,8 @@ const UpdateJob = (props) => {
                 (item) => item === true,
             );
             if (isValid) {
-                setModal(!modal);
+                if (e === "save") save();
+                else setModal(!modal);
             } else {
                 setModalError(true);
                 setMessError("Please fill all the fields !");
@@ -605,7 +606,7 @@ const UpdateJob = (props) => {
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) {
-                    setMessError("Updated Successfully !");
+                    setMessError("Saved Successfully !");
                     toggleError();
                     window.location = "/applications";
                 }
@@ -623,7 +624,7 @@ const UpdateJob = (props) => {
                 // alert("Unable to save job : " + error);
                 err.response && err.response.data
                     ? setMessError(err.response.data.err)
-                    : setMessError("Error updating job");
+                    : setMessError("Error saving job");
 
                 toggleError();
             });
@@ -642,7 +643,7 @@ const UpdateJob = (props) => {
             profession: profession,
             specialization: specialization,
             superSpecialization: superSpecialization,
-            sponsored: sponsored,
+            // sponsored: sponsored,
             // instituteName: employer,
 
             description: {
@@ -905,6 +906,7 @@ const UpdateJob = (props) => {
                                     className='form-control'
                                     ref={titleRef}
                                     name='Title'
+                                    maxLength={100}
                                     defaultValue={title}
                                     onChange={handleChange}
                                     invalid={
@@ -1032,6 +1034,7 @@ const UpdateJob = (props) => {
                                 </Label>
                                 <Select
                                     autosize={true}
+                                    isDisabled={jobType === "post"}
                                     isClearable={true}
                                     placeholder='Profession'
                                     value={
@@ -1072,6 +1075,7 @@ const UpdateJob = (props) => {
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Specialization'
+                                    isDisabled={jobType === "post"}
                                     value={
                                         specialization !== ""
                                             ? {
@@ -1210,6 +1214,11 @@ const UpdateJob = (props) => {
                                         options={incentivesArray}
                                         // className='basic-multi-select'
                                         // classNamePrefix='select'
+
+                                        isDisabled={
+                                            type === "Day Job" ||
+                                            type === "Locum Position"
+                                        }
                                         ref={incentivesRef}
                                         name='Incentives'
                                         defaultValue={incentives}
@@ -1365,7 +1374,7 @@ const UpdateJob = (props) => {
                                         placeholder='Contact'
                                         className='form-control'
                                         name='Contact'
-                                        defaultValue={contact}
+                                        value={contact}
                                         onChange={handleChange}
                                         invalid={
                                             valid.contact === undefined
@@ -1377,7 +1386,7 @@ const UpdateJob = (props) => {
                                 </InputGroup>
                             </div>
 
-                            <div className='col-12 row justify-content-between'>
+                            {/* <div className='col-12 row justify-content-between'>
                                 <Label className='my-2 col-9 text-align-left m-1'>
                                     <Input
                                         type='checkbox'
@@ -1397,7 +1406,7 @@ const UpdateJob = (props) => {
                                         <h5 className='ml-2 my-1'>Promote</h5>
                                     </span>
                                 </Label>
-                            </div>
+                            </div> */}
                         </FormGroup>
                     )}
                 </div>
@@ -1797,7 +1806,7 @@ const UpdateJob = (props) => {
                             <Button
                                 onClick={(e) => {
                                     setMess("save");
-                                    toggle();
+                                    toggle("save");
                                 }}
                                 className='w-100'
                                 color='info'>

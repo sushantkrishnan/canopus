@@ -8,7 +8,7 @@ import {
     faLinkedin,
 } from "@fortawesome/free-brands-svg-icons";
 import { Link, NavLink } from "react-router-dom";
-import { Modal, ModalHeader, ModalBody, NavItem, Nav } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, NavItem, Nav, Alert } from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import ReactGA from "react-ga";
 
@@ -29,6 +29,8 @@ export default class LoginEmployer extends Component {
             recaptcha: "",
             modal: false,
             message: "",
+            showError: false,
+            error: "Invalid Credentials",
         };
         this.handleChange = this.handleChange.bind(this);
         this.submitEmployer = this.submitEmployer.bind(this);
@@ -65,12 +67,7 @@ export default class LoginEmployer extends Component {
                 .then((newuser) => {
                     console.log(newuser.data.employer);
                     this.props.setUser(newuser.data.employer);
-                    ReactGA.event({
-                        category: "Employer",
-                        action: "loggedin",
-                        id: `${newuser.data.employer._id}`,
-                    });
-                    this.props.history.push("/employer");
+                    this.props.history.push("/analytics");
                 })
                 .catch((err) => {
                     console.log(err);
@@ -82,12 +79,13 @@ export default class LoginEmployer extends Component {
                         err.response.data.err
                     )
                         this.setState({
-                            modal: true,
-                            message:
-                                err.response.data.err === ""
+                            showError: true,
+                            error:
+                                err.response.data.err.message === ""
                                     ? "Invalid login"
-                                    : err.response.data.err,
+                                    : err.response.data.err.message,
                         });
+                    // this.recaptcha.reset();
                 });
         } catch (e) {
             console.log(e);
@@ -118,22 +116,32 @@ export default class LoginEmployer extends Component {
                         err.response.data.err
                     )
                         this.setState({
-                            modal: true,
-                            message:
-                                err.response.data.err === ""
+                            showError: true,
+                            error:
+                                err.response.data.err.message === ""
                                     ? "Invalid login"
-                                    : err.response.data.err,
+                                    : err.response.data.err.message,
                         });
+                    this.recaptcha.reset();
                 });
         }
     }
-    componentDidMount() {
+    async componentDidMount() {
         if (this.props.location.search !== "") {
             console.log(this.props.location.search.split("=")[1]);
             const err = this.props.location.search.split("=")[1];
             this.setState({
                 modal: true,
                 message: err === "" ? "Unable to login" : err,
+            });
+        }
+        try {
+            const token = await this.recaptcha.current.executeAsync();
+            this.setState({ recaptcha: token });
+        } catch (e) {
+            this.setState({
+                modal: true,
+                message: "Captcha problem",
             });
         }
     }
@@ -168,7 +176,14 @@ export default class LoginEmployer extends Component {
                         </NavItem>
                     </div>
                 </Nav>
-
+                <Alert
+                    color='danger'
+                    isOpen={this.state.showError}
+                    toggle={() => {
+                        this.setState({ showError: false });
+                    }}>
+                    {this.state.error}
+                </Alert>
                 <div className='row m-1 m-sm-2'>
                     <div
                         className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4'
@@ -246,7 +261,9 @@ export default class LoginEmployer extends Component {
                                     <FontAwesomeIcon icon={faLinkedin} />
                                     &nbsp; Linkedin
                                 </a>
-                                <a href='/' className='btn btn-danger mx-2'>
+                                <a
+                                    href='/auth/google/user'
+                                    className='btn btn-danger mx-2'>
                                     <FontAwesomeIcon icon={faGoogle} />
                                     &nbsp; Google
                                 </a>

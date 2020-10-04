@@ -130,7 +130,9 @@ export default class Overview extends Component {
                                                     {this.state.employer
                                                         .jobtier &&
                                                         this.state.employer
-                                                            .jobtier.posted}
+                                                            .jobtier.posted -
+                                                            this.state.employer
+                                                                .jobtier.closed}
                                                 </td>
                                                 <td>
                                                     {this.state.employer
@@ -158,7 +160,10 @@ export default class Overview extends Component {
                                                         .freelancetier &&
                                                         this.state.employer
                                                             .freelancetier
-                                                            .posted}
+                                                            .posted -
+                                                            this.state.employer
+                                                                .freelancetier
+                                                                .closed}
                                                 </td>
                                                 <td>
                                                     {this.state.employer
@@ -188,7 +193,10 @@ export default class Overview extends Component {
                                                     {this.state.employer
                                                         .locumtier
                                                         ? this.state.employer
-                                                              .locumtier.posted
+                                                              .locumtier
+                                                              .posted -
+                                                          this.state.employer
+                                                              .locumtier.closed
                                                         : 0}
                                                 </td>
                                                 <td>
@@ -213,17 +221,34 @@ export default class Overview extends Component {
                                                 <th
                                                     scope='row'
                                                     className='text-align-left'>
-                                                    Sponsored
+                                                    Promoted
                                                 </th>
                                                 <td>
                                                     {this.state.employer
                                                         .sponsors
                                                         ? this.state.employer
+                                                              .sponsors.posted -
+                                                          this.state.employer
+                                                              .sponsors.closed
+                                                        : "-"}
+                                                </td>
+                                                <td>
+                                                    {this.state.employer
+                                                        .sponsors
+                                                        ? this.state.employer
+                                                              .sponsors.closed
+                                                        : "-"}
+                                                </td>
+                                                <td>
+                                                    {this.state.employer
+                                                        .sponsors
+                                                        ? this.state.employer
+                                                              .sponsors
+                                                              .allowed -
+                                                          this.state.employer
                                                               .sponsors.posted
                                                         : "-"}
                                                 </td>
-                                                <td>0</td>
-                                                <td>0</td>
                                             </tr>
                                         </tbody>
                                     </Table>
@@ -374,7 +399,9 @@ export default class Overview extends Component {
                                             <td>
                                                 {this.state.employer.jobtier &&
                                                     this.state.employer.jobtier
-                                                        .posted}
+                                                        .posted -
+                                                        this.state.employer
+                                                            .jobtier.closed}
                                             </td>
                                             <td>
                                                 {this.state.employer.jobtier &&
@@ -399,7 +426,10 @@ export default class Overview extends Component {
                                                 {this.state.employer
                                                     .freelancetier &&
                                                     this.state.employer
-                                                        .freelancetier.posted}
+                                                        .freelancetier.posted -
+                                                        this.state.employer
+                                                            .freelancetier
+                                                            .closed}
                                             </td>
                                             <td>
                                                 {this.state.employer
@@ -426,7 +456,9 @@ export default class Overview extends Component {
                                             <td>
                                                 {this.state.employer.locumtier
                                                     ? this.state.employer
-                                                          .locumtier.posted
+                                                          .locumtier.posted -
+                                                      this.state.employer
+                                                          .locumtier.closed
                                                     : 0}
                                             </td>
                                             <td>
@@ -453,14 +485,23 @@ export default class Overview extends Component {
                                             <td>
                                                 {this.state.employer.sponsors
                                                     ? this.state.employer
-                                                          .sponsors.posted
+                                                          .sponsors.posted -
+                                                      this.state.employer
+                                                          .sponsors.closed
                                                     : "-"}
                                             </td>
-                                            <td>0</td>
                                             <td>
                                                 {this.state.employer.sponsors
                                                     ? this.state.employer
-                                                          .sponsors.allowed
+                                                          .sponsors.closed
+                                                    : "-"}
+                                            </td>
+                                            <td>
+                                                {this.state.employer.sponsors
+                                                    ? this.state.employer
+                                                          .sponsors.allowed -
+                                                      this.state.employer
+                                                          .sponsors.posted
                                                     : "-"}
                                             </td>
                                         </tr>

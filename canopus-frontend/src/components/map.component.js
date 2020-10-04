@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 const InputMap = ({ setCoordinates, coordinates }) => {
     console.log("coordinates");
-    console.log(coordinates);
+    // console.log(coordinates);
     const mapStyles = {
         height: "370px",
         width: "100%",

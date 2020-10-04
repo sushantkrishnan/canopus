@@ -79,11 +79,12 @@ const BounceIn = styled.div`
 `;
 
 const Badges = ({ desc, superSpecialization }) => {
-    const superSp = superSpecialization ? superSpecialization : [];
+    const superSp = superSpecialization ? superSpecialization : "";
     let badges = [];
     if (desc && desc.type && desc.incentives)
-        badges = [desc.experience, ...desc.incentives, ...superSp];
-    const number = badges.length - 5;
+        badges = [desc.experience, ...desc.incentives, superSp];
+    const number = badges.length - 3;
+    console.log(badges);
     badges = badges.slice(0, 3);
     // console.log(badges);
 
@@ -161,7 +162,9 @@ const Job = ({ job, userId, user }) => {
                             <Media heading>
                                 <h6 className='text-info'>
                                     {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                    {job.instituteName
+                                    {job.author && job.author.instituteName
+                                        ? job.author.instituteName
+                                        : job.instituteName
                                         ? job.instituteName
                                         : job.description &&
                                           job.description.company

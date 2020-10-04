@@ -428,6 +428,7 @@ const PostJob = (props) => {
                 setCurrentEmployer(data.user);
                 if (data.user && data.user.acceptedApplicants)
                     setTempArr(data.user.acceptedApplicants);
+                if (data.user) setContact(data.user.phone);
             })
             .catch((err) => console.log(err));
         console.log("====================================");
@@ -1225,7 +1226,7 @@ const PostJob = (props) => {
                                         placeholder='Contact'
                                         className='form-control'
                                         name='Contact'
-                                        defaultValue={
+                                        value={
                                             contact === ""
                                                 ? currentEmployer &&
                                                   currentEmployer.phone
@@ -1433,14 +1434,15 @@ const PostJob = (props) => {
                                                 </Label>
                                                 {/* <Label for='exampleTime'>Time</Label> */}
 
-                                                <Input
+                                                <input
                                                     type='time'
                                                     name='StartTime'
-                                                    id='exampleTime'
+                                                    className='exampleTime'
                                                     placeholder='time placeholder'
                                                     className=''
                                                     ref={startTimeRef}
-                                                    min={`${time2.getHours()}:${time2.getMinutes()}`}
+                                                    min={`${time2.getHours()}:${time2.getMinutes()}:${time2.getSeconds()}`}
+                                                    minuteStep={30}
                                                     onChange={handleChange}
                                                     invalid={
                                                         valid.startTime ===

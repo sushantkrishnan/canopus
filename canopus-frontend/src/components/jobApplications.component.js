@@ -131,6 +131,7 @@ const Job = ({
     getClosedJobs,
     getOpenJobs,
     getSavedJobs,
+    canSponsor,
 }) => {
     // console.log(window.location);
     const history = useHistory();
@@ -149,21 +150,26 @@ const Job = ({
         setShow(!show);
     };
     const sponsor = () => {
-        axios
-            .put(`/api/job/sponsor/${job._id}`, { category: job.category })
-            .then((data) => {
-                console.log(data);
-                setMessError("Job Promoted Successfully !");
-                toggleError();
-                getOpenJobs();
-            })
-            .catch((err) => {
-                console.log(err.response);
-                if (err.response.data && err.response.data.err) {
-                    setMessError(err.response.data.err);
-                    toggleError();
-                }
-            });
+        if (canSponsor)
+            axios
+                .put(`/api/job/sponsor/${job._id}`, { category: job.category })
+                .then((data) => {
+                    console.log(data);
+                    setMessError("Job Promoted Successfully !");
+                    // toggleError();
+                    getOpenJobs();
+                })
+                .catch((err) => {
+                    console.log(err.response);
+                    if (err.response.data && err.response.data.err) {
+                        setMessError(err.response.data.err);
+                        toggleError();
+                    }
+                });
+        else {
+            setMessError("Contact Curoid at +11239213 for promoting this job");
+            setModalError(true);
+        }
     };
     const accept = (id) => {
         console.log(id);
@@ -175,6 +181,7 @@ const Job = ({
                     "Thank you for accepting the job, we will get back to you with more details on your registerd mobile no",
                 );
                 toggleError();
+                getOpenJobs();
             })
             .catch((err) => {
                 console.log(err.response);
@@ -193,7 +200,7 @@ const Job = ({
                 console.log(data);
                 if (data.status === 200) {
                     setMessError("Posted Successfully !");
-                    toggleError();
+                    // toggleError();
                     getSavedJobs();
                 }
             })
@@ -209,7 +216,8 @@ const Job = ({
             .then((data) => {
                 console.log(data);
                 setMessError("Discarded Successfully");
-                toggleError();
+                getSavedJobs();
+                // toggleError();
             })
             .catch((err) => {
                 console.log(err.response);
@@ -317,8 +325,15 @@ const Job = ({
                                                 size='sm'
                                                 color={"info"}
                                                 onClick={(e) => {
-                                                    setMess("promote");
-                                                    toggle();
+                                                    if (canSponsor) {
+                                                        setMess("promote");
+                                                        toggle();
+                                                    } else {
+                                                        setMessError(
+                                                            "Contact Curoid at +11239213 for promoting this job",
+                                                        );
+                                                        setModalError(true);
+                                                    }
                                                 }}>
                                                 Promote
                                                 <FontAwesomeIcon
@@ -380,29 +395,8 @@ const Job = ({
                     <div className='row m-0'>
                         <div className='col-12 desc'>
                             <em>{job.description && job.description.line}</em>
-
-                            {/* <strong>Type:</strong>
-                            {job.description.type.map((type) => `${type} , `)}
-                            <br /> */}
-                            {/* <strong>Experience: </strong>
-                            {job.description.experience} */}
-                            {/* <br />
-                            <strong>incentives: </strong>
-                            {job.description.incentives.map(
-                                (inc) => `${inc} ,`,
-                            )} */}
                             <br />
                         </div>
-                        {/* <div
-                        className='col-12 col-sm-2 my-2 my-sm-auto'
-                        style={{ textAlign: "center" }}>
-                        <Button
-                            color='primary w-100'
-                            // className='float-right'
-                            onClick={applyJob}>
-                            Apply
-                        </Button>
-                    </div> */}
                         <hr />
                         <div className='col-12'>
                             {job.startDate && (
@@ -677,6 +671,7 @@ export default class JobApplications extends Component {
             dropdownOpen: false,
             closedJobs: null,
             savedJobs: null,
+            canSponsor: false,
         };
         this.toggleTab = this.toggleTab.bind(this);
         this.getSavedJobs = this.getSavedJobs.bind(this);
@@ -736,6 +731,13 @@ export default class JobApplications extends Component {
             .catch((err) => console.log(err.response));
     }
     componentDidMount() {
+        console.log(this.props);
+        if (this.props.user && this.props.user.sponsors)
+            this.setState({
+                canSponsor:
+                    this.props.user.sponsors.allowed >
+                    this.props.user.sponsors.posted,
+            });
         console.log("inside component did mount");
         this[`get${this.state.jobType}Jobs`]();
     }
@@ -887,6 +889,7 @@ export default class JobApplications extends Component {
                                             getOpenJobs={this.getOpenJobs}
                                             getClosedJobs={this.getClosedJobs}
                                             getSavedJobs={this.getSavedJobs}
+                                            canSponsor={this.state.canSponsor}
                                         />
                                     ),
                             )
@@ -926,6 +929,9 @@ export default class JobApplications extends Component {
                                                     this.getClosedJobs
                                                 }
                                                 getSavedJobs={this.getSavedJobs}
+                                                canSponsor={
+                                                    this.state.canSponsor
+                                                }
                                             />
                                         ),
                                 )

@@ -13,6 +13,7 @@ import {
     faPhone,
     faArrowLeft,
     faCheckCircle,
+    faCommentsDollar,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Badge,
@@ -194,7 +195,7 @@ class SimilarJobs extends Component {
         );
     }
 }
-const Banner = () => {
+const BannerLogin = () => {
     return (
         <div>
             <a href='/user/login' className='text-info'>
@@ -205,6 +206,28 @@ const Banner = () => {
                 Signup
             </a>{" "}
             to apply
+        </div>
+    );
+};
+const BannerVerify = () => {
+    return (
+        <div>
+            Email verification pending.
+            <a href='/user/verify' className='text-info'>
+                Click here
+            </a>{" "}
+            to resend verification email.
+        </div>
+    );
+};
+const BannerUpdate = () => {
+    return (
+        <div>
+            Please{" "}
+            <a href='/profile/update' className='text-info'>
+                Update
+            </a>{" "}
+            Your profile to apply for this job
         </div>
     );
 };
@@ -223,6 +246,10 @@ export default class Job extends Component {
             isFreelance: false,
             modalError: false,
             modalMess: "",
+            checkProfession: false,
+            checkSpecialization: true,
+            checkUpdated: false,
+            checkResume: false,
         };
         if (props.location.search === "?type=freelance")
             this.setState({ isFreelance: true });
@@ -231,6 +258,7 @@ export default class Job extends Component {
         this.showDetail = this.showDetail.bind(this);
         this.toggleModalError = this.toggleModalError.bind(this);
         this.toggleTooltip = this.toggleTooltip.bind(this);
+        this.checkEligibility = this.checkEligibility.bind(this);
     }
     toggleModalError() {
         this.setState({ modalError: !this.state.modalError });
@@ -242,7 +270,7 @@ export default class Job extends Component {
         if (this.props.user) {
             this.setState({
                 user: this.props.user,
-                modal: true,
+                modal: this.props.user.emailVerified && this.checkEligibility(),
             });
         }
         console.log("oitsode");
@@ -292,22 +320,63 @@ export default class Job extends Component {
     toggle() {
         this.setState({ modal: !this.state.modal });
     }
+    checkEligibility() {
+        // console.log(this.state.job);
+        // console.log(this.props.user);
+        let checkProfession = false,
+            checkSpecialization = true,
+            checkUpdated = false,
+            checkResume = false;
+        if (this.props.user && this.props.user.emailVerified) {
+            checkProfession =
+                this.props.user.profession === this.state.job.profession;
+            if (
+                checkProfession &&
+                this.state.job.profession === "Physician/Surgeon"
+            )
+                checkSpecialization =
+                    this.props.user.specialization ===
+                    this.state.job.specialization;
+            checkResume =
+                this.props.user.resume !== undefined &&
+                this.props.user.resume !== "";
+            checkUpdated =
+                new Date(this.props.user.lastUpdated).toString() !==
+                new Date(0).toString();
+        }
+        console.log(
+            checkProfession,
+            checkResume,
+            checkUpdated,
+            checkSpecialization,
+        );
+        return (
+            checkProfession &&
+            checkResume &&
+            checkUpdated &&
+            checkSpecialization
+        );
+    }
     componentDidMount() {
+        // this.setState({ user: this.props.user });
+
         const id = this.props.match.params.id;
         const [jobType, author] = this.props.location.search
             .substring(1)
             .split("&");
         console.log(jobType);
         console.log(author);
+        // console.log(this.props);
+        // if (this.props.user)
         axios
             .get(`/api/search/view/${jobType}/${id}`)
             .then((data) => {
                 console.log(data);
-                if (data.data.job)
+                if (data.data.job) {
                     this.setState({
                         job: data.data.job,
                     });
-                else {
+                } else {
                     this.setState({
                         err: "Invalid job",
                     });
@@ -514,11 +583,11 @@ export default class Job extends Component {
                                         onClick={this.showDetail}>
                                         Apply
                                     </Button>
-                                    {!this.props.user && (
+                                    {!this.props.user ? (
                                         <UncontrolledTooltip
                                             placement='down'
                                             // isOpen={this.state.tooltipOpen}
-                                            trigger='focus'
+                                            trigger='click'
                                             target='apply'
                                             style={{
                                                 minWidth: "max-content",
@@ -534,10 +603,61 @@ export default class Job extends Component {
                                                     minWidth: "min-content",
                                                 }}>
                                                 <h6 className='text-align-center p-1'>
-                                                    <Banner />
+                                                    <BannerLogin />
                                                 </h6>
                                             </div>
                                         </UncontrolledTooltip>
+                                    ) : this.props.user.emailVerified ===
+                                      false ? (
+                                        <UncontrolledTooltip
+                                            placement='down'
+                                            // isOpen={this.state.tooltipOpen}
+                                            trigger='click'
+                                            target='apply'
+                                            style={{
+                                                minWidth: "max-content",
+                                                backgroundColor:
+                                                    "rgba(255,255,255,1)",
+                                                color: "black",
+                                                padding: "0px",
+                                            }}
+                                            className='rounded'>
+                                            <div
+                                                className='p-3 m-0 border rounded'
+                                                style={{
+                                                    minWidth: "min-content",
+                                                }}>
+                                                <h6 className='text-align-center p-1'>
+                                                    <BannerVerify />
+                                                </h6>
+                                            </div>
+                                        </UncontrolledTooltip>
+                                    ) : (
+                                        !this.checkEligibility() && (
+                                            <UncontrolledTooltip
+                                                placement='down'
+                                                // isOpen={this.state.tooltipOpen}
+                                                trigger='click'
+                                                target='apply'
+                                                style={{
+                                                    minWidth: "max-content",
+                                                    backgroundColor:
+                                                        "rgba(255,255,255,1)",
+                                                    color: "black",
+                                                    padding: "0px",
+                                                }}
+                                                className='rounded'>
+                                                <div
+                                                    className='p-3 m-0 border rounded'
+                                                    style={{
+                                                        minWidth: "min-content",
+                                                    }}>
+                                                    <h6 className='text-align-center p-1'>
+                                                        <BannerUpdate />
+                                                    </h6>
+                                                </div>
+                                            </UncontrolledTooltip>
+                                        )
                                     )}
                                 </div>
                                 <div className='col-6'>
@@ -766,7 +886,7 @@ export default class Job extends Component {
                 </ModalHeader> */}
                             <ModalBody>
                                 {this.state.modalMess === "NOT" ? (
-                                    <Banner />
+                                    <BannerLogin />
                                 ) : (
                                     this.state.modalMess
                                 )}

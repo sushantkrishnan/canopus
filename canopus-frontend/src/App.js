@@ -28,7 +28,7 @@ import axios from "axios";
 import EmployerProfile from "./components/employerProfile.component";
 import LoginUser from "./components/loginUser.component";
 import Analytics from "./components/analytic.component";
-import renderHTML from "react-render-html";
+import Iframe from "react-iframe";
 class App extends Component {
     constructor(props) {
         super(props);
@@ -314,7 +314,12 @@ class App extends Component {
                             path='/applications'
                             // render={(props) => <Profile {...props} />}
 
-                            component={() => <JobApplications />}
+                            render={(props) => (
+                                <JobApplications
+                                    {...props}
+                                    user={this.state.user}
+                                />
+                            )}
                         />
                     )}
                     <Route
@@ -329,6 +334,20 @@ class App extends Component {
                             />
                         )}
                     />
+                    <Route
+                        exact
+                        path='/privacy'
+                        component={() => (
+                            <Iframe
+                                url='https://canopus.blob.core.windows.net/mail-image/privacy.html'
+                                id='myId'
+                                className='iframe'
+                                display='initial'
+                                position='relative'
+                            />
+                        )}
+                    />
+
                     <Route component={() => <ErrorPage />} />
                 </Switch>
                 <FooterComponent />

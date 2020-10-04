@@ -41,10 +41,7 @@ export default class EnterPassword extends Component {
                 console.log(data);
                 if (data.status === 200) {
                     console.log("200");
-                    window.location =
-                        this.state.role === "employer"
-                            ? "/employer/update"
-                            : "/search-jobs";
+                    window.location = "/analytics";
                 }
             })
             .catch((data) => {

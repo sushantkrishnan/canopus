@@ -13,6 +13,7 @@ export default class Analytics extends Component {
         // }
         Axios.get(`/auth/analytics`)
             .then((data) => {
+                console.log(data);
                 console.log(data.data.role);
                 if (data.data) {
                     {
@@ -26,7 +27,7 @@ export default class Analytics extends Component {
                             data.data.role === "User"
                                 ? "/profile/update"
                                 : "/employer/update";
-                    if (data.data.role !== "")
+                    else if (data.data.role !== "")
                         window.location =
                             data.data.role === "User"
                                 ? "/search-jobs"

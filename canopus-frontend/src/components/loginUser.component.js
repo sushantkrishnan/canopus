@@ -8,7 +8,7 @@ import {
     faLinkedin,
 } from "@fortawesome/free-brands-svg-icons";
 import { Link, NavLink } from "react-router-dom";
-import { Modal, ModalHeader, ModalBody, Nav, NavItem } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, Nav, NavItem, Alert } from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import ReactGA from "react-ga";
 
@@ -29,6 +29,8 @@ export default class LoginUser extends Component {
             recaptcha: "",
             modal: false,
             message: "",
+            showError: false,
+            error: "Invalid Credentials",
         };
         this.handleChange = this.handleChange.bind(this);
         this.submitUser = this.submitUser.bind(this);
@@ -77,16 +79,16 @@ export default class LoginUser extends Component {
                         err.response.data.err
                     )
                         this.setState({
-                            modal: true,
-                            message:
+                            showError: true,
+                            error:
                                 err.response.data.err.message === ""
                                     ? "Invalid Credentials"
                                     : err.response.data.err.message,
                         });
                     else {
                         this.setState({
-                            modal: true,
-                            message: "Invalid Credentials",
+                            showError: true,
+                            error: "Invalid Credentials",
                         });
                     }
                 });
@@ -123,16 +125,16 @@ export default class LoginUser extends Component {
                         err.response.data.err
                     )
                         this.setState({
-                            modal: true,
-                            message:
+                            showError: true,
+                            error:
                                 err.response.data.err.message === ""
                                     ? "Invalid Credentials"
                                     : err.response.data.err.message,
                         });
                     else {
                         this.setState({
-                            modal: true,
-                            message: "Invalid Credentials",
+                            showError: true,
+                            error: "Invalid Credentials",
                         });
                     }
                 });
@@ -179,7 +181,14 @@ export default class LoginUser extends Component {
                         </NavItem>
                     </div>
                 </Nav>
-
+                <Alert
+                    color='danger'
+                    isOpen={this.state.showError}
+                    toggle={() => {
+                        this.setState({ showError: false });
+                    }}>
+                    {this.state.error}
+                </Alert>
                 <div className='row m-1 m-sm-2'>
                     <div
                         className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4'

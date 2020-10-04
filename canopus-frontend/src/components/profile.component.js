@@ -335,7 +335,7 @@ export default class Profile extends Component {
                 </Nav>
                 {this.state.profile ? (
                     <div className='row my-3 mx-1 mx-lg-5 p-2 px-lg-5 justify-content-center '>
-                        <div className='col-12 col-lg-4'>
+                        <div className='col-12 col-lg-3'>
                             <div
                                 className='block-noHover row text-dark p-2 mt-3 mb-5 my-lg-0'
                                 style={{
@@ -384,42 +384,6 @@ export default class Profile extends Component {
                                             width={220}
                                         />
                                     </div>
-                                    {/* 
-                                    {this.state.editable && (
-                                        <div className='position-relative'>
-                                            <button
-                                                className='btn btn-info btn-sm m-2 btn-float'
-                                                style={{
-                                                    borderRadius: "50%",
-                                                }}>
-                                                <label
-                                                    htmlFor='image'
-                                                    style={{
-                                                        display: "inline-block-noHover",
-                                                        margin: 0,
-                                                        cursor: "pointer",
-                                                        width: "100%",
-                                                    }}>
-                                                    <FontAwesomeIcon
-                                                        icon={faPen}
-                                                    />
-                                                </label>
-                                            </button>
-
-                                            <input
-                                                type='file'
-                                                style={{
-                                                    position: "absolute",
-                                                    zIndex: "-1",
-                                                    overflow: "hidden",
-                                                    opacity: 0,
-                                                }}
-                                                id='image'
-                                                ref={this.image}
-                                                onChange={this.uploadImage}
-                                            />
-                                        </div>
-                                    )} */}
                                 </div>
                                 <div
                                     className='py-3 px-2 col-12 col-sm-8 col-lg-12 position-relative'
@@ -434,7 +398,7 @@ export default class Profile extends Component {
                                                     className='ml-2 mr-3'
                                                 />
                                             </div>
-                                            <div className='col-11 pl-3'>
+                                            <div className='col-11 pl-3 text-capitalize'>
                                                 {`${this.state.profile.salutation}. ${this.state.profile.firstName} ${this.state.profile.lastName}`}
                                             </div>
                                         </h6>
@@ -518,11 +482,29 @@ export default class Profile extends Component {
                             </div>
                         </div>
 
-                        <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-5 '>
+                        <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-3 '>
                             <div className='p-3 block-noHover'>
-                                <h4 className='position-relative text-capitalize'>
+                                <h4 className='position-relative'>
                                     {this.state.profile.title}
                                 </h4>
+                            </div>
+                            <div className='p-3 block-noHover mt-4'>
+                                <h4 className='position-relative'>
+                                    Area of Work
+                                </h4>
+                                <h6>
+                                    <strong>
+                                        {this.state.profile.profession}
+                                    </strong>
+                                </h6>
+                                <h6>{this.state.profile.specialization}</h6>
+                                <h6>
+                                    <em>
+                                        {this.state.profile.superSpecialization.join(
+                                            ", ",
+                                        )}
+                                    </em>
+                                </h6>
                             </div>
 
                             <div className='p-3 block-noHover mt-4'>

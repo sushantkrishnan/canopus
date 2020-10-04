@@ -84,6 +84,7 @@ export default class UpdateEmployer extends Component {
                 lastName: true,
                 firstName: true,
                 phone: true,
+                youtube: true,
             },
         };
         this.handleChange = this.handleChange.bind(this);
@@ -92,6 +93,7 @@ export default class UpdateEmployer extends Component {
         this.uploadImage = this.uploadImage.bind(this);
         this.uploadLogo = this.uploadLogo.bind(this);
         this.toggleModalError = this.toggleModalError.bind(this);
+        this.reload = this.reload.bind(this);
         this.getGeoLocation = this.getGeoLocation.bind(this);
     }
     toggleModalError() {
@@ -133,20 +135,6 @@ export default class UpdateEmployer extends Component {
             });
     }
     update() {
-        // let valid = this.state.valid;
-        // console.log(this.state.organization);
-        // valid = {
-        //     organization: this.state.organization !== "",
-        //     type: this.state.type !== "",
-        //     speciality: this.state.speciality !== "",
-        //     city: this.state.city !== "",
-        //     state: this.state.state !== "",
-        //     firstName: this.state.firstName !== "",
-        //     lastName: this.state.lastName !== "",
-        //     phone: this.state.phone !== "" || this.state.phone !== null,
-        // };
-        // console.log(valid);
-        // this.setState({ valid });
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
@@ -197,7 +185,23 @@ export default class UpdateEmployer extends Component {
                         window.location = "/employer";
                     }
                 })
-                .catch(({ response }) => alert(response.err));
+                .catch((err) => {
+                    console.log(err);
+                    const response = err.response;
+                    if (response && response.err) {
+                        this.setState({
+                            modalError: true,
+                            modalMess:
+                                response.err === ""
+                                    ? "Unable to update"
+                                    : response.err,
+                        });
+                    } else
+                        this.setState({
+                            modalError: true,
+                            modalMess: "Unable to update",
+                        });
+                });
         }
     }
     getGeoLocation() {
@@ -218,6 +222,70 @@ export default class UpdateEmployer extends Component {
         );
     }
     componentDidMount() {
+        Axios.get("/api/employer/profile")
+            .then(({ data }) => {
+                const user = data;
+                console.log(user._id);
+                console.log(user);
+                if (user) {
+                    this.setState({
+                        id: user._id,
+                        firstName: user.firstName,
+                        username: user.username,
+                        lastName: user.lastName,
+                    });
+                    if (user.address === undefined) this.getGeoLocation();
+                    else if (
+                        !user.address.coordinates.lat ||
+                        !user.address.coordinates.lng
+                    )
+                        this.getGeoLocation();
+                    this.setState({
+                        id: user._id,
+                        // });
+                        // this.setState({
+                        //     id: user._id,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        logo: user.logo,
+                        links: user.links,
+                        username: user.username,
+                        youtube: user.youtube,
+                        image: user.image,
+                        speciality: user.specialty,
+                        phone: user.phone,
+                        line: user.address.line,
+                        pin: user.address.pin,
+                        city: user.address.city,
+                        state: user.address.state,
+
+                        lat: user.address.coordinates
+                            ? user.address.coordinates.lat
+                            : null,
+                        lng: user.address.coordinates
+                            ? user.address.coordinates.lng
+                            : null,
+
+                        about: user.description.about,
+                        about2: user.description.about2,
+                        beds: Number(user.description.beds),
+                        OTs: user.description.OTs
+                            ? Number(user.description.OTs)
+                            : 0,
+                        ICUs: user.description.ICUs ? user.description.ICUs : 0,
+                        employeeCount: user.description.employeeCount
+                            ? Number(user.description.employeeCount)
+                            : 0,
+                        organization: user.instituteName
+                            ? user.instituteName
+                            : user.description.organization,
+                        type: user.description.type,
+                    });
+                }
+            })
+            .catch((err) => console.log(err));
+    }
+    reload() {
         Axios.get("/api/employer/profile")
             .then(({ data }) => {
                 const user = data;
@@ -296,9 +364,6 @@ export default class UpdateEmployer extends Component {
                                 parseInt(state.loadedBytes) /
                                 parseInt(file.size),
                         });
-                        // console.log(this.state.progress);
-                        // console.log(state);
-                        // console.log(parseInt(file.size));
                     },
                 },
 
@@ -312,7 +377,6 @@ export default class UpdateEmployer extends Component {
                             //contentEncoding: 'base64'
                             blobContentType: file.mimeType,
                         },
-                        // blobContentType: file.mimeType,
                     },
                 },
             );
@@ -366,6 +430,7 @@ export default class UpdateEmployer extends Component {
                                         image: [...imgs, url],
                                         loading: false,
                                         uploadingImage: false,
+                                        progress: 0,
                                     });
                                     // console.log(profile);
                                     console.log(res);
@@ -622,7 +687,7 @@ export default class UpdateEmployer extends Component {
                                         placeholder='Organization name'
                                         name='organization'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.organization}
+                                        value={this.state.organization}
                                         invalid={!this.state.valid.organization}
                                     />
                                 </div>
@@ -682,7 +747,16 @@ export default class UpdateEmployer extends Component {
                                                 : ""
                                         }
                                         placeholder='Organization Type'
-                                        value={specialityArray}
+                                        value={
+                                            this.state.speciality !== ""
+                                                ? {
+                                                      value: this.state
+                                                          .speciality,
+                                                      label: this.state
+                                                          .speciality,
+                                                  }
+                                                : null
+                                        }
                                         options={data.speciality.map((type) => {
                                             return { label: type, value: type };
                                         })}
@@ -719,7 +793,7 @@ export default class UpdateEmployer extends Component {
                                         name=''
                                         className='form-control'
                                         name='about'
-                                        defaultValue={this.state.about}
+                                        value={this.state.about}
                                         onChange={this.handleChange}
                                         rows='4'
                                         placeholder='About Organization'></textarea>
@@ -744,7 +818,7 @@ export default class UpdateEmployer extends Component {
                                         className='form-control'
                                         rows='2'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.line}
+                                        value={this.state.line}
                                     />
                                 </FormGroup>
                                 <FormGroup className='row '>
@@ -754,68 +828,69 @@ export default class UpdateEmployer extends Component {
                                             placeholder='PIN'
                                             name='pin'
                                             onChange={this.handleChange}
-                                            defaultValue={this.state.pin}
+                                            value={this.state.pin}
                                         />
                                     </div>
                                     <div className='col-12 col-sm-6 pl-0 pl-sm-1 mb-2 mb-sm-0'>
                                         <Label>
-                                            City{" "}
+                                            State{" "}
                                             <span className='text-danger'>
                                                 *
                                             </span>
                                         </Label>
                                         <Input
-                                            placeholder='city'
-                                            name='city'
-                                            onChange={this.handleChange}
-                                            defaultValue={this.state.city}
-                                            invalid={!this.state.valid.city}
-                                            list='cities'
+                                            placeholder='state'
+                                            name='state'
+                                            onChange={(e) => {
+                                                this.setState({ city: "" });
+                                                this.handleChange(e);
+                                            }}
+                                            value={this.state.state}
+                                            invalid={!this.state.valid.state}
+                                            // onChange={this.props.handleChange("email")}
+                                            // defaultValue={values.email}
+                                            list='states'
                                         />
-                                        <datalist id='cities'>
-                                            {this.state.state === "" ||
-                                            !locationArray[this.state.state]
-                                                ? cityArray.length !== 0 &&
-                                                  cityArray.map((city) => (
-                                                      <option value={city}>
-                                                          {city}
-                                                      </option>
-                                                  ))
-                                                : locationArray[
-                                                      this.state.state
-                                                  ] &&
-                                                  locationArray[
-                                                      this.state.state
-                                                  ].map((city) => (
-                                                      <option value={city}>
-                                                          {city}
-                                                      </option>
-                                                  ))}
+                                        <datalist id='states'>
+                                            {stateArray.length !== 0 &&
+                                                stateArray.map((state) => (
+                                                    <option value={state}>
+                                                        {state}
+                                                    </option>
+                                                ))}
                                         </datalist>
                                     </div>
                                 </FormGroup>
                                 <FormGroup>
                                     <Label>
-                                        State{" "}
+                                        City{" "}
                                         <span className='text-danger'>*</span>
                                     </Label>
                                     <Input
-                                        placeholder='state'
-                                        name='state'
+                                        placeholder='city'
+                                        name='city'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.state}
-                                        invalid={!this.state.valid.state}
-                                        // onChange={this.props.handleChange("email")}
-                                        // defaultValue={values.email}
-                                        list='states'
+                                        value={this.state.city}
+                                        invalid={!this.state.valid.city}
+                                        list='cities'
                                     />
-                                    <datalist id='states'>
-                                        {stateArray.length !== 0 &&
-                                            stateArray.map((state) => (
-                                                <option value={state}>
-                                                    {state}
-                                                </option>
-                                            ))}
+                                    <datalist id='cities'>
+                                        {this.state.state === "" ||
+                                        !locationArray[this.state.state]
+                                            ? cityArray.length !== 0 &&
+                                              cityArray.map((city) => (
+                                                  <option value={city}>
+                                                      {city}
+                                                  </option>
+                                              ))
+                                            : locationArray[this.state.state] &&
+                                              locationArray[
+                                                  this.state.state
+                                              ].map((city) => (
+                                                  <option value={city}>
+                                                      {city}
+                                                  </option>
+                                              ))}
                                     </datalist>
                                 </FormGroup>
                                 <FormGroup className='row '>
@@ -967,7 +1042,7 @@ export default class UpdateEmployer extends Component {
                                             // style={{
                                             //     borderRadius: "50%",
                                             // }}
-                                        >
+                                            disabled={this.state.loading}>
                                             <label
                                                 htmlFor='image'
                                                 style={{
@@ -993,6 +1068,7 @@ export default class UpdateEmployer extends Component {
                                             id='image'
                                             accept='image/*'
                                             // ref={this.image}
+                                            disabled={this.state.loading}
                                             onChange={this.uploadImage}
                                         />
                                     </div>
@@ -1012,10 +1088,12 @@ export default class UpdateEmployer extends Component {
                             <div
                                 className='mx-auto'
                                 style={{ maxWidth: "600px" }}>
-                                <ImageCarousel
-                                    className='col-12 text-align-center'
-                                    items={this.state.image}
-                                />
+                                {this.state.image && (
+                                    <ImageCarousel
+                                        className='col-12 text-align-center'
+                                        items={this.state.image}
+                                    />
+                                )}
                             </div>
 
                             {this.state.image.map((x, i) => (
@@ -1028,7 +1106,15 @@ export default class UpdateEmployer extends Component {
                                             this.handleChange(e, i)
                                         }
                                         value={this.state.image[i]}
+                                        style={{ opacity: 0, height: ".1px" }}
+                                        // className='col-10 col-sm-10 col-md-11'
+                                    />
+                                    <Input
+                                        value={
+                                            this.state.image[i].split("_")[1]
+                                        }
                                         className='col-10 col-sm-10 col-md-11'
+                                        disabled
                                     />
                                     <FontAwesomeIcon
                                         icon={faMinusCircle}
@@ -1098,7 +1184,7 @@ export default class UpdateEmployer extends Component {
                                     name=''
                                     className='form-control'
                                     name='about'
-                                    defaultValue={this.state.about}
+                                    value={this.state.about}
                                     onChange={this.handleChange}
                                     rows='4'
                                     placeholder='About Organization'></textarea>
@@ -1115,7 +1201,7 @@ export default class UpdateEmployer extends Component {
                                         placeholder='First Name'
                                         name='firstName'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.firstName}
+                                        value={this.state.firstName}
                                         invalid={!this.state.valid.firstName}
                                     />
                                 </div>
@@ -1128,7 +1214,7 @@ export default class UpdateEmployer extends Component {
                                         placeholder='Last Name'
                                         name='lastName'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.lastName}
+                                        value={this.state.lastName}
                                     />
                                 </div>
                                 <div className='col-12 col-md-6  p-0 pr-1  my-1'>
@@ -1147,10 +1233,13 @@ export default class UpdateEmployer extends Component {
                                         <span className='text-danger'>*</span>
                                     </Label>
                                     <Input
+                                        type='number'
+                                        max='999999999'
+                                        pattern='[1-9]{1}[0-9]{9}'
                                         placeholder='Phone Number'
                                         name='phone'
                                         onChange={this.handleChange}
-                                        defaultValue={this.state.phone}
+                                        value={this.state.phone}
                                         invalid={!this.state.valid.phone}
                                     />
                                 </div>
@@ -1158,7 +1247,7 @@ export default class UpdateEmployer extends Component {
                         </FormGroup>
                     </div>
                     <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>
-                        {this.state.loading ? (
+                        {/* {this.state.loading ? (
                             <Button
                                 // onClick={this.update}
                                 // className='w-25'
@@ -1170,15 +1259,25 @@ export default class UpdateEmployer extends Component {
                                     <span class='sr-only'>Loading...</span>
                                 </div>
                             </Button>
-                        ) : (
-                            <Button
-                                onClick={this.update}
-                                // className='w-25'
-                                size='lg'
-                                color='primary'>
-                                Update
-                            </Button>
-                        )}
+                        ) : ( */}
+                        <Button
+                            onClick={this.update}
+                            // className='w-25'
+                            size='lg'
+                            className='mr-1'
+                            disabled={this.state.loading}
+                            color='primary'>
+                            Update
+                        </Button>
+                        <Button
+                            onClick={this.reload}
+                            // className='w-25'
+                            size='lg'
+                            disabled={this.state.loading}
+                            color='danger'>
+                            Discard Updates
+                        </Button>
+                        {/* )} */}
                     </div>
                 </div>
                 <Modal

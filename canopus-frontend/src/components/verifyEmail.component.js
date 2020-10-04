@@ -55,7 +55,8 @@ export default class VerifyEmail extends Component {
                 if (data.status === 200) {
                     console.log(data);
                     this.props.history.push(
-                        `/${role === "user" ? "profile" : role}/update`,
+                        // `/${role === "user" ? "profile" : role}/update`,
+                        "/analytics",
                     );
                 }
             })
