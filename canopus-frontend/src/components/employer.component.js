@@ -39,6 +39,7 @@ export default class Employer extends Component {
         this.state = {
             activeTab: "1",
             text: "",
+
             // id: null,
         };
         this.toggleTab = this.toggleTab.bind(this);
@@ -48,6 +49,8 @@ export default class Employer extends Component {
     }
 
     render() {
+        let banner;
+        if (this.props.data) banner = this.props.data.subscription_banner;
         return (
             <div>
                 <Nav tabs className='justify-content-between '>
@@ -102,7 +105,7 @@ export default class Employer extends Component {
                         </div>
                     </div>
                 </Nav>
-                <Overview />
+                <Overview banner={banner} />
             </div>
         );
     }

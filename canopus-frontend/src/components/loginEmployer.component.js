@@ -122,7 +122,7 @@ export default class LoginEmployer extends Component {
                                     ? "Invalid login"
                                     : err.response.data.err.message,
                         });
-                    this.recaptcha.reset();
+                    this.recaptcha.current.reset();
                 });
         }
     }

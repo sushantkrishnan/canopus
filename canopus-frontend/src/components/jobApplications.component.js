@@ -98,14 +98,14 @@ const ApplicantDetails = ({ applicant }) => {
     return <div>{!error && data && data.username}</div>;
 };
 const Badges = ({ desc, superSpecialization }) => {
-    const superSp = superSpecialization ? superSpecialization : [];
+    const superSp = superSpecialization ? superSpecialization : "";
     let badges = [];
     if (desc && desc.type && desc.incentives)
         badges = [
             desc.experience,
             // ...desc.type,
             ...desc.incentives,
-            ...superSp,
+            superSp,
         ];
     const number = badges.length - 5;
     badges = badges.slice(0, 3);
@@ -132,6 +132,7 @@ const Job = ({
     getOpenJobs,
     getSavedJobs,
     canSponsor,
+    banner,
 }) => {
     // console.log(window.location);
     const history = useHistory();
@@ -156,7 +157,6 @@ const Job = ({
                 .then((data) => {
                     console.log(data);
                     setMessError("Job Promoted Successfully !");
-                    // toggleError();
                     getOpenJobs();
                 })
                 .catch((err) => {
@@ -167,7 +167,7 @@ const Job = ({
                     }
                 });
         else {
-            setMessError("Contact Curoid at +11239213 for promoting this job");
+            setMessError(banner);
             setModalError(true);
         }
     };
@@ -225,6 +225,15 @@ const Job = ({
                     setMessError(err.response.data.err);
                 toggleError();
             });
+    };
+    const options = {
+        hour: "numeric",
+        minute: "numeric",
+    };
+    const optionsDate = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
     };
     return (
         <div className='col-12 col-md-6'>
@@ -329,9 +338,7 @@ const Job = ({
                                                         setMess("promote");
                                                         toggle();
                                                     } else {
-                                                        setMessError(
-                                                            "Contact Curoid at +11239213 for promoting this job",
-                                                        );
+                                                        setMessError(banner);
                                                         setModalError(true);
                                                     }
                                                 }}>
@@ -401,27 +408,37 @@ const Job = ({
                         <div className='col-12'>
                             {job.startDate && (
                                 <div className='row'>
-                                    {new Date(
-                                        job.startDate,
-                                    ).toLocaleDateString()}
+                                    {new Intl.DateTimeFormat(
+                                        "en-US",
+                                        optionsDate,
+                                    ).format(new Date(job.startDate))}
+
+                                    {job.category === "Locum" &&
+                                        ` - ${new Intl.DateTimeFormat(
+                                            "en-US",
+                                            optionsDate,
+                                        ).format(new Date(job.endDate))}`}
                                 </div>
                             )}
+
                             {job.category === "Day Job" && (
                                 <div className='row'>
                                     {job.startDate && (
                                         <div className=''>
-                                            {new Date(
-                                                job.startDate,
-                                            ).toLocaleTimeString()}
+                                            {new Intl.DateTimeFormat(
+                                                "en-US",
+                                                options,
+                                            ).format(new Date(job.startDate))}
                                             {" - "}
                                         </div>
                                     )}
 
                                     {job.endDate && (
                                         <div className=''>
-                                            {new Date(
-                                                job.endDate,
-                                            ).toLocaleTimeString()}
+                                            {new Intl.DateTimeFormat(
+                                                "en-US",
+                                                options,
+                                            ).format(new Date(job.endDate))}
                                         </div>
                                     )}
                                 </div>
@@ -742,6 +759,8 @@ export default class JobApplications extends Component {
         this[`get${this.state.jobType}Jobs`]();
     }
     render() {
+        let banner;
+        if (this.props.data) banner = this.props.data.sponsor_banner;
         return (
             <div className='w-100'>
                 {window.location.pathname === "/applications" && (
@@ -873,25 +892,88 @@ export default class JobApplications extends Component {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
+                    <div className='row w-100'>
+                        {this.state.freelanceJobs ? (
+                            this.state.freelanceJobs.length !== 0 && (
+                                <div className='row w-100 px-2'>
+                                    <h3 className='col-12 px-2 px-sm-3'>
+                                        Locum/Day Jobs
+                                    </h3>
+
+                                    {this.state.freelanceJobs.map(
+                                        (job) =>
+                                            job && (
+                                                <Job
+                                                    key={job._id}
+                                                    job={job}
+                                                    jobType={this.state.jobType}
+                                                    type2='freelance'
+                                                    getOpenJobs={
+                                                        this.getOpenJobs
+                                                    }
+                                                    getClosedJobs={
+                                                        this.getClosedJobs
+                                                    }
+                                                    getSavedJobs={
+                                                        this.getSavedJobs
+                                                    }
+                                                    canSponsor={
+                                                        this.state.canSponsor
+                                                    }
+                                                    banner={banner}
+                                                />
+                                            ),
+                                    )}
+                                    <hr className='w-100' />
+                                </div>
+                            )
+                        ) : (
+                            <div
+                                className='mx-auto my-auto col-12 '
+                                style={{ textAlign: "center" }}>
+                                <Loader
+                                    type='Bars'
+                                    color='#17a2b8'
+                                    height={300}
+                                    width={220}
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     <div className='row px-2 w-100'>
-                        <h3 className='col-12 px-2 px-sm-3'>Regular Jobs</h3>
                         {this.state.jobs !== null &&
                         this.state.jobs !== undefined ? (
-                            this.state.jobs.length !== 0 &&
-                            this.state.jobs.map(
-                                (job) =>
-                                    job && (
-                                        <Job
-                                            key={job._id}
-                                            job={job}
-                                            jobType={this.state.jobType}
-                                            type2='job'
-                                            getOpenJobs={this.getOpenJobs}
-                                            getClosedJobs={this.getClosedJobs}
-                                            getSavedJobs={this.getSavedJobs}
-                                            canSponsor={this.state.canSponsor}
-                                        />
-                                    ),
+                            this.state.jobs.length !== 0 && (
+                                <div className='row w-100 px-2'>
+                                    <h3 className='col-12 px-2 px-sm-3'>
+                                        Regular Jobs
+                                    </h3>
+                                    {this.state.jobs.map(
+                                        (job) =>
+                                            job && (
+                                                <Job
+                                                    key={job._id}
+                                                    job={job}
+                                                    jobType={this.state.jobType}
+                                                    type2='job'
+                                                    getOpenJobs={
+                                                        this.getOpenJobs
+                                                    }
+                                                    getClosedJobs={
+                                                        this.getClosedJobs
+                                                    }
+                                                    getSavedJobs={
+                                                        this.getSavedJobs
+                                                    }
+                                                    canSponsor={
+                                                        this.state.canSponsor
+                                                    }
+                                                    banner={banner}
+                                                />
+                                            ),
+                                    )}
+                                </div>
                             )
                         ) : (
                             <div
@@ -906,48 +988,7 @@ export default class JobApplications extends Component {
                             </div>
                         )}
 
-                        <hr className='w-100' />
                         {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
-
-                        <div className='row w-100'>
-                            <h3 className='col-12 px-2 px-sm-3'>
-                                Locum/Day Jobs
-                            </h3>
-
-                            {this.state.freelanceJobs ? (
-                                this.state.freelanceJobs.length !== 0 &&
-                                this.state.freelanceJobs.map(
-                                    (job) =>
-                                        job && (
-                                            <Job
-                                                key={job._id}
-                                                job={job}
-                                                jobType={this.state.jobType}
-                                                type2='freelance'
-                                                getOpenJobs={this.getOpenJobs}
-                                                getClosedJobs={
-                                                    this.getClosedJobs
-                                                }
-                                                getSavedJobs={this.getSavedJobs}
-                                                canSponsor={
-                                                    this.state.canSponsor
-                                                }
-                                            />
-                                        ),
-                                )
-                            ) : (
-                                <div
-                                    className='mx-auto my-auto col-12 '
-                                    style={{ textAlign: "center" }}>
-                                    <Loader
-                                        type='Bars'
-                                        color='#17a2b8'
-                                        height={300}
-                                        width={220}
-                                    />
-                                </div>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>

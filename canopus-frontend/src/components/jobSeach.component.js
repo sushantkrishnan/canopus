@@ -1820,6 +1820,7 @@ export default class JobSearch extends Component {
                                                 this.setState({
                                                     sortBy: e.value,
                                                 });
+                                                this.search(0);
                                                 // this.setState({
                                                 //     location: e ? e.value : "",
                                                 // });

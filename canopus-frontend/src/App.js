@@ -36,12 +36,13 @@ class App extends Component {
             user: null,
             data: null,
             html: "",
+            loaded: false,
         };
         this.setUser = this.setUser.bind(this);
         this.getUser = this.getUser.bind(this);
     }
     setUser(user) {
-        this.setState({ user: user });
+        this.setState({ user: user, loaded: true });
         // console.log(this.state.user);
     }
     async getUser() {
@@ -89,267 +90,342 @@ class App extends Component {
                     setUser={this.setUser}
                     getUser={this.getUser}
                 />
-                <Switch>
-                    <Route
-                        exact
-                        path='/'
-                        render={(props) => (
-                            <Home {...props} data={this.state.data} />
-                        )}
-                    />
-                    <Route
-                        exact
-                        path='/search-jobs'
-                        render={(props) => (
-                            <JobSearch
-                                {...props}
-                                user={this.state.user}
-                                data={this.state.data}
-                                locData={this.state.location}
-                            />
-                        )}
-                    />
-                    <Route
-                        exact
-                        path='/user/signup'
-                        component={() => <SignupUser />}
-                    />
-                    <Route
-                        exact
-                        path='/user/forgot'
-                        component={() => <EnterUsername />}
-                    />
-                    <Route
-                        exact
-                        path='/user/login'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) => (
-                            <LoginUser
-                                {...props}
-                                user={this.state.user}
-                                setUser={this.setUser}
-                                getUser={this.getUser}
-                            />
-                        )}
-                    />
-                    <Route exact path='/test' component={() => <Test />} />
-                    <Route
-                        exact
-                        path='/employer/signup'
-                        component={() => <SignupEmployer />}
-                    />
-                    <Route
-                        exact
-                        path='/employer/forgot'
-                        component={() => <EnterUsername />}
-                    />
-                    {this.state.user && this.state.user.role === "Employer" && (
+                {this.state.loaded ? (
+                    <Switch>
+                        <Route
+                            exact
+                            path='/'
+                            render={(props) => (
+                                <Home {...props} data={this.state.data} />
+                            )}
+                        />
+                        <Route
+                            exact
+                            path='/search-jobs'
+                            render={(props) => (
+                                <JobSearch
+                                    {...props}
+                                    user={this.state.user}
+                                    data={this.state.data}
+                                    locData={this.state.location}
+                                />
+                            )}
+                        />
+                        <Route
+                            exact
+                            path='/user/signup'
+                            component={() => <SignupUser />}
+                        />
+                        <Route
+                            exact
+                            path='/user/forgot'
+                            component={() => <EnterUsername />}
+                        />
+                        <Route
+                            exact
+                            path='/user/login'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) => (
+                                <LoginUser
+                                    {...props}
+                                    user={this.state.user}
+                                    setUser={this.setUser}
+                                    getUser={this.getUser}
+                                />
+                            )}
+                        />
+                        <Route exact path='/test' component={() => <Test />} />
+                        <Route
+                            exact
+                            path='/employer/signup'
+                            component={() => <SignupEmployer />}
+                        />
+                        <Route
+                            exact
+                            path='/employer/forgot'
+                            component={() => <EnterUsername />}
+                        />
+                        {/* {this.state.user &&
+                            this.state.user.role === "Employer" && ( */}
                         <Route
                             exact
                             path='/employer/verify'
-                            render={(props) => (
-                                <VerifyEmployer
-                                    {...props}
-                                    user={this.state.user}
-                                />
-                            )}
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "Employer" ? (
+                                    <VerifyEmployer
+                                        {...props}
+                                        user={this.state.user}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
                         />
-                    )}
-                    {this.state.user && this.state.user.role === "User" && (
+                        {/* )} */}
+                        {/* {this.state.user && this.state.user.role === "User" && ( */}
                         <Route
                             exact
                             path='/user/verify'
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "User" ? (
+                                    <VerifyEmployer
+                                        {...props}
+                                        user={this.state.user}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        {/* )} */}
+                        <Route
+                            exact
+                            path='/user/validate/:token'
                             render={(props) => (
-                                <VerifyEmployer
+                                <VerifyEmail
                                     {...props}
                                     user={this.state.user}
                                 />
                             )}
                         />
-                    )}
-                    <Route
-                        exact
-                        path='/user/validate/:token'
-                        render={(props) => (
-                            <VerifyEmail {...props} user={this.state.user} />
-                        )}
-                    />
-                    {/* {this.state.html !== "" && (
+                        {/* {this.state.html !== "" && (
                         <Route
                             exact
                             path='/privacy'
                             render={(props) => renderHTML(this.state.html)}
                         />
                     )} */}
-                    <Route
-                        exact
-                        path='/employer/validate/:token'
-                        render={(props) => (
-                            <VerifyEmail {...props} user={this.state.user} />
-                        )}
-                    />
-                    <Route
-                        exact
-                        path='/employer/forgot/:token'
-                        component={() => <EnterPassword />}
-                    />
-                    <Route
-                        exact
-                        path='/user/forgot/:token'
-                        component={() => <EnterPassword />}
-                    />
-                    {this.state.user && this.state.user.role === "User" && (
                         <Route
                             exact
-                            path='/profile'
-                            // render={(props) => <Profile {...props} />}
-                            component={() => <Profile />}
-                        />
-                    )}
-                    {this.state.user && this.state.user.role === "User" && (
-                        <Route
-                            exact
-                            path='/profile/update'
-                            // render={(props) => <Profile {...props} />}
+                            path='/employer/validate/:token'
                             render={(props) => (
-                                <UpdateUser
-                                    {...props}
-                                    setUser={this.setUser}
-                                    data={this.state.data}
-                                />
-                            )}
-                        />
-                    )}
-                    <Route
-                        exact
-                        path='/profile/:id'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) => <Profile {...props} />}
-                    />
-                    <Route
-                        exact
-                        path='/job/:id'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) => (
-                            <Job {...props} user={this.state.user} />
-                        )}
-                    />
-                    {this.state.user && this.state.user.role === "Employer" && (
-                        <Route
-                            path='/employer/job/update/:id'
-                            render={(props) => (
-                                <UpdateJob
-                                    {...props}
-                                    data={this.state.data}
-                                    locationData={this.state.location}
-                                />
-                            )}
-                        />
-                    )}
-                    {this.state.user && this.state.user.role === "Employer" && (
-                        <Route
-                            exact
-                            path='/employer/update'
-                            // render={(props) => <Profile {...props} />}
-                            render={(props) => (
-                                <UpdateEmployer
-                                    {...props}
-                                    setUser={this.setUser}
-                                    data={this.state.data}
-                                    locationData={this.state.location}
-                                />
-                            )}
-                        />
-                    )}
-                    <Route
-                        exact
-                        path='/employer/profile/:id'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) => <EmployerProfile {...props} />}
-                    />
-                    <Route
-                        exact
-                        path='/employer/login'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) => (
-                            <LoginEmployer
-                                {...props}
-                                user={this.state.user}
-                                setUser={this.setUser}
-                                getUser={this.getUser}
-                            />
-                        )}
-                    />
-                    {this.state.user && this.state.user.role === "Employer" && (
-                        <Route
-                            exact
-                            path='/employer'
-                            // render={(props) => <Profile {...props} />}
-                            render={(props) => (
-                                <Employer
-                                    {...props}
-                                    // user={this.state.user}
-                                    setUser={this.setUser}
-                                />
-                            )}
-                        />
-                    )}
-                    {this.state.user && (
-                        <Route
-                            exact
-                            path='/post'
-                            // render={(props) => <Profile {...props} />}
-                            render={(props) => (
-                                <PostJob
-                                    {...props}
-                                    data={this.state.data}
-                                    locationData={this.state.location}
-                                />
-                            )}
-                        />
-                    )}
-                    {this.state.user && (
-                        <Route
-                            exact
-                            path='/applications'
-                            // render={(props) => <Profile {...props} />}
-
-                            render={(props) => (
-                                <JobApplications
+                                <VerifyEmail
                                     {...props}
                                     user={this.state.user}
                                 />
                             )}
                         />
-                    )}
-                    <Route
-                        exact
-                        path='/analytics'
-                        render={(props) => (
-                            <Analytics
-                                {...props}
-                                user={this.state.user}
-                                setUser={this.setUser}
-                                getUser={this.getUser}
-                            />
-                        )}
-                    />
-                    <Route
-                        exact
-                        path='/privacy'
-                        component={() => (
-                            <Iframe
-                                url='https://canopus.blob.core.windows.net/mail-image/privacy.html'
-                                id='myId'
-                                className='iframe'
-                                display='initial'
-                                position='relative'
-                            />
-                        )}
-                    />
+                        <Route
+                            exact
+                            path='/employer/forgot/:token'
+                            component={() => <EnterPassword />}
+                        />
+                        <Route
+                            exact
+                            path='/user/forgot/:token'
+                            component={() => <EnterPassword />}
+                        />
+                        {/* {this.state.user && this.state.user.role === "User" && ( */}
+                        <Route
+                            exact
+                            path='/profile'
+                            // render={(props) => <Profile {...props} />}
 
-                    <Route component={() => <ErrorPage />} />
-                </Switch>
+                            component={() =>
+                                this.state.user &&
+                                this.state.user.role === "User" ? (
+                                    <Profile />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        {/* )} */}
+                        {/* {this.state.user && this.state.user.role === "User" && ( */}
+                        <Route
+                            exact
+                            path='/profile/update'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "User" ? (
+                                    <UpdateUser
+                                        {...props}
+                                        setUser={this.setUser}
+                                        data={this.state.data}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        {/* )} */}
+                        <Route
+                            exact
+                            path='/profile/:id'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) =>
+                                this.state.user ? (
+                                    <Profile {...props} />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        <Route
+                            exact
+                            path='/job/:id'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) => (
+                                <Job {...props} user={this.state.user} />
+                            )}
+                        />
+                        {/* {this.state.user &&
+                            this.state.user.role === "Employer" && ( */}
+                        <Route
+                            path='/employer/job/update/:id'
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "Employer" ? (
+                                    <UpdateJob
+                                        {...props}
+                                        data={this.state.data}
+                                        locationData={this.state.location}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        {/* )} */}
+                        {/* {this.state.user &&
+                            this.state.user.role === "Employer" && ( */}
+                        <Route
+                            exact
+                            path='/employer/update'
+                            // render={(props) => <Profile {...props} />}
+
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "Employer" ? (
+                                    <UpdateEmployer
+                                        {...props}
+                                        setUser={this.setUser}
+                                        data={this.state.data}
+                                        locationData={this.state.location}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        {/* )} */}
+                        <Route
+                            exact
+                            path='/employer/profile/:id'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) => <EmployerProfile {...props} />}
+                        />
+                        <Route
+                            exact
+                            path='/employer/login'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) => (
+                                <LoginEmployer
+                                    {...props}
+                                    user={this.state.user}
+                                    setUser={this.setUser}
+                                    getUser={this.getUser}
+                                />
+                            )}
+                        />
+                        {/* {this.state.user &&
+                            this.state.user.role === "Employer" && ( */}
+                        <Route
+                            exact
+                            path='/employer'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "Employer" ? (
+                                    <Employer
+                                        {...props}
+                                        // user={this.state.user}
+                                        setUser={this.setUser}
+                                        data={this.state.data}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        {/* )} */}
+                        {/* {this.state.user && ( */}
+                        <Route
+                            exact
+                            path='/post'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "Employer" ? (
+                                    <PostJob
+                                        {...props}
+                                        data={this.state.data}
+                                        locationData={this.state.location}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+
+                        {/* {this.state.user && ( */}
+                        <Route
+                            exact
+                            path='/applications'
+                            // render={(props) => <Profile {...props} />}
+
+                            render={(props) =>
+                                this.state.user &&
+                                this.state.user.role === "Employer" ? (
+                                    <JobApplications
+                                        {...props}
+                                        user={this.state.user}
+                                        data={this.state.data}
+                                    />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
+                        />
+                        {/* )} */}
+                        <Route
+                            exact
+                            path='/analytics'
+                            render={(props) => (
+                                <Analytics
+                                    {...props}
+                                    user={this.state.user}
+                                    setUser={this.setUser}
+                                    getUser={this.getUser}
+                                />
+                            )}
+                        />
+                        <Route
+                            exact
+                            path='/privacy'
+                            component={() => (
+                                <Iframe
+                                    url='https://canopus.blob.core.windows.net/mail-image/privacy.html'
+                                    id='myId'
+                                    className='iframe'
+                                    display='initial'
+                                    position='relative'
+                                />
+                            )}
+                        />
+
+                        <Route
+                            render={(props) => (
+                                <ErrorPage {...props} user={this.state.user} />
+                            )}
+                        />
+                    </Switch>
+                ) : (
+                    <div></div>
+                )}
                 <FooterComponent />
             </BrowserRouter>
         );

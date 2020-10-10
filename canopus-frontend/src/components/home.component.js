@@ -53,11 +53,13 @@ const Home = (props) => {
                         loop='loop'>
                         <source src={video} type='video/mp4' />
                     </video>
-                    <h1
-                        className='text-white px-2'
-                        style={{ textAlign: "center" }}>
-                        New Provider Jobs Added Every Day
-                    </h1>
+                    <div className='position-relative'>
+                        <h1
+                            className='text-white px-2'
+                            style={{ textAlign: "center", zIndex: "100" }}>
+                            New Provider Jobs Added Every Day
+                        </h1>
+                    </div>
                     <div className='form-inline home-search  justify-content-center mt-5 '>
                         <div
                             className='col-8 '

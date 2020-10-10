@@ -1,6 +1,6 @@
 import Axios from "axios";
 import React, { Component } from "react";
-import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
 import { Link } from "react-router-dom";
 import "../stylesheets/verifyEmail.css";
 const block = {
@@ -65,13 +65,25 @@ export default class VerifyEmail extends Component {
                 console.log(err.response);
                 this.setState({
                     modal: true,
-                    message: "Invalid Token ",
+                    message: "Invalid Token",
                 });
             });
     }
     render() {
         return (
             <div>
+                <Alert
+                    color={
+                        this.state.message === "Invalid Token"
+                            ? "danger"
+                            : "success"
+                    }
+                    isOpen={this.state.modal}
+                    toggle={() => {
+                        this.setState({ modal: false });
+                    }}>
+                    {this.state.message}
+                </Alert>
                 <div className='make-small'>
                     <div className=' p-4 m-3 mx-lg-5' style={block}>
                         <h2>{this.state.data}</h2>
@@ -82,18 +94,16 @@ export default class VerifyEmail extends Component {
                         </Link>
                     </div>
                 </div>
-                <Modal
+                {/* <Modal
                     isOpen={this.state.modal}
                     toggle={this.toggleModal}
                     style={{ marginTop: "20vh" }}>
                     <ModalHeader toggle={this.toggleModal} className='py-1'>
                         Message
                     </ModalHeader>
-                    {/* <ModalHeader toggle={toggle}>
-                    {mess === "promote" && "Promote"}
-                </ModalHeader> */}
+                    
                     <ModalBody>{this.state.message}</ModalBody>
-                </Modal>
+                </Modal> */}
             </div>
         );
     }

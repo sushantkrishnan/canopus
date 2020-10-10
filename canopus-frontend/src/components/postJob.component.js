@@ -369,7 +369,7 @@ const PostJob = (props) => {
         if (attArr.length > 0) job.attachedApplicants = attArr;
         if (type === "Day Job") {
             type2 = "freelance";
-            if (endDate !== "")
+            if (startDate !== "")
                 job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
             if (startDate !== "")
                 job.startDate = new Date(
@@ -1050,29 +1050,36 @@ const PostJob = (props) => {
                                     </InputGroupAddon>
                                 </InputGroup>
                             </InputGroup>
-                            <InputGroup className='col-12'>
-                                <Label className='m-1'>
-                                    <h6>Incentives</h6>
-                                </Label>
-                                <div style={{ width: `100%` }} className=''>
-                                    <Select
-                                        onChange={(opt) => console.log(opt)}
-                                        isMulti
-                                        autosize={true}
-                                        placeholder='Incentives'
-                                        options={incentivesArray}
-                                        // className='basic-multi-select'
-                                        // classNamePrefix='select'
-                                        ref={incentivesRef}
-                                        name='Incentives'
-                                        defaultValue={incentives}
-                                        onChange={(e) => {
-                                            console.log(e);
-                                            handleChangeSelect("Incentives", e);
-                                        }}
-                                    />
-                                </div>
-                            </InputGroup>
+                            {!(
+                                type === "Day Job" || type === "Locum Position"
+                            ) && (
+                                <InputGroup className='col-12'>
+                                    <Label className='m-1'>
+                                        <h6>Incentives</h6>
+                                    </Label>
+                                    <div style={{ width: `100%` }} className=''>
+                                        <Select
+                                            onChange={(opt) => console.log(opt)}
+                                            isMulti
+                                            autosize={true}
+                                            placeholder='Incentives'
+                                            options={incentivesArray}
+                                            // className='basic-multi-select'
+                                            // classNamePrefix='select'
+                                            ref={incentivesRef}
+                                            name='Incentives'
+                                            defaultValue={incentives}
+                                            onChange={(e) => {
+                                                console.log(e);
+                                                handleChangeSelect(
+                                                    "Incentives",
+                                                    e,
+                                                );
+                                            }}
+                                        />
+                                    </div>
+                                </InputGroup>
+                            )}
                             {/* {!freelance && (
                                 <div className='col-12 col-md-6 pl-md-2 my-1 w-100'>
                                     <Label className='pl-2' for='exampleDate'>
@@ -1434,15 +1441,13 @@ const PostJob = (props) => {
                                                 </Label>
                                                 {/* <Label for='exampleTime'>Time</Label> */}
 
-                                                <input
+                                                <Input
                                                     type='time'
                                                     name='StartTime'
                                                     className='exampleTime'
                                                     placeholder='time placeholder'
                                                     className=''
                                                     ref={startTimeRef}
-                                                    min={`${time2.getHours()}:${time2.getMinutes()}:${time2.getSeconds()}`}
-                                                    minuteStep={30}
                                                     onChange={handleChange}
                                                     invalid={
                                                         valid.startTime ===
@@ -1465,7 +1470,7 @@ const PostJob = (props) => {
                                                     id='exampleTime'
                                                     placeholder='time placeholder'
                                                     className=''
-                                                    min={`${time2.getHours()}:${time2.getMinutes()}`}
+                                                    // min={`${time2.getHours()}:${time2.getMinutes()}`}
                                                     // ref={endTimeRef}
                                                     onChange={handleChange}
                                                     invalid={

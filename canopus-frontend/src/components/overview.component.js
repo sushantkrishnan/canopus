@@ -38,6 +38,8 @@ export default class Overview extends Component {
             });
     }
     render() {
+        let banner;
+        if (this.props.banner) banner = this.props.banner;
         return (
             <div>
                 {this.state.employer && (
@@ -84,11 +86,7 @@ export default class Overview extends Component {
                                             : 0}{" "}
                                         employees */}
                                     </h6>
-                                    <h6>
-                                        {this.state.employer.specialty
-                                            ? this.state.employer.specialty
-                                            : "Speciality"}
-                                    </h6>
+                                    <h6>{this.state.employer.specialty}</h6>
                                     {this.state.employer.validated && (
                                         <Badge color='success'>
                                             <FontAwesomeIcon
@@ -254,11 +252,7 @@ export default class Overview extends Component {
                                     </Table>
                                     <hr />
                                     <div className='text-align-left col-12 border p-2'>
-                                        <h6>
-                                            Please contact +91-xxxxxxxxx for
-                                            pricing information or purchasing
-                                            more job slots
-                                        </h6>
+                                        <h6>{banner}</h6>
                                     </div>
                                 </div>
                             </div>
@@ -509,10 +503,7 @@ export default class Overview extends Component {
                                 </Table>
                                 <hr />
                                 <div className='text-align-left col-12 border p-2'>
-                                    <h6>
-                                        Please contact +91-xxxxxxxxx for pricing
-                                        information or purchasing more job slots
-                                    </h6>
+                                    <h6>{banner}</h6>
                                 </div>
                             </div>
                             {/* <hr /> */}

@@ -278,6 +278,7 @@ export default class Profile extends Component {
                 .catch((err) => console.log(err.response));
     }
     render() {
+        const option = { hour: "numeric", minute: "numeric" };
         return (
             <div>
                 <Nav tabs className='justify-content-between '>
@@ -552,7 +553,21 @@ export default class Profile extends Component {
                                                 <Media>
                                                     <Media body>
                                                         <div>
-                                                            {`${data.startTime} - ${data.endTime} on `}
+                                                            {`${new Intl.DateTimeFormat(
+                                                                "en-US",
+                                                                option,
+                                                            ).format(
+                                                                new Date(
+                                                                    `2011-10-10T${data.startTime}:00`,
+                                                                ),
+                                                            )} - ${new Intl.DateTimeFormat(
+                                                                "en-US",
+                                                                option,
+                                                            ).format(
+                                                                new Date(
+                                                                    `2011-10-10T${data.endTime}:00`,
+                                                                ),
+                                                            )} on `}
                                                             {data.days.map(
                                                                 (day) => (
                                                                     <Badge className='mx-1'>

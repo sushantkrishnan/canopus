@@ -24,6 +24,8 @@ import {
     ModalHeader,
     ModalBody,
     Media,
+    UncontrolledPopover,
+    PopoverBody,
     ModalFooter,
     Input,
 } from "reactstrap";
@@ -212,7 +214,7 @@ const BannerLogin = () => {
 const BannerVerify = () => {
     return (
         <div>
-            Email verification pending.
+            Email verification pending.{" "}
             <a href='/user/verify' className='text-info'>
                 Click here
             </a>{" "}
@@ -220,14 +222,17 @@ const BannerVerify = () => {
         </div>
     );
 };
-const BannerUpdate = () => {
+const BannerUpdate = ({ mess, checkProf, checkSpec }) => {
     return (
         <div>
-            Please{" "}
+            {`${
+                !checkProf
+                    ? "Your Profession must match Job Profession."
+                    : "Your Profession/Speciality must match Job Profession/Speciality"
+            } Click here to `}
             <a href='/profile/update' className='text-info'>
-                Update
-            </a>{" "}
-            Your profile to apply for this job
+                update profile
+            </a>
         </div>
     );
 };
@@ -250,6 +255,7 @@ export default class Job extends Component {
             checkSpecialization: true,
             checkUpdated: false,
             checkResume: false,
+            bannerMessage: "",
         };
         if (props.location.search === "?type=freelance")
             this.setState({ isFreelance: true });
@@ -432,7 +438,13 @@ export default class Job extends Component {
                                     <Link
                                         to={`/employer/profile/${job.author.id}`}>
                                         <h6 className='text-info'>
-                                            {job.description.company
+                                            {job.author &&
+                                            job.author.instituteName
+                                                ? job.author.instituteName
+                                                : job.instituteName
+                                                ? job.instituteName
+                                                : job.description &&
+                                                  job.description.company
                                                 ? job.description.company
                                                 : "Company"}
                                         </h6>
@@ -587,7 +599,7 @@ export default class Job extends Component {
                                         <UncontrolledTooltip
                                             placement='down'
                                             // isOpen={this.state.tooltipOpen}
-                                            trigger='click'
+                                            trigger='legacy'
                                             target='apply'
                                             style={{
                                                 minWidth: "max-content",
@@ -612,7 +624,7 @@ export default class Job extends Component {
                                         <UncontrolledTooltip
                                             placement='down'
                                             // isOpen={this.state.tooltipOpen}
-                                            trigger='click'
+                                            trigger='legacy'
                                             target='apply'
                                             style={{
                                                 minWidth: "max-content",
@@ -637,7 +649,7 @@ export default class Job extends Component {
                                             <UncontrolledTooltip
                                                 placement='down'
                                                 // isOpen={this.state.tooltipOpen}
-                                                trigger='click'
+                                                trigger='legacy'
                                                 target='apply'
                                                 style={{
                                                     minWidth: "max-content",
@@ -653,7 +665,35 @@ export default class Job extends Component {
                                                         minWidth: "min-content",
                                                     }}>
                                                     <h6 className='text-align-center p-1'>
-                                                        <BannerUpdate />
+                                                        <BannerUpdate
+                                                            mess={
+                                                                this.state
+                                                                    .bannerMessage
+                                                            }
+                                                            checkProf={
+                                                                this.props.user
+                                                                    .profession ===
+                                                                this.state.job
+                                                                    .profession
+                                                            }
+                                                            checkSpec={
+                                                                this.state.job
+                                                                    .profession ===
+                                                                    this.props
+                                                                        .user
+                                                                        .profession &&
+                                                                this.state.job
+                                                                    .profession ===
+                                                                    "Physician/Surgeon"
+                                                                    ? this.props
+                                                                          .user
+                                                                          .specialization ===
+                                                                      this.state
+                                                                          .job
+                                                                          .specialization
+                                                                    : true
+                                                            }
+                                                        />
                                                     </h6>
                                                 </div>
                                             </UncontrolledTooltip>
@@ -673,10 +713,10 @@ export default class Job extends Component {
                                             </Button>
                                         </CopyToClipboard>
 
-                                        <UncontrolledTooltip
+                                        <UncontrolledPopover
                                             placement='down'
                                             // isOpen={this.state.tooltipOpen}
-                                            trigger='focus'
+                                            trigger='legacy'
                                             target='copy'
                                             style={{
                                                 minWidth: "max-content",
@@ -703,13 +743,13 @@ export default class Job extends Component {
                                                     {job.title.length > 8
                                                         ? job.title.substr(
                                                               0,
-                                                              8 - 1,
+                                                              15 - 1,
                                                           ) + "..."
                                                         : job.title}
                                                     ' copied
                                                 </h5>
                                                 <div className='row'>
-                                                    <div className='col-9 pl-0'>
+                                                    <div className='col-12 pl-0'>
                                                         <Input
                                                             type='text'
                                                             value={
@@ -724,16 +764,16 @@ export default class Job extends Component {
                                                         text={
                                                             window.location.href
                                                         }> */}
-                                                    <Button
-                                                        color='info'
+                                                    {/* <Button
+                                                        color='success'
                                                         size='xs'
                                                         className='col-3'>
-                                                        Copy
-                                                    </Button>
+                                                        Copied
+                                                    </Button> */}
                                                     {/* </CopyToClipboard> */}
                                                 </div>
                                             </div>
-                                        </UncontrolledTooltip>
+                                        </UncontrolledPopover>
                                     </div>
                                 </div>
                             </div>
