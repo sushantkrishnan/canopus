@@ -24,7 +24,7 @@ const fs = require("fs"),
     // if(!employer.emailVerified)
     //   throw "Email verification pending. Please verify your email.";
     //checking if employer is validated and limiting jobs
-    if (type=== "posted" && employer.validated == false && (employer[subscription][type] > 0) )
+    if (type=== "posted" && employer.validated === false)
       throw "Jobs can be posted once your account is verified. Please save the job details to post later.";
 
     //updating job tier
@@ -37,22 +37,25 @@ const fs = require("fs"),
         throw "You have reached the limit for the number of Day Jobs you can post. Please contact us to post more jobs.";
       if(req.body.category === "Locum")
         throw "You have reached the limit for the number of Locum Jobs you can post. Please contact us to post more jobs.";
+      
     }
     else employer[subscription][type] += 1;
+      //checking sponsorship status
+    if(req.body.sponsored === "true" || req.body.sponsored===true){
+      if(employer.sponsors.allowed - employer.sponsors.posted <= 0)
+        throw "You have reached the limit for the number of jobs you can promote. Please contact us to allocate more slots.";
+      else employer.sponsors.posted+=1;
+      // if(employer.sponsors.posted === employer.sponsors.allowed || employer.sponsors.posted > employer.sponsors.allowed)  
+      // else employer.sponsors.posted += 1;
+     }
     }
     else if(type==="saved"){
-      if(employer[subscription].saved > 20)
+      if(employer[subscription].saved >= 20)
       throw "Maximum Jobs Saved";
       else employer[subscription].saved+=1;
     }
 
-     //checking sponsorship status
-    if(req.body.sponsored === "true" && employer.sponsors.posted >= employer.sponsors.allowed)
-    throw "You have reached the limit for the number of jobs you can promote. Please contact us to allocate more slots.";
-    else if(req.body.sponsored === "true" || req.body.sponsored === true) {
-      console.log("ok sponsor logged");
-     employer.sponsors.posted += 1;
-    }
+   
     return employer;
     
   }
