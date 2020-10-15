@@ -74,19 +74,19 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async function (req, res, next) {
   //captcha validation
-  // let captcha = true;
-  // try{
-  //      captcha = await validationController.verifyInvisibleCaptcha(req);
-  //   } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  // if(!captcha)
-  // return res.status(400).json({err:"Invalid Captcha"});
+  let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  if(!captcha)
+  return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("user", (err, user, info) => {
     if (err) {
       return res.status(400).json({ err: err });
     }
     if (!user) {
       if(info.name==="NoSaltValueStoredError"){
-        info.message==="Please login with your social media account";
+        info.message="Please login with your social media account";
         return res.status(400).json({err:info})
       }
       else{
@@ -127,7 +127,9 @@ router.post("/forgot", async (req, res) => {
     }
   )
     .then((user) => {
-      console.log(token);
+      if(user===null)
+            return res.status(400).json({err:"Email not found, please register your account or contact support@curoid.co'"});
+     // console.log(token);
       mailController.forgotMail(req, user, token,"user");
       res.json({ status: "Email has been sent" });
     })

@@ -25,7 +25,7 @@ const fs = require("fs"),
     //   throw "Email verification pending. Please verify your email.";
     //checking if employer is validated and limiting jobs
     if (type=== "posted" && employer.validated === false)
-      throw "Jobs can be posted once your account is verified. Please save the job details to post later.";
+      throw "Jobs can be posted once your account is verified. Kindly wait for us to contact you for verification. Meanwhile, you can save the job details to post later.";
 
     //updating job tier
     if(type==="posted"){

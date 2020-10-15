@@ -116,13 +116,13 @@ async function updateRequestValidator(req){
 }
 function initTier(user){
     user.jobtier= {
-        allowed: 10,
+        allowed: 1,
         posted: 0,
         saved: 0,
         closed: 0,
     };
     user.freelancetier= {
-        allowed: 3,
+        allowed: 1,
         posted: 0,
         saved: 0,
         closed: 0,
@@ -134,7 +134,7 @@ function initTier(user){
         closed: 0,
     };
     user.sponsors={
-        allowed: 1,
+        allowed: 0,
         posted: 0,
         closed:0,
     };

@@ -291,6 +291,11 @@ router.post("/jobs", async (req, res) => {
               // }
               //},
               query.search,
+              // {
+              //   $project:{
+              //     score: { $meta: "searchScore" }
+              //   }
+              // },
              query.sort,
               {
                 $skip: query.skip,
@@ -322,6 +327,7 @@ router.post("/jobs", async (req, res) => {
                   score: { $meta: "searchScore" },
                 },
               },
+              query.sort,
             ],
             (err, jobs) => {
               if (err)
@@ -613,6 +619,7 @@ router.post("/visitor-jobs", async (req, res) => {
                   score: { $meta: "searchScore" },
                 },
               },
+              query.sort,
             ],
             (err, jobs) => {
               if (err)

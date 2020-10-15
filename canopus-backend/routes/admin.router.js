@@ -23,16 +23,108 @@ const fs = require("fs"),
 path = require('path'),    
 filePath = path.join(__dirname, '../canopus-frontend/build/data.json');
 
-//Work in progress TODO admin model
-router.post("/tags",async (req,res)=>{
-   let rawdata = fs.readFileSync(filePath);
-   let data = JSON.parse(rawdata);
-   data.tags.push(req.body.tag);
-   tags = JSON.stringify(tags);
-   fs.writeFileSync(filePath,tags);
-   res.json(tags);
+// router.post("/tags",async (req,res)=>{
+//    let rawdata = fs.readFileSync(filePath);
+//    let data = JSON.parse(rawdata);
+//    data.tags.push(req.body.tag);
+//    tags = JSON.stringify(tags);
+//    fs.writeFileSync(filePath,tags);
+//    res.json(tags);
+// });
+
+router.get("/data",async(req,res)=>{
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+    res.json(data);
+})
+//update banners
+router.post("/update/banner/subscription",async (req,res) => {
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+   // let banner = data.subscription_banner;
+    let banner = req.body.banner;
+    data.subscription_banner=banner;
+    data = JSON.stringify(data);
+    // do update
+    fs.writeFileSync(filePath,data);
+    res.json(banner);
 });
 
+router.post("/update/banner/sponsor",async (req,res) => {
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+    // banner = data.sponsor_banner;
+    let banner = req.body.banner;
+    data.sponsor_banner=banner;
+    data = JSON.stringify(data);
+    // do update
+    fs.writeFileSync(filePath,data);
+    res.json(banner);
+});
+
+//update search count
+router.post("/update/count",async (req,res) => {
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+    let count = req.body.count;
+    data.search_count = count;
+    data = JSON.stringify(data);
+    // do update
+    fs.writeFileSync(filePath,data);
+    res.json(count);
+});
+
+//update tags
+router.post("/add/profession",async (req,res) => {
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+    let specializations = data.specializations;
+    specializations = [ ...specializations , { profession:req.body.profession,specialization:req.body.specialization}];
+    data.specializations=specializations;
+    data = JSON.stringify(data);
+    // do update
+    fs.writeFileSync(filePath,data);
+    res.json(specializations);
+});
+
+
+router.post("/add/super",async (req,res) => {
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+    let specializations = data.superSpecializations;
+    specializations = [ ...specializations , { profession:req.body.profession,specialization:req.body.specialization,superSpecialization:req.body.superSpecialization}];
+    data.superSpecializations=specializations;
+    data = JSON.stringify(data);
+    // do update
+    fs.writeFileSync(filePath,data);
+    res.json(specializations);
+});
+
+router.post("/update/specialization",async (req,res) => {
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+    let specializations = data.specializations;
+    let index = specializations.findIndex(item => item.profession===req.body.profession);
+    specializations[index] = { profession:req.body.profession,specialization:req.body.specialization};
+    data.specializations=specializations;
+    data = JSON.stringify(data);
+    // do update
+    fs.writeFileSync(filePath,data);
+    res.json(specializations);
+});
+
+router.post("/update/super",async (req,res) => {
+    let rawdata = fs.readFileSync(filePath);
+    let data = JSON.parse(rawdata);
+    let superSpecializations = data.superSpecializations;
+    let index = superSpecializations.findIndex(item => item.specialization===req.body.specialization);
+    superSpecializations[index] = { profession:req.body.profession,specialization:req.body.specialization,superSpecialization:req.body.superSpecialization};
+    data.superSpecializations=superSpecializations;
+    data = JSON.stringify(data);
+    // do update
+    fs.writeFileSync(filePath,data);
+    res.json(superSpecializations);
+});
 router.post("/login", function (req, res, next) {
     passport.authenticate("user", (err, user, info) => {
       console.log(info);
@@ -55,13 +147,35 @@ router.post("/login", function (req, res, next) {
     })(req, res, next);
   });
 
-//Get unvalidated recruiters
-router.get("/validate/employer",middleware.isAdmin,(req,res) => {
-    Employer.aggregate([{ 
+//Get validated recruiters
+router.get("/all/employer",(req,res) => {
+    Employer.aggregate([
+        { 
         $match:{
-            validated:false
+            validated:true
+            }
+        },
+        {
+            $project:{
+                _id:1,
+                username:1,
+                phone:1,
+                'description.organization':1,
+                'sponsors.posted':1,
+                'sponsors.allowed':1,
+                'sponsors.closed':1,
+                'jobtier.posted':1,
+                'jobtier.allowed':1,
+                'jobtier.closed':1,
+                'freelancetier.posted':1,
+                'freelancetier.allowed':1,
+                'freelancetier.closed':1,
+                'locumtier.posted':1,
+                'locumtier.allowed':1,
+                'locumtier.closed':1,
+            }
         }
-     }],(err, employer) => {
+    ],(err, employer) => {
     if (err)
         res.status(400).json({
             err: err,
@@ -70,8 +184,32 @@ router.get("/validate/employer",middleware.isAdmin,(req,res) => {
 },);
 
 });
+//Get unvalidated recruiters
+router.get("/validate/employer",(req,res) => {
+    Employer.aggregate([
+        { 
+        $match:{
+            validated:false
+            }
+        },
+        {
+            $project:{
+                _id:1,
+                username:1,
+                phone:1,
+                'description.organization':1,
+            }
+        }
+    ],(err, employer) => {
+    if (err)
+        res.status(400).json({
+            err: err,
+        });
+    else res.json({ employer:employer});
+},);
 
-router.post("/validate/employer",middleware.isAdmin,(req,res) => {
+});
+router.post("/validate/employer",(req,res) => {
         let ID=req.body.id;
         //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
@@ -86,35 +224,35 @@ router.post("/validate/employer",middleware.isAdmin,(req,res) => {
 
 });
 
-router.get("/validate/user",middleware.isAdmin,(req,res) => {
-    User.aggregate([{ 
-        $match:{
-            validated:false
-        }
-     }],(err, employer) => {
-    if (err)
-        res.status(400).json({
-            err: err,
-        });
-    else res.json({ employer:employer});
-},);
+// router.get("/validate/user",middleware.isAdmin,(req,res) => {
+//     User.aggregate([{ 
+//         $match:{
+//             validated:false
+//         }
+//      }],(err, employer) => {
+//     if (err)
+//         res.status(400).json({
+//             err: err,
+//         });
+//     else res.json({ employer:employer});
+// },);
 
-});
+// });
 
-router.post("/validate/user",middleware.isAdmin,(req,res) => {
-        ID=req.body.id;
-        User.updateMany({_id:{$in:ID}},{$set:{validated:true}},{nModified:1}).then((employer) =>{
-            Job.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((jobs) =>{
-                Freelance.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((freelance) =>{
-                    res.json({employer:employer,jobs:jobs,freelance:freelance});
-                }).catch((err) => {res.json({err:err})});
-            }).catch((err) => {res.json({err:err})});
-            }).catch((err) => {res.json({err:err})});
+// router.post("/validate/user",middleware.isAdmin,(req,res) => {
+//         ID=req.body.id;
+//         User.updateMany({_id:{$in:ID}},{$set:{validated:true}},{nModified:1}).then((employer) =>{
+//             Job.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((jobs) =>{
+//                 Freelance.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((freelance) =>{
+//                     res.json({employer:employer,jobs:jobs,freelance:freelance});
+//                 }).catch((err) => {res.json({err:err})});
+//             }).catch((err) => {res.json({err:err})});
+//             }).catch((err) => {res.json({err:err})});
 
-});
+// });
 
 // Update subscriptions
-router.post("/subscription/employer",middleware.isAdmin,(req,res) => {
+router.post("/subscription/employer",(req,res) => {
     var update = {};
     if(req.body.job)
     update['jobtier.allowed']=req.body.job;
@@ -122,23 +260,25 @@ router.post("/subscription/employer",middleware.isAdmin,(req,res) => {
     update['freelancetier.allowed']=req.body.freelance;
     if(req.body.locum)
     update['locumtier.allowed']=req.body.locum;
+    if(req.body.sponsors)
+    update['sponsors.allowed']=req.body.sponsors;
     Employer.findOneAndUpdate({username:req.body.username},{$inc:update}).then((employer)=>{
         res.json({employer:employer});
     }).catch((err)=>{res.status(500).json({err:err})});
 });
 
-router.post("/subscription/user", middleware.isAdmin,(req,res) => {
-    var update = {};
-    if(req.body.job)
-    update['jobtier.allowed']=req.body.job;
-    if(req.body.freelance)
-    update['freelancetier.allowed']=req.body.freelance;
-    if(req.body.locum)
-    update['locumtier.allowed']=req.body.locum;
-    User.findOneAndUpdate({username:req.body.username},{$inc:update}).then((employer)=>{
-        res.json({employer:employer});
-    }).catch((err)=>{res.status(500).json({err:err})});
-});
+// router.post("/subscription/user", middleware.isAdmin,(req,res) => {
+//     var update = {};
+//     if(req.body.job)
+//     update['jobtier.allowed']=req.body.job;
+//     if(req.body.freelance)
+//     update['freelancetier.allowed']=req.body.freelance;
+//     if(req.body.locum)
+//     update['locumtier.allowed']=req.body.locum;
+//     User.findOneAndUpdate({username:req.body.username},{$inc:update}).then((employer)=>{
+//         res.json({employer:employer});
+//     }).catch((err)=>{res.status(500).json({err:err})});
+// });
 
 
 

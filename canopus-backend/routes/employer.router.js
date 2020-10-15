@@ -23,12 +23,12 @@ const User = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
     //captcha validation
-//     let captcha = true;
-//   try{
-//        captcha = await validationController.verifyInvisibleCaptcha(req);
-//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-//   if(!captcha)
-//   return res.status(400).json({err:"Invalid Captcha"});
+    let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  if(!captcha)
+  return res.status(400).json({err:"Invalid Captcha"});
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     const employer = new Employer({
         username: req.body.username,
@@ -36,13 +36,13 @@ router.post("/", async (req, res) => {
         emailVerified: false,
         role: "Employer",
         jobtier: {
-            allowed: 10,
+            allowed: 1,
             posted: 0,
             saved: 0,
             closed: 0,
         },
         freelancetier: {
-            allowed: 3,
+            allowed: 1,
             posted: 0,
             saved: 0,
             closed: 0,
@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
             closed: 0,
         },
         sponsors: {
-            allowed: 1,
+            allowed: 0,
             posted: 0,
             closed:0,
         },
@@ -77,12 +77,12 @@ router.post("/", async (req, res) => {
 //Login route
 router.post("/login", async function (req, res,next) {
   //captcha validation
-//   let captcha = true;
-//   try{
-//        captcha = await validationController.verifyInvisibleCaptcha(req);
-//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-//   if(!captcha)
-//   return res.status(400).json({err:"Invalid Captcha"});
+  let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  if(!captcha)
+  return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
         console.log(err);
@@ -90,7 +90,7 @@ router.post("/login", async function (req, res,next) {
     }
     if (!employer) {
         if(info.name==="NoSaltValueStoredError"){
-            info.message==="You have signed up using your social media account. Please use the same account to login.";
+            info.message="You have signed up using your social media account. Please use the same account to login.";
             return res.status(400).json({err:info})
           }
           else{
@@ -131,7 +131,9 @@ router.post("/forgot", async (req, res) => {
         },
     )
         .then((user) => {
-            console.log(token);
+            if(user===null)
+                return res.status(400).json({err:"Email not found, please register your account or contact support@curoid.co'"});
+            //console.log(token);
             mailController.forgotMail(req, user, token,"employer");
             res.json({ status: "Email has been sent" });
         })

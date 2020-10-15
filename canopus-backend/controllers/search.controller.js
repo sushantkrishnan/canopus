@@ -147,7 +147,7 @@ async function queryBuilder(req) {
        // By default sort by Relevance
     //     console.log(query.mustquery);
     // console.log(query.shouldquery);
-        query.sort = {$sort: { score: { $meta: "textScore" }} };
+        query.sort = {$sort: { score: -1} };
                 if ((req.body.order === "New"))
                     query.sort = {
                         $sort: {
