@@ -8,18 +8,22 @@ router.get("/analytics",middleware.isLoggedIn,(req,res)=>{
   let updated=true;
   let d = new Date(req.user.lastUpdated).toString();
   let o = new Date(0).toString();
+  let mail = true;
   console.log(d);
   console.log(o);
   if(d===o){
-    console.log("ok");
   updated=false;
+  }
+  if(req.user.role==="Employer" && req.user.emailVerified===false){
+  mail=false;
+  res.redirect('https://www.curoid.co/employer/verify');
   }
   if(!req.session.analytics){
   req.session.analytics=true;
   res.json({role:req.user.role,updated:updated});
   }
   else{
-  res.status(400).json({role:req.user.role,status:"already logged",updated:updated});
+  res.status(400).json({role:req.user.role,status:"already logged",updated:updated,mail:mail});
   }
 });
 

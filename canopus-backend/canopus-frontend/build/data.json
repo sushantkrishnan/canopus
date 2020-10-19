@@ -1,9 +1,7 @@
 {
     "subscription_banner": "Please contact +91-8999-718-313 for pricing information or purchasing more job slots",
-    "sponsor_banner": "Please contact +91-8999-718-313 to sponsor this job",
-    "search_count": 15,
-    "search_banner": "https://canopus.blob.core.windows.net/mail-image/banner.png",
-    "search_banner_link": "https://canopus.blob.core.windows.net/mail-image/banner.png",
+    "sponsor_banner": "You have reached the limit for the number of jobs you can promote. Please contact +91-8999-718-313 to allocate more slots.",
+    "banner": null,
     "degrees": [
         "MBBS",
         "BAMS",

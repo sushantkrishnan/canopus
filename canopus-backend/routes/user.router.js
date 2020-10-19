@@ -60,7 +60,7 @@ router.post("/", async (req, res) => {
     lastUpdated:new Date(0),
   });
   if(req.body.password.length > 20) 
-    return res.status(400).json({err :"Password should be maximum 20 characters"});
+    return res.status(400).json({err :{message:"Password should be maximum 20 characters"}});
   User.register(user, req.body.password)
     .then((user) => {
      // mailController.validateMailUser(req,user,token);
@@ -68,7 +68,7 @@ router.post("/", async (req, res) => {
         res.json({ user: user });
       });
     })
-    .catch((err) => res.status(400).json({ err: err }));
+    .catch((err) => res.status(400).json({ err:{message: "User already exists" }}));
 });
 //===========================================================================
 
@@ -90,7 +90,7 @@ router.post("/login", async function (req, res, next) {
         return res.status(400).json({err:info})
       }
       else{
-        info.message==="Login Failed - Incorrect Email/Password Combination";
+        info.message="Login Failed - Incorrect Email/Password Combination";
         return res.status(400).json({ err:info });
       }
     }
@@ -128,7 +128,7 @@ router.post("/forgot", async (req, res) => {
   )
     .then((user) => {
       if(user===null)
-            return res.status(400).json({err:"Email not found, please register your account or contact support@curoid.co'"});
+            return res.status(400).json({err:{message:"Email not found, please register your account or contact support@curoid.co'"}});
      // console.log(token);
       mailController.forgotMail(req, user, token,"user");
       res.json({ status: "Email has been sent" });
