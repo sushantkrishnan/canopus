@@ -491,6 +491,10 @@ router.put("/extend/:id",middleware.checkJobOwnership, async(req, res) => {
   // commit transaction
   await session.commitTransaction();
   session.endSession();
+  req.logIn(employer,function(err){
+    if(err)return res.status(500).json({err:"Error logging in"});
+    res.json({status:"200"});
+  });
   //res.json({status:"200"});
 
   } catch(err) {

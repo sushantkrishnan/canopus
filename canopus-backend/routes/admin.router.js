@@ -1,18 +1,9 @@
-const { searchController } = require("../controllers/search.controller");
-const { mailController } = require("../controllers/mail.controller");
-const { validationController } = require("../controllers/validation.controller");
+const { adminController } = require("../controllers/admin.controller");
 require("dotenv").config();
-const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
-var ua = require("universal-analytics");
-var visitor = ua(GOOGLE_ANALYTICS);
-const mongoose = require("mongoose");
-const crypto = require("crypto");
-const { promisify } = require("util");
-const asyncify = require("express-asyncify");
 const router = require("express").Router(),
   passport = require("passport"),
+  mongoose = require("mongoose"),
   middleware = require("../middleware/index"),
-  User = require("../models/user.model"),
   Employer = require("../models/employer.model"),
   Job = require("../models/job.model"),
   Freelance = require("../models/freelance.model"),
@@ -161,7 +152,15 @@ router.post("/login", function (req, res, next) {
       });
     })(req, res, next);
   });
-
+//Logout route
+router.get("/logout", (req, res) => {
+    req.session.destroy((err) => {
+    res.json({ message: "Logged Out" });
+    });
+  });
+  router.get("/current", (req, res) => {
+    res.json({ user: req.user });
+  });
 //Get validated recruiters
 router.get("/all/employer",middleware.isAdmin,(req,res) => {
     Employer.aggregate([
@@ -410,115 +409,31 @@ router.post("/post/jobs",middleware.isAdmin, async (req,res) =>{
   } 
 })
 //add jobs for employer
-router.post("/add/jobs" ,middleware.isAdmin, async (req,res)=>{
-
-   // console.log(await tokenGen());
-    //const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
-    let promises = [];
-    let newLogins={};
+router.post("/add/jobs" , async (req,res)=>{
+    //start transaction
+    let session = await mongoose.startSession();
+    session.startTransaction();
     let jobs=req.body.jobs;
-    console.log(jobs);
-    for (let i = 0; i < jobs.length; i++) {
-        promises.push(
-            new Promise((resolve, reject) => {
-
-
-               // const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
-                const author=jobs[i].email;
-                 Employer.findOne({username:author}).then((employer)=>{
-                        // const expiry=new Date(req.body.jobs[i].expireAt);
-                        // var days=(expiry-Date.now())/(1000*60*60*24);
-                        // if(days<0 || days>90 )
-                        // return res.status(400).json({err:"Invalid time format"});
-                        // if(employer.jobtier.allowed-employer.jobtier.posted<=0)
-                        // return res.status(400).json({err:"Max Jobs Posted"});
-                        var expiry= new Date();
-                        expiry.setDate(expiry.getDate() + 45);
-                        var description={};
-                        if(jobs[i].line)description.line=jobs[i].line;
-                        if(jobs[i].about)description.about=jobs[i].about;
-                        if(jobs[i].experience)description.experience=jobs[i].experience;
-                        if(jobs[i].incentives)description.incentives=jobs[i].incentives;
-                        if(jobs[i].type)description.type=jobs[i].type;
-                        if(jobs[i].location)description.location=jobs[i].location;
-                        if(jobs[i].skills)description.skills=jobs[i].skills;
-                        if(jobs[i].salary)description.salary=jobs[i].salary;
-                        if(jobs[i].count)description.count=jobs[i].count;
-                        if(employer.instituteName) description.company=employer.instituteName;
-                        let job = new Job({
-                            title: jobs[i].title,
-                            profession: jobs[i].profession,
-                            specialization: jobs[i].specialization,
-                            superSpecialization:jobs[i].superSpecialization,
-                            description: description,
-                           // address: req.body.jobs[i].address,
-                            createdAt:new Date(),
-                            createdBy:"Employer",
-                            expireAt:expiry,
-                            validated:employer.validated,
-                            extension:1,
-                        });
-                        Job.create(job)
-                        .then((job) => {
-                            job.author.username = employer.username;
-                             job.author.id = employer._id;
-                            //if(employer.instituteName){console.log("Hello");
-                            job.author.instituteName = employer.instituteName;
-                           // if(employer.logo)
-                            job.author.photo = employer.logo;
-                           // if(employer.description.about) 
-                            //// job.author.about = employer.description.about;
-                           // console.log(job);
-                            job.save()
-                            .then((job) => {
-                                //let sJob= new savedJob()
-                                let sjob = new savedJob({
-                                    jobRef:job._id,
-                                    status:"Active",
-                                    author:job.author,
-                                    title: jobs[i].title,
-                                    profession: jobs[i].profession,
-                                    specialization: jobs[i].specialization,
-                                    superSpecialization:jobs[i].superSpecialization,
-                                    description: description,
-                                // address: req.body.jobs[i].address,
-                                    createdAt:new Date(),
-                                    createdBy:"Employer",
-                                    expireAt:expiry,
-                                    validated:employer.validated,
-                                    extension:1,
-                                });
-                                savedJob.create(sjob).then((sjob) =>{
-                                    employer.jobtier.posted+=1;
-                                    employer.jobs = [
-                                    ...employer.jobs,
-                                    {
-                                        title: job.title,
-                                        id: job._id,
-                                        sid:sjob._id,
-                                    },
-                                    ];
-                                    employer
-                                    .save().then((updatedEmployer)=>{
-                                        console.log(updatedEmployer);
-                                        resolve("Done")
-                                    }).catch((err)=>{res.status(500).json({err:"Error saving employer jobs"})});
-                               // }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                                }).catch((err)=>{res.status(500).json({err:"Error creating sjob"})});
-                            }).catch((err)=>{res.status(500).json({err:"Error saving job"})});
-                        }).catch((err)=>{res.status(500).json({err:"Error creating job"})});
-                    //}).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                    })
-               
-            }),
-        );
+    let job_ids=[]
+    try {
+        let promises = jobs.map(async job => {
+            let employer = await Employer.findOne({username:"tmsusha@gmail.com"}).session(session);
+            console.log(job);
+            let job = adminController.createJob(data,employer,"Full-time")
+            return Promise.resolve("ok");
+          })
+        await Promise.all(promises)
+        res.json({jobs:job_ids});
+        //commit transaction
+        await session.commitTransaction();
+        session.endSession();
+    } catch(err){
+        // any 500 error in try block aborts transaction
+        await session.abortTransaction();
+        session.endSession();
+        console.log(err);
+        res.json({err:err});
     }
-    Promise.all(promises)
-        .then((msg) => {
-            console.log("All promises resolved");
-            res.json({new:newLogins});
-    })
-    .catch((err) => res.json({ err:"Couldn't find employer" }));
 });
 
 //analytics
