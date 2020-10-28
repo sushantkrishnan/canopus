@@ -294,148 +294,200 @@ router.post("/subscription/employer",middleware.isAdmin,(req,res) => {
 //     }).catch((err)=>{res.status(500).json({err:err})});
 // });
 
-
-
-
-router.post("/post/jobs",middleware.isAdmin, async (req,res) =>{
-    //start transaction
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  const server_error = new Error("500");
-  const client_error = new Error("400");
-  //try block
-  try{
-    let promises = [];
-    let jobs=req.body.jobs;
-    for (let i = 0; i < jobs.length; i++) {
-        promises.push(
-            new Promise((resolve, reject) => {
-                const author=jobs[i].email;
-                let employer =Employer.findOne({username:author}).session(session);
-                        var expiry= new Date();
-                        expiry.setDate(expiry.getDate() + 45);
-                        var description={};
-                        if(jobs[i].line)description.line=jobs[i].line;
-                        if(jobs[i].about)description.about=jobs[i].about;
-                        if(jobs[i].experience)description.experience=jobs[i].experience;
-                        if(jobs[i].incentives)description.incentives=jobs[i].incentives;
-                        if(jobs[i].type)description.type=jobs[i].type;
-                        if(jobs[i].location)description.location=jobs[i].location;
-                        if(jobs[i].skills)description.skills=jobs[i].skills;
-                        if(jobs[i].salary)description.salary=jobs[i].salary;
-                        if(jobs[i].count)description.count=jobs[i].count;
-                        if(employer.instituteName) description.company=employer.instituteName;
-                        let job = new Job({
-                            title: jobs[i].title,
-                            profession: jobs[i].profession,
-                            specialization: jobs[i].specialization,
-                            superSpecialization:jobs[i].superSpecialization,
-                            description: description,
-                           // address: req.body.jobs[i].address,
-                            createdAt:new Date(),
-                            createdBy:"Employer",
-                            expireAt:expiry,
-                            validated:employer.validated,
-                            extension:1,
-                        });
-                        Job.create(job)
-                        .then((job) => {
-                            job.author.username = employer.username;
-                             job.author.id = employer._id;
-                            //if(employer.instituteName){console.log("Hello");
-                            job.author.instituteName = employer.instituteName;
-                           // if(employer.logo)
-                            job.author.photo = employer.logo;
-                           // if(employer.description.about) 
-                            //// job.author.about = employer.description.about;
-                           // console.log(job);
-                            job.save()
-                            .then((job) => {
-                                //let sJob= new savedJob()
-                                let sjob = new savedJob({
-                                    jobRef:job._id,
-                                    status:"Active",
-                                    author:job.author,
-                                    title: jobs[i].title,
-                                    profession: jobs[i].profession,
-                                    specialization: jobs[i].specialization,
-                                    superSpecialization:jobs[i].superSpecialization,
-                                    description: description,
-                                // address: req.body.jobs[i].address,
-                                    createdAt:new Date(),
-                                    createdBy:"Employer",
-                                    expireAt:expiry,
-                                    validated:employer.validated,
-                                    extension:1,
-                                });
-                                savedJob.create(sjob).then((sjob) =>{
-                                    employer.jobtier.posted+=1;
-                                    employer.jobs = [
-                                    ...employer.jobs,
-                                    {
-                                        title: job.title,
-                                        id: job._id,
-                                        sid:sjob._id,
-                                    },
-                                    ];
-                                    employer
-                                    .save().then((updatedEmployer)=>{
-                                        console.log(updatedEmployer);
-                                        resolve("Done")
-                                    }).catch((err)=>{res.status(500).json({err:"Error saving employer jobs"})});
-                               // }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                                }).catch((err)=>{res.status(500).json({err:"Error creating sjob"})});
-                            }).catch((err)=>{res.status(500).json({err:"Error saving job"})});
-                        }).catch((err)=>{res.status(500).json({err:"Error creating job"})});
-                    //}).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                    })
-               
-           // }),
-        );
-    }
-    Promise.all(promises)
-        .then((msg) => {
-            console.log("All promises resolved");
-            res.json({jobs:"Done"});
-    })
-    .catch((err) => res.json({ err:"Couldn't find employer" }));
-
-  } catch (err) {
-    // any 500 error in try block aborts transaction
-    await session.abortTransaction();
-    session.endSession();
-    console.log(err);
-    res.status(500).json({status:"500"});
-  } 
-})
+// employer.jobtier.posted+=1;
+// employer.jobs = [
+// ...employer.jobs,
+// {
+//     title: job.title,
+//     id: job._id,
+//     sid:sjob._id,
+// },
+// ];
 //add jobs for employer
 router.post("/add/jobs" , async (req,res)=>{
     //start transaction
-    let session = await mongoose.startSession();
-    session.startTransaction();
+    // let session = await mongoose.startSession();
+    // await session.startTransaction();
     let jobs=req.body.jobs;
-    let job_ids=[]
+    let job_ids=[];
+    let batch_jobs = [];
+    let batch_savedjobs = [];
     try {
         let promises = jobs.map(async job => {
-            let employer = await Employer.findOne({username:"tmsusha@gmail.com"}).session(session);
-            console.log(job);
-            let job = adminController.createJob(data,employer,"Full-time")
+            let employer = await Employer.findOne({username:job.email});
+            //.session(session);
+            var expiry= new Date();
+            expiry.setDate(expiry.getDate() + 45);
+            let author = {};
+            author.username = employer.username;
+            author.id = employer._id;
+            if(employer.description.organization)author.instituteName = employer.description.organization;
+            if(employer.logo)author.photo = employer.logo;
+            var description={};
+            if(job.line)description.line=job.line;
+            if(job.about)description.about=job.about;
+            if(job.experience)description.experience=job.experience;
+            if(job.incentives)description.incentives=job.incentives.split(',');
+            if(job.type)description.type=job.type;
+            if(job.location)description.location=job.location;
+            if(job.salary)description.salary=job.salary;
+            if(job.count)description.count=job.count;
+            if(employer.description.organization) description.company=employer.description.organization;
+            job.employer=employer.description.organization;
+            if(job.category==="Locum"){
+                let datearr1 = job.startDate.split('/');
+                job.startDate = new Date(`${datearr1[1]}/${datearr1[0]}/${datearr1[2]}`);
+                let datearr2 = job.endDate.split('/');
+                job.endDate=new Date(`${datearr2[1]}/${datearr2[0]}/${datearr2[2]}`);
+                if(job.procedure)description.procedure=job.procedure;
+            }
+            if(job.category==="Day Job"){
+                let datearr = job.date.split('/');
+                job.date = `${datearr[1]}/${datearr[0]}/${datearr[2]}`
+                job.startDate=new Date(`${job.date}, ${job.startHour}`);
+                job.endDate=new Date(`${job.date}, ${job.endHour}`);
+                if(job.procedure)description.procedure=job.procedure;
+            }
+            if(job.category==="Full-time"){
+                let insert_job = new Job({
+                    author:author,
+                    title: job.title,
+                    profession: job.profession,
+                    specialization: job.specialization,
+                    superSpecialization:job.superSpecialization,
+                    description: description,
+                   // address: req.body.job.address,
+                    createdAt:new Date(),
+                    createdBy:"Employer",
+                    expireAt:expiry,
+                    validated:employer.validated,
+                    extension:1,
+                    category:"Full-time",
+                });
+                let insert_sjob = new savedJob({
+                    jobRef:insert_job._id,
+                    author:author,
+                    title: job.title,
+                    profession: job.profession,
+                    specialization: job.specialization,
+                    superSpecialization:job.superSpecialization,
+                    description: description,
+                    status:"Active",
+                   // address: req.body.job.address,
+                    createdAt:new Date(),
+                    createdBy:"Employer",
+                    expireAt:expiry,
+                    validated:employer.validated,
+                    extension:1,
+                    category:"Full-time",
+                });
+                batch_jobs.push(insert_job);
+                batch_savedjobs.push(insert_sjob);
+                let update ={};
+                update["jobtier.allowed"]=employer.jobtier.allowed+1;
+                update["jobtier.posted"]=employer.jobtier.posted+1;
+                update_push={
+                    title: insert_job.title,
+                    id: insert_job._id,
+                    sid:insert_sjob._id,
+                };
+                await Employer.findOneAndUpdate({_id:employer._id},{$set:update,$push:{jobs:update_push}});
+            }
+            else{
+                let insert_job = new Freelance({
+                    author:author,
+                    title: job.title,
+                    profession: job.profession,
+                    specialization: job.specialization,
+                    superSpecialization:job.superSpecialization,
+                    description: description,
+                    startDate:job.startDate,
+                    endDate:job.endDate,
+                   // address: req.body.job.address,
+                    createdAt:new Date(),
+                    createdBy:"Employer",
+                    expireAt:job.endDate,
+                    validated:employer.validated,
+                    extension:1,
+                    category:job.category,
+                });
+                let insert_sjob = new savedFreelance({
+                    author:author,
+                    title: job.title,
+                    profession: job.profession,
+                    specialization: job.specialization,
+                    superSpecialization:job.superSpecialization,
+                    description: description,
+                    status:"Active",
+                    startDate:job.startDate,
+                    endDate:job.endDate,
+                   // address: req.body.job.address,
+                    createdAt:new Date(),
+                    createdBy:"Employer",
+                    expireAt:job.endDate,
+                    validated:employer.validated,
+                    extension:1,
+                    category:job.category,
+                });    
+                batch_jobs.push(insert_job);
+                batch_savedjobs.push(insert_sjob);
+                let update = {};
+                if(job.category==="Locum"){
+                    //update.locumtier={};
+                    update["locumtier.allowed"]=employer.locumtier.allowed+1;
+                    update["locumtier.posted"]=employer.locumtier.posted+1;
+                    //update.locumtier.allowed=employer.locumtier.allowed+1;
+                    //update.locumtier.posted=employer.locumtier.posted+1;
+                    //console.log(employer);
+                }
+                else{
+                    // update.freelancetier={};
+                    update["freelancetier.allowed"]=employer.freelancetier.allowed+1;
+                    update["freelancetier.posted"]=employer.freelancetier.posted+1;
+                }
+                update_push={
+                    title: insert_job.title,
+                    id: insert_job._id,
+                    sid:insert_sjob._id,
+                };
+                await Employer.findOneAndUpdate({_id:employer._id},{$set:update,$push:{freelanceJobs:update_push}});
+            }
             return Promise.resolve("ok");
           })
-        await Promise.all(promises)
-        res.json({jobs:job_ids});
+        await Promise.all(promises);
+        if(req.body.flag==="Full-time"){
+            await Job.insertMany(batch_jobs);
+            // {session:session}
+            await savedJob.insertMany(batch_savedjobs);
+        }
+        else{
+            await Freelance.insertMany(batch_jobs);
+            await savedFreelance.insertMany(batch_savedjobs);
+        }
         //commit transaction
-        await session.commitTransaction();
-        session.endSession();
+        // await session.commitTransaction();
+        // session.endSession();
+        res.json({jobs:batch_jobs});
     } catch(err){
         // any 500 error in try block aborts transaction
-        await session.abortTransaction();
-        session.endSession();
+        // await session.abortTransaction();
+        // session.endSession();
         console.log(err);
         res.json({err:err});
     }
 });
-
+//get applicants for an employer
+router.post("/employer/applicants",async (req,res)=>{
+    let jobs = await Job.aggregate([
+        {
+            $match:{'author.id':mongoose.Types.ObjectId(req.body.id)}
+        },
+        // {
+        //     $sortByCount:"$applicants"
+        // }
+    ]);
+    res.json({jobs:jobs});
+})
 //analytics
 // router.get("/analytics/location",middleware.isAdmin,(req,res)=>{
 //     Job.aggregate([
