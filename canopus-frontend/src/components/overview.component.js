@@ -43,7 +43,7 @@ export default class Overview extends Component {
         return (
             <div>
                 {this.state.employer && (
-                    <div className='d-flex flex-column-reverse flex-sm-row mx-1 mx-sm-3'>
+                    <div className='d-flex flex-column-reverse flex-sm-row mx-1 mx-xl-0'>
                         <div className='col-12  col-sm-7 col-md-8  py-3'>
                             <div className='row m-1 m-sm-2'>
                                 <div className='col-8 mx-auto col-md-3 col-lg-2 px-5 px-sm-0 text-align-center'>
@@ -51,16 +51,15 @@ export default class Overview extends Component {
                                         src={
                                             this.state.employer.logo
                                                 ? this.state.employer.logo
-                                                : hospital
+                                                : "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_210416356.jpeg"
                                         }
-                                        alt=''
                                         className='img-fluid img-thumbnail'
                                     />
                                 </div>
                                 <div
                                     className='col-12 col-md-9 col-lg-10 px-3 px-md-5 my-3 my-md-0'
                                     style={{ maxHeight: "max-content" }}>
-                                    <h3 className='text-info'>
+                                    <h3 className='text-emp-primary'>
                                         {this.state.employer.description &&
                                         this.state.employer.description
                                             .organization
@@ -100,156 +99,183 @@ export default class Overview extends Component {
                                 <div
                                     className='col-12 d-block d-sm-none'
                                     style={{ height: "max-content" }}>
-                                    <h4 className='text-blue text-align-center'>
+                                    <h4 className='text-emp-primary text-align-center'>
                                         Subscription Details
                                     </h4>
-                                    <Table
-                                        // size='md'
-                                        hover
-                                        className='col-12 border p-1'>
-                                        <thead>
-                                            <tr>
-                                                <th className='text-align-left'>
-                                                    Jobs
-                                                </th>
-                                                <th>Open</th>
-                                                <th>Closed</th>
-                                                <th>Available</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th
-                                                    scope='row'
-                                                    className='text-align-left'>
-                                                    Regular
-                                                </th>
-                                                <td>
-                                                    {this.state.employer
-                                                        .jobtier &&
-                                                        this.state.employer
-                                                            .jobtier.posted -
+                                    <div className='container-fluid'>
+                                        <Table
+                                            // size='md'
+                                            hover
+                                            className='col-12 border p-1'>
+                                            <thead>
+                                                <tr>
+                                                    <th className='text-align-left'>
+                                                        Jobs
+                                                    </th>
+                                                    <th>Open</th>
+                                                    <th>Closed</th>
+                                                    <th>Available</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th
+                                                        scope='row'
+                                                        className='text-align-left'>
+                                                        Regular
+                                                    </th>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .jobtier &&
+                                                            this.state.employer
+                                                                .jobtier
+                                                                .posted -
+                                                                this.state
+                                                                    .employer
+                                                                    .jobtier
+                                                                    .closed}
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .jobtier &&
                                                             this.state.employer
                                                                 .jobtier.closed}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .jobtier &&
-                                                        this.state.employer
-                                                            .jobtier.closed}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .jobtier &&
-                                                        this.state.employer
-                                                            .jobtier.allowed -
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .jobtier &&
                                                             this.state.employer
-                                                                .jobtier.posted}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th
-                                                    scope='row'
-                                                    className='text-align-left'>
-                                                    Day Jobs
-                                                </th>
-                                                <td>
-                                                    {this.state.employer
-                                                        .freelancetier &&
-                                                        this.state.employer
-                                                            .freelancetier
-                                                            .posted -
+                                                                .jobtier
+                                                                .allowed -
+                                                                this.state
+                                                                    .employer
+                                                                    .jobtier
+                                                                    .posted}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th
+                                                        scope='row'
+                                                        className='text-align-left'>
+                                                        Day Jobs
+                                                    </th>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .freelancetier &&
+                                                            this.state.employer
+                                                                .freelancetier
+                                                                .posted -
+                                                                this.state
+                                                                    .employer
+                                                                    .freelancetier
+                                                                    .closed}
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .freelancetier &&
                                                             this.state.employer
                                                                 .freelancetier
                                                                 .closed}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .freelancetier &&
-                                                        this.state.employer
-                                                            .freelancetier
-                                                            .closed}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .freelancetier &&
-                                                        this.state.employer
-                                                            .freelancetier
-                                                            .allowed -
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .freelancetier &&
                                                             this.state.employer
                                                                 .freelancetier
-                                                                .posted}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th
-                                                    scope='row'
-                                                    className='text-align-left'>
-                                                    Locum Positions
-                                                </th>
-                                                <td>
-                                                    {this.state.employer
-                                                        .locumtier
-                                                        ? this.state.employer
-                                                              .locumtier
-                                                              .posted -
-                                                          this.state.employer
-                                                              .locumtier.closed
-                                                        : 0}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .locumtier
-                                                        ? this.state.employer
-                                                              .locumtier.closed
-                                                        : 0}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .locumtier
-                                                        ? this.state.employer
-                                                              .locumtier
-                                                              .allowed -
-                                                          this.state.employer
-                                                              .locumtier.posted
-                                                        : "-"}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th
-                                                    scope='row'
-                                                    className='text-align-left'>
-                                                    Promoted
-                                                </th>
-                                                <td>
-                                                    {this.state.employer
-                                                        .sponsors
-                                                        ? this.state.employer
-                                                              .sponsors.posted -
-                                                          this.state.employer
-                                                              .sponsors.closed
-                                                        : "-"}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .sponsors
-                                                        ? this.state.employer
-                                                              .sponsors.closed
-                                                        : "-"}
-                                                </td>
-                                                <td>
-                                                    {this.state.employer
-                                                        .sponsors
-                                                        ? this.state.employer
-                                                              .sponsors
-                                                              .allowed -
-                                                          this.state.employer
-                                                              .sponsors.posted
-                                                        : "-"}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
+                                                                .allowed -
+                                                                this.state
+                                                                    .employer
+                                                                    .freelancetier
+                                                                    .posted}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th
+                                                        scope='row'
+                                                        className='text-align-left'>
+                                                        Locum Positions
+                                                    </th>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .locumtier
+                                                            ? this.state
+                                                                  .employer
+                                                                  .locumtier
+                                                                  .posted -
+                                                              this.state
+                                                                  .employer
+                                                                  .locumtier
+                                                                  .closed
+                                                            : 0}
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .locumtier
+                                                            ? this.state
+                                                                  .employer
+                                                                  .locumtier
+                                                                  .closed
+                                                            : 0}
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .locumtier
+                                                            ? this.state
+                                                                  .employer
+                                                                  .locumtier
+                                                                  .allowed -
+                                                              this.state
+                                                                  .employer
+                                                                  .locumtier
+                                                                  .posted
+                                                            : "-"}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th
+                                                        scope='row'
+                                                        className='text-align-left'>
+                                                        Promoted
+                                                    </th>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .sponsors
+                                                            ? this.state
+                                                                  .employer
+                                                                  .sponsors
+                                                                  .posted -
+                                                              this.state
+                                                                  .employer
+                                                                  .sponsors
+                                                                  .closed
+                                                            : "-"}
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .sponsors
+                                                            ? this.state
+                                                                  .employer
+                                                                  .sponsors
+                                                                  .closed
+                                                            : "-"}
+                                                    </td>
+                                                    <td>
+                                                        {this.state.employer
+                                                            .sponsors
+                                                            ? this.state
+                                                                  .employer
+                                                                  .sponsors
+                                                                  .allowed -
+                                                              this.state
+                                                                  .employer
+                                                                  .sponsors
+                                                                  .posted
+                                                            : "-"}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </Table>
+                                    </div>
                                     <hr />
                                     <div className='text-align-left col-12 border p-2'>
                                         <h6>{banner}</h6>
@@ -257,14 +283,16 @@ export default class Overview extends Component {
                                 </div>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='text-blue col-12'>About</h4>
+                                <h4 className='text-emp-primary col-12'>
+                                    About
+                                </h4>
                                 <p>
                                     {this.state.employer.description &&
                                         this.state.employer.description.about}
                                 </p>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='col-12 mb-4 text-blue'>
+                                <h4 className='col-12 mb-4 text-emp-primary'>
                                     Infrastructure
                                 </h4>
                                 <div className='col-4 text-align-left'>
@@ -290,7 +318,9 @@ export default class Overview extends Component {
                                 </div>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='text-blue col-12'>Location</h4>
+                                <h4 className='text-emp-primary col-12'>
+                                    Location
+                                </h4>
                                 <div className='col-12 col-md-5'>
                                     <p className='col-12'>
                                         {this.state.employer.address &&
@@ -322,7 +352,7 @@ export default class Overview extends Component {
                                     this.state.employer.image[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='text-blue col-12'>
+                                        <h4 className='text-emp-primary col-12'>
                                             Images
                                         </h4>
                                         <div className='col-12 col-md-8 mx-auto'>
@@ -336,12 +366,13 @@ export default class Overview extends Component {
                                     </div>
                                 )}
                             {this.state.employer.youtube &&
+                                this.state.employer.youtube.length > 0 &&
                                 !(
                                     this.state.employer.youtube.length === 1 &&
                                     this.state.employer.youtube[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='col-12 text-blue'>
+                                        <h4 className='col-12 text-emp-primary'>
                                             Videos
                                         </h4>
                                         <div className='col-12 col-md-8 mx-auto'>
@@ -366,7 +397,7 @@ export default class Overview extends Component {
                             <div
                                 className='col-12 '
                                 style={{ height: "max-content" }}>
-                                <h4 className='text-blue text-align-left'>
+                                <h4 className='text-emp-primary text-align-left'>
                                     Subscription Details
                                 </h4>
                                 <Table

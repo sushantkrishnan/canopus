@@ -2,13 +2,10 @@ import React from "react";
 import "../stylesheets/footer.css";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faAngleDoubleRight,
-    faEnvelope,
-} from "@fortawesome/free-solid-svg-icons";
+import { faAngleDoubleRight } from "@fortawesome/free-solid-svg-icons";
 import {
     faFacebook,
-    faGoogle,
+    faInstagram,
     faLinkedin,
     faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
@@ -16,14 +13,14 @@ import {
 
 export default function FooterComponent() {
     return (
-        <div className=' pt-5 pb-5 footer'>
+        <div className=' pt-4 pb-3 footer'>
             <div className='container'>
                 <div className='row'>
                     <div className='col-lg-5 col-xs-12 about-company'>
-                        <h2>Canopus</h2>
+                        <h2>Curoid</h2>
                         <p className='pr-5 text-white-50'>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Nullam ac ante mollis quam tristique convallis{" "}
+                            Find the best medical talent to care for your
+                            patients
                         </p>
                     </div>
                     <div className='col-lg-3 col-xs-12 links'>
@@ -31,13 +28,15 @@ export default function FooterComponent() {
                         <ul className='m-0 p-0'>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/search-jobs/'></Link>Job Search
+                                <Link to='/privacy/'>Privacy Policy</Link>
                             </li>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/employer'>find employees</Link>
+                                <Link to='/terms-and-conditions'>
+                                    Terms & Conditions
+                                </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
                                 <Link to='/profile/asdsad'>
                                     Career Resoures
@@ -46,18 +45,20 @@ export default function FooterComponent() {
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
                                 <Link to='/profile/asdsad'>About Us</Link>
-                            </li>
+                            </li> */}
                         </ul>
+                        <br />
                     </div>
-                    <div className='col-lg-4 col-xs-12 location mt-5 mt-md-0'>
-                        <h4 className='mt-lg-0 mt-sm-4'>Location</h4>
-                        <p>22, Lorem ipsum dolor, consectetur adipiscing</p>
+
+                    <div className='col-lg-4 col-xs-12 location'>
+                        <h4 className='mt-lg-0 mt-sm-4'>Contact Us</h4>
                         <p className='mb-0'>
-                            <i className='fa fa-phone mr-3'></i>(541) 754-3010
+                            <i className='fa fa-phone mr-3'></i>(+91)
+                            8999-718-313
                         </p>
                         <p>
                             <i className='fa fa-envelope-o mr-3'></i>
-                            info@hsdf.com
+                            support@curoid.co
                         </p>
                     </div>
                 </div>
@@ -65,28 +66,23 @@ export default function FooterComponent() {
                     <div className='col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-5'>
                         <ul className='list-unstyled list-inline social text-center'>
                             <li className='list-inline-item'>
-                                <a href='https://www.facebook.com/'>
+                                <a href='https://www.facebook.com/Curoid'>
                                     <FontAwesomeIcon icon={faFacebook} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='https://www.google.com/'>
-                                    <FontAwesomeIcon icon={faGoogle} />
+                                <a href='https://www.instagram.com/curoid.co/'>
+                                    <FontAwesomeIcon icon={faInstagram} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='https://www.linkedin.com/'>
+                                <a href='https://www.linkedin.com/company/curoidco'>
                                     <FontAwesomeIcon icon={faLinkedin} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='https://www.twitter.com/'>
+                                <a href='https://twitter.com/CuroidCo'>
                                     <FontAwesomeIcon icon={faTwitter} />
-                                </a>
-                            </li>
-                            <li className='list-inline-item'>
-                                <a href='mailto:ads@gmail.com'>
-                                    <FontAwesomeIcon icon={faEnvelope} />
                                 </a>
                             </li>
                         </ul>
@@ -97,7 +93,7 @@ export default function FooterComponent() {
                     <div className='col copyright'>
                         <p className=''>
                             <small className='text-white-50'>
-                                © 2020. All Rights Reserved.
+                                © Curoid 2020. All Rights Reserved.
                             </small>
                         </p>
                     </div>

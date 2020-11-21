@@ -1,4 +1,12 @@
 {
+    "subscription_banner": "Please contact +91-xxxxxxxxx for pricing information or purchasing more job slots",
+    "sponsor_banner": "Please contact +91-xxxxxxxxx to sponsor this job",
+
+    "banner": {
+        "text": "Please Upload",
+        "link": "http://sparshjain.me"
+    },
+    "search_count": 5,
     "degrees": [
         "MBBS",
         "BAMS",
@@ -42,10 +50,7 @@
         "Pharmaceutical",
         "Other"
     ],
-    "instituteSpecialty": [
-        "Multi-Speciality",
-        "Single Specialty"
-    ],
+    "instituteSpecialty": ["Multi-Speciality", "Single Specialty"],
     "speciality": [
         "Multi Speciality Hospital",
         "Single Speciality Hospital",
@@ -65,10 +70,7 @@
         "Paid Fellowship",
         "Consultant"
     ],
-    "locumtype": [
-        "Locum Position",
-        "Day Job"
-    ],
+    "locumtype": ["Locum Position", "Day Job"],
     "jobtype": [
         "Full time",
         "Part time",
@@ -83,7 +85,7 @@
         "1-2 Years",
         "2-5 Years",
         "5-10 Years",
-        "0-15 Years",
+        "10-15 Years",
         "More than 15 Years"
     ],
     "incentive": [
@@ -158,22 +160,11 @@
         },
         {
             "profession": "Nurse",
-            "specialization": [
-                "Nursing"
-            ]
-        },
-        {
-            "profession": "Pharmacist",
-            "specialization": [
-                "Pharmacy"
-            ]
+            "specialization": ["Nursing"]
         },
         {
             "profession": "Therapist",
-            "specialization": [
-                "Physiotherapy",
-                "Psychology"
-            ]
+            "specialization": ["Physiotherapy", "Psychology"]
         },
         {
             "profession": "Technicians",
@@ -193,6 +184,14 @@
                 "Renal Dialysis",
                 "Radiology"
             ]
+        },
+        {
+            "profession": "Pharmacist",
+            "specialization": ["Pharmacy"]
+        },
+        {
+            "profession": "Medican Translator",
+            "specialization": ["Medical Translator"]
         }
     ],
     "superSpecializations": [
@@ -273,9 +272,7 @@
         {
             "profession": "Physician/Surgeon",
             "specialization": "Psychiatry",
-            "superSpecialization": [
-                "Geriatric Mental Health"
-            ]
+            "superSpecialization": ["Geriatric Mental Health"]
         },
         {
             "profession": "Physician/Surgeon",
@@ -290,9 +287,7 @@
         {
             "profession": "Physician/Surgeon",
             "specialization": "Pharmacology",
-            "superSpecialization": [
-                "Clinical Pharmacology"
-            ]
+            "superSpecialization": ["Clinical Pharmacology"]
         },
         {
             "profession": "Physician/Surgeon",
@@ -306,20 +301,13 @@
         {
             "profession": "Physician/Surgeon",
             "specialization": "Orthopedic surgery",
-            "superSpecialization": [
-                "Hand & Micro Surgery",
-                "Spine Surgery"
-            ]
+            "superSpecialization": ["Hand & Micro Surgery", "Spine Surgery"]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Opthalmology",
-            "superSpecialization": [
-                "Vitreo Retinal Surgery"
-            ]
+            "superSpecialization": ["Vitreo Retinal Surgery"]
         }
     ],
-    "tags": [
-        "Covid-19"
-    ]
+    "tags": ["Covid-19"]
 }

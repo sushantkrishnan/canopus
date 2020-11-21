@@ -182,7 +182,7 @@ export default class SignupUser extends Component {
                             <NavLink
                                 to='/user/forgot'
                                 className={`nav-link p-1 p-sm-2`}>
-                                <h6>Forgot password</h6>
+                                <h6>Forgot Password</h6>
                             </NavLink>
                         </NavItem>
                     </div>
@@ -201,7 +201,7 @@ export default class SignupUser extends Component {
                         style={block}
                         noValidate>
                         <FormGroup>
-                            <h4 className='mb-5'>Sign Up</h4>
+                            <h4 className='mb-3'>Job Seeker Sign Up</h4>
                         </FormGroup>
 
                         <FormGroup>
@@ -222,7 +222,7 @@ export default class SignupUser extends Component {
                                         : !this.state.validate.email
                                 }
                             />
-                            <FormFeedback invalid>
+                            <FormFeedback>
                                 Please input a correct email.
                             </FormFeedback>
                         </FormGroup>
@@ -245,6 +245,22 @@ export default class SignupUser extends Component {
                                 required
                             />
                         </FormGroup>
+                        <FormGroup>
+                            By signing up, you agree to our{" "}
+                            <a
+                                href='/privacy'
+                                className='text-emp-primary'
+                                target='_blank'>
+                                Privacy Policy
+                            </a>{" "}
+                            and{" "}
+                            <a
+                                href='/terms-and-conditions'
+                                target='_blank'
+                                className='text-emp-primary'>
+                                Terms and Conditions.
+                            </a>
+                        </FormGroup>
                         <ReCAPTCHA
                             sitekey={`${process.env.REACT_APP_CAPTCHA_INVISIBLE}`}
                             name='recaptcha'
@@ -260,7 +276,7 @@ export default class SignupUser extends Component {
                                     this.state.validate.email === false ||
                                     this.state.validate.password === false
                                 }
-                                color='primary'>
+                                color='emp-primary'>
                                 Sign Up
                             </Button>
                         </div>

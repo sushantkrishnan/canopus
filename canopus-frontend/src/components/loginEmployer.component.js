@@ -3,14 +3,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
 import {
-    faFacebook,
+    // faFacebook,
     faGoogle,
     faLinkedin,
 } from "@fortawesome/free-brands-svg-icons";
 import { Link, NavLink } from "react-router-dom";
-import { Modal, ModalHeader, ModalBody, NavItem, Nav, Alert } from "reactstrap";
+import {
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+    NavItem,
+    Nav,
+    Alert,
+} from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
-import ReactGA from "react-ga";
+// import ReactGA from "react-ga";
 
 const block = {
     borderRadius: " 0.25rem",
@@ -171,7 +180,7 @@ export default class LoginEmployer extends Component {
                             <NavLink
                                 to='/employer/forgot'
                                 className={`nav-link p-1 p-sm-2`}>
-                                <h6>Forgot password</h6>
+                                <h6>Forgot Password</h6>
                             </NavLink>
                         </NavItem>
                     </div>
@@ -188,7 +197,7 @@ export default class LoginEmployer extends Component {
                     <div
                         className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4'
                         style={block}>
-                        <h4 className='mb-5'>Employer Login</h4>
+                        <h4 className='mb-3'>Employer Login</h4>
                         <form
                             className='login-form'
                             onSubmit={this.submitEmployer}>
@@ -234,20 +243,19 @@ export default class LoginEmployer extends Component {
                                 badge='bottomleft'
                                 ref={this.recaptcha}
                             />
-                            <div className='form-group'>
-                                <button
-                                    type='submit'
-                                    className='btn btn-primary login-btn btn-block'>
-                                    Log in
-                                </button>
-                            </div>
-                            <div className='clearfix'>
+                            <div className='form-group row justify-content-between'>
                                 <Link
-                                    className='text-info float-right'
+                                    className='text-emp-primary float-right'
                                     to='/employer/forgot'>
                                     Forgot Password?
                                 </Link>
+                                <button
+                                    type='submit'
+                                    className='btn btn-emp-primary '>
+                                    Log in
+                                </button>
                             </div>
+                            <div className='clearfix'></div>
                             <div className='or-seperator'>
                                 <i>or</i>
                             </div>
@@ -288,6 +296,14 @@ export default class LoginEmployer extends Component {
                         </ModalHeader>
 
                         <ModalBody>{this.state.message}</ModalBody>
+                        <ModalFooter className='p-1'>
+                            <Button
+                                size='sm'
+                                color='emp-primary'
+                                onClick={this.toggle}>
+                                Ok
+                            </Button>
+                        </ModalFooter>
                     </Modal>
                 </div>
             </div>

@@ -148,7 +148,8 @@ export default class SignupEmployer extends Component {
         } catch (e) {
             this.setState({
                 showError: true,
-                error: "Captcha problem",
+                error:
+                    "Something went wrong. Please reload the page to continue.",
             });
         }
     }
@@ -175,7 +176,7 @@ export default class SignupEmployer extends Component {
                             <NavLink
                                 to='/employer/forgot'
                                 className={`nav-link p-1 p-sm-2`}>
-                                <h6>Forgot password</h6>
+                                <h6>Forgot Password</h6>
                             </NavLink>
                         </NavItem>
                     </div>
@@ -194,7 +195,7 @@ export default class SignupEmployer extends Component {
                         style={block}
                         noValidate>
                         <FormGroup>
-                            <h4 className='mb-5'>Sign Up</h4>
+                            <h4 className='mb-3'>Employer Sign Up</h4>
                         </FormGroup>
                         <FormGroup>
                             <Label>Email</Label>
@@ -251,7 +252,7 @@ export default class SignupEmployer extends Component {
                                     this.state.validate.email === false ||
                                     this.state.validate.password === false
                                 }
-                                color='primary'>
+                                color='emp-primary'>
                                 Sign Up
                             </Button>
                         </div>

@@ -6,8 +6,8 @@ import {
     Button,
     Input,
     InputGroup,
-    InputGroupAddon,
-    InputGroupText,
+    // InputGroupAddon,
+    // InputGroupText,
     Modal,
     ModalHeader,
     ModalBody,
@@ -22,12 +22,11 @@ import data from "../data";
 import "../stylesheets/postJob.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faMapMarkerAlt,
-    faUser,
+    // faMapMarkerAlt/
     faPen,
-    faEnvelope,
-    faArrowAltCircleDown,
-    faArrowAltCircleUp,
+    // faEnvelope,
+    // faArrowAltCircleDown,
+    // faArrowAltCircleUp,
     faChevronUp,
     faChevronDown,
     faExternalLinkAlt,
@@ -120,7 +119,7 @@ const PostJob = (props) => {
             label: opt,
             value: opt,
         }));
-        experienceArray = data.experience.map((opt) => ({
+        experienceArray = props.data.experience.map((opt) => ({
             label: opt,
             value: opt,
         }));
@@ -168,6 +167,7 @@ const PostJob = (props) => {
             experience: experience !== "",
             line: line !== "",
             contact: contact !== "",
+            salary: Number(salary) < 1000000000,
         };
         if (type === "Locum Position") {
             newValid.startDate = startDate !== "";
@@ -185,7 +185,7 @@ const PostJob = (props) => {
             setModal(!modal);
         } else {
             setModalError(true);
-            setMessError("Please fill all the fields !");
+            setMessError("Please fill all the fields correctly!");
         }
     };
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
@@ -198,6 +198,10 @@ const PostJob = (props) => {
         eval(`set${e.target.name}`)(e.target.value);
         let newValid = { ...valid };
         newValid[x] = e.target.value !== "";
+        if (x === "salary") {
+            console.log(e.target.value);
+            newValid[x] = Number(e.target.value) < 1000000000;
+        }
         console.log(newValid);
         setValid(newValid);
     };
@@ -219,6 +223,7 @@ const PostJob = (props) => {
             experience: experience !== "",
             line: line !== "",
             contact: contact !== "",
+            salary: Number(salary) < 1000000000,
         };
         if (type === "Locum Position") {
             newValid.startDate = startDate !== "";
@@ -318,9 +323,19 @@ const PostJob = (props) => {
 
                     // alert("Unable to post job : " + error);
                     // alert("Unable to post job");
-                    err.response.data
-                        ? setMessError(err.response.data.err)
-                        : setMessError("Error saving job");
+                    if (
+                        err.response &&
+                        err.response.data &&
+                        err.response.data.err &&
+                        typeof err.response.data.err === "object"
+                    )
+                        setMessError("Something went wrong, Please try again.");
+                    else
+                        err.response.data
+                            ? setMessError(err.response.data.err)
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                     toggleError();
                 });
@@ -409,11 +424,20 @@ const PostJob = (props) => {
                     err.response && err.response.data
                         ? err.response.data.err
                         : "";
-
+                if (
+                    err.response &&
+                    err.response.data &&
+                    err.response.data.err &&
+                    typeof err.response.data.err === "object"
+                )
+                    setMessError("Something went wrong !");
                 // alert("Unable to post job : " + error);
-                err.response && err.response.data
-                    ? setMessError(err.response.data.err)
-                    : setMessError("Error posting job");
+                else
+                    err.response && err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError(
+                              "Something went wrong, Please try again.",
+                          );
 
                 toggleError();
             });
@@ -430,7 +454,11 @@ const PostJob = (props) => {
                     setTempArr(data.user.acceptedApplicants);
                 if (data.user) setContact(data.user.phone);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                setMessError("Something went wrong, Please try again.");
+                toggleError();
+            });
         console.log("====================================");
         //TODO:
         console.log(props.location.state);
@@ -557,7 +585,9 @@ const PostJob = (props) => {
                         // alert(err.response);
                         err.response.data
                             ? setMessError(err.response.data.err)
-                            : setMessError("Error getting job");
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                         toggleError();
                     });
@@ -657,16 +687,18 @@ const PostJob = (props) => {
                         console.log(err);
                         err.response && err.response.data
                             ? setMessError(err.response.data.err)
-                            : setMessError("Error getting job");
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                         toggleError();
                     });
         } else setShowDetail(true);
     }, []);
     return (
-        <div>
+        <div className='p-2 p-md-0 mx-sm-auto col-12 col-md-10 col-xl-8'>
             <Nav tabs className='justify-content-between '>
-                <div className='row justify-content-start col-6 col-sm-7'>
+                <div className='row justify-content-start col-6 col-sm-7 px-0'>
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
                             to='/employer'
@@ -674,25 +706,25 @@ const PostJob = (props) => {
                             //     this.toggleTab("1");
                             // }}
                             className={`p-1 p-sm-2 nav-link`}>
-                            <h6>Overview</h6>
+                            <h6 className='mb-1'>Overview</h6>
                         </NavLink>
                     </NavItem>
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
                             to='/applications'
-                            className={`p-1 p-sm-2 nav-link`}>
-                            <h6>Jobs</h6>
+                            className={`p-1 p-sm-2 nav-link active-tab`}>
+                            <h6 className='mb-1'>Jobs</h6>
                         </NavLink>
                     </NavItem>
                 </div>
-                <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                    <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                <div className=' row justify-content-end'>
+                    <div className='col-12 px-0 pr-0 pr-sm-1'>
                         <Link to='/employer/update'>
                             <Button
                                 className=' mt-2 my-1 px-2 w-100'
                                 size='sm'
                                 style={{ textAlign: "center" }}
-                                color='info'>
+                                color='emp-primary'>
                                 Update Profile
                                 <FontAwesomeIcon
                                     icon={faPen}
@@ -718,8 +750,8 @@ const PostJob = (props) => {
                     </div> */}
                 </div>
             </Nav>
-            <Form className='border-block p-1 p-md-5 mx-2 mx-md-auto m-1 m-md-3 box'>
-                <h3>Post a Job</h3>
+            <Form className='border-block'>
+                <h3 className='p-2 px-md-0'>Post a Job</h3>
                 <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10 pl-2'>Job Details</h4>
@@ -745,7 +777,7 @@ const PostJob = (props) => {
                         <div className='row p-2'>
                             <div className='col-12 my-1 w-100'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Title{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -756,6 +788,7 @@ const PostJob = (props) => {
                                     ref={titleRef}
                                     name='Title'
                                     defaultValue={title}
+                                    maxLength={100}
                                     onChange={handleChange}
                                     required
                                     invalid={
@@ -767,7 +800,7 @@ const PostJob = (props) => {
                             </div>
                             {/* <div className='col-12 col-md-6 pr-md-2 my-1 w-100'>
                                 <Label className='m-1'>
-                                    <h6>Institute Name</h6>
+                                    <h6 className='mb-1'>Institute Name</h6>
                                 </Label>
                                 <Input
                                     placeholder='Company'
@@ -781,7 +814,7 @@ const PostJob = (props) => {
                             </div> */}
                             <InputGroup className='col-12 col-sm-6 px-0 pr-md-2 my-1'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Type{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -826,7 +859,7 @@ const PostJob = (props) => {
                             </InputGroup>
                             {/* <div className='col-12 col-md-6 pl-md-2 my-1 w-100'>
                                 <Label className='m-1'>
-                                    <h6>Number of Applicants</h6>
+                                    <h6 className='mb-1'>Number of Applicants</h6>
                                 </Label>
                                 <Input
                                     type='number'
@@ -841,7 +874,7 @@ const PostJob = (props) => {
                             </div> */}
                             <InputGroup className='col-12 col-sm-6 pl-md-2 my-1'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Location{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -879,7 +912,7 @@ const PostJob = (props) => {
                             </InputGroup>
                             <div className='col-12 col-md-6 pr-md-2 my-1'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Profession{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -915,7 +948,7 @@ const PostJob = (props) => {
                             </div>
                             <div className='col-12 col-md-6 pl-md-2 my-1'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Specialization{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -957,7 +990,9 @@ const PostJob = (props) => {
                             </div>
                             <InputGroup className='col-12 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Super-Specialization</h6>
+                                    <h6 className='mb-1'>
+                                        Super-Specialization
+                                    </h6>
                                 </Label>
                                 <div style={{ width: `100%` }}>
                                     <Select
@@ -991,7 +1026,7 @@ const PostJob = (props) => {
                             </InputGroup>
                             <InputGroup className='col-12 col-sm-6 pr-md-2 my-1'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Experience{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -1030,24 +1065,25 @@ const PostJob = (props) => {
 
                             <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Salary/Fees</h6>
+                                    <h6 className='mb-1'>
+                                        Salary/Fees (for Locum/Day Jobs)
+                                    </h6>
                                 </Label>
                                 <InputGroup className=''>
                                     <Input
-                                        placeholder='salary'
+                                        placeholder='Salary'
                                         type='number'
                                         className='form-control '
                                         ref={salaryRef}
                                         defaultValue={Number(salary)}
                                         name='Salary'
                                         onChange={handleChange}
-                                        required
+                                        invalid={
+                                            valid.salary === undefined
+                                                ? false
+                                                : !valid.salary
+                                        }
                                     />
-                                    <InputGroupAddon addonType='append'>
-                                        <InputGroupText>
-                                            per annum
-                                        </InputGroupText>
-                                    </InputGroupAddon>
                                 </InputGroup>
                             </InputGroup>
                             {!(
@@ -1055,7 +1091,7 @@ const PostJob = (props) => {
                             ) && (
                                 <InputGroup className='col-12'>
                                     <Label className='m-1'>
-                                        <h6>Incentives</h6>
+                                        <h6 className='mb-1'>Incentives</h6>
                                     </Label>
                                     <div style={{ width: `100%` }} className=''>
                                         <Select
@@ -1083,7 +1119,7 @@ const PostJob = (props) => {
                             {/* {!freelance && (
                                 <div className='col-12 col-md-6 pl-md-2 my-1 w-100'>
                                     <Label className='pl-2' for='exampleDate'>
-                                        <h6>End -Date</h6>
+                                        <h6 className='mb-1'>End -Date</h6>
                                     </Label>
                                     <Input
                                         type='date'
@@ -1116,7 +1152,7 @@ const PostJob = (props) => {
                         <FormGroup className='row p-2'>
                             <InputGroup className='col-12 my-1'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Short Description{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -1143,7 +1179,7 @@ const PostJob = (props) => {
                                             type === "Locum Position" )&& ( */}
                             <InputGroup className='col-12 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Description</h6>
+                                    <h6 className='mb-1'>Description</h6>
                                 </Label>
                                 <InputGroup className='w-100 '>
                                     <Input
@@ -1182,7 +1218,7 @@ const PostJob = (props) => {
                         <FormGroup className='row p-2'>
                             <div className='col-12 col-md-6 my-1 pr-md-2'>
                                 <Label className='m-1'>
-                                    <h6>Employer Name</h6>
+                                    <h6 className='mb-1'>Employer Name</h6>
                                 </Label>
                                 <Input
                                     placeholder='Employer'
@@ -1204,7 +1240,7 @@ const PostJob = (props) => {
                             </div>
                             <div className='col-12 col-md-6 pl-md-2 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Posted Day</h6>
+                                    <h6 className='mb-1'>Posted Day</h6>
                                 </Label>
                                 <Input
                                     type='date'
@@ -1222,7 +1258,7 @@ const PostJob = (props) => {
                             </div>
                             <div className='col-12 my-1 w-100'>
                                 <Label className='m-1'>
-                                    <h6>
+                                    <h6 className='mb-1'>
                                         Contact{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -1274,6 +1310,7 @@ const PostJob = (props) => {
                                         type='checkbox'
                                         name=''
                                         defaultValue={sponsored}
+                                        checked={sponsored}
                                         className='  position-absolute'
                                         style={{
                                             height: "1.1rem",
@@ -1331,7 +1368,7 @@ const PostJob = (props) => {
                                 <FormGroup className='row p-2'>
                                     <InputGroup className='col-12  my-1 '>
                                         <Label className='my-1'>
-                                            <h6>Procedure</h6>
+                                            <h6 className='mb-1'>Procedure</h6>
                                         </Label>
                                         <InputGroup className='w-100'>
                                             <textarea
@@ -1351,7 +1388,9 @@ const PostJob = (props) => {
                                             <Label
                                                 className='my-1 col-12'
                                                 for='exampleDate'>
-                                                <h6>Start-Date</h6>
+                                                <h6 className='mb-1'>
+                                                    Start-Date
+                                                </h6>
                                             </Label>
                                             <Input
                                                 type='date'
@@ -1398,7 +1437,9 @@ const PostJob = (props) => {
                                                 <Label
                                                     className='my-1 col-12'
                                                     for='exampleDate'>
-                                                    <h6>End-Date</h6>
+                                                    <h6 className='mb-1'>
+                                                        End-Date
+                                                    </h6>
                                                 </Label>
                                                 <Input
                                                     type='date'
@@ -1437,7 +1478,9 @@ const PostJob = (props) => {
                                                 <Label
                                                     className='pr-2 col-12'
                                                     for='exampleDate'>
-                                                    <h6>Start Time</h6>
+                                                    <h6 className='mb-1'>
+                                                        Start Time
+                                                    </h6>
                                                 </Label>
                                                 {/* <Label for='exampleTime'>Time</Label> */}
 
@@ -1461,7 +1504,9 @@ const PostJob = (props) => {
                                                 <Label
                                                     className='pr-2 col-12'
                                                     for='exampleDate'>
-                                                    <h6>End Time</h6>
+                                                    <h6 className='mb-1'>
+                                                        End Time
+                                                    </h6>
                                                 </Label>
                                                 {/* <Label for='exampleTime'>Time</Label> */}
                                                 <Input
@@ -1504,7 +1549,13 @@ const PostJob = (props) => {
                                 )}
                                 {tempArr
                                     .filter(
-                                        (obj) => obj.profession === profession,
+                                        (obj) =>
+                                            obj.profession === profession &&
+                                            (obj.profession ===
+                                            "Physician/Surgeon"
+                                                ? obj.specialization ===
+                                                  specialization
+                                                : true),
                                     )
                                     .reverse()
                                     .slice(0, 10)
@@ -1583,22 +1634,22 @@ const PostJob = (props) => {
                     <div className='col-3 col-md-2 px-1'>
                         <Button
                             onClick={(e) => {
+                                save();
+                            }}
+                            className='w-100'
+                            color='emp-secondary'>
+                            Save
+                        </Button>
+                    </div>
+                    <div className='col-3 col-md-2 px-0'>
+                        <Button
+                            onClick={(e) => {
                                 setMess("post");
                                 toggle();
                             }}
                             className='w-100'
-                            color='primary'>
+                            color='emp-primary'>
                             Post
-                        </Button>
-                    </div>
-                    <div className='col-3 col-md-2 px-1'>
-                        <Button
-                            onClick={(e) => {
-                                save();
-                            }}
-                            className='w-100'
-                            color='info'>
-                            Save
                         </Button>
                     </div>
                 </FormGroup>
@@ -1606,31 +1657,34 @@ const PostJob = (props) => {
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
                     {mess === "save" && "Confirm Save"}
-                    {mess === "post" && "Confirm Publish"}
+                    {mess === "post" && "Post Job?"}
                     {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
                 </ModalHeader>
                 <ModalBody className='py-3'>
                     {mess === "post" &&
-                        "Are you sure you want to post this job ?"}
+                        "Posting this Job will make it visible to applicants."}
                     {mess === "save" &&
                         "Are you sure you want to save the job?"}
                 </ModalBody>
-                <ModalFooter className='py-1'>
+                <ModalFooter className='py-1 font-16px'>
+                    <Button color='emp-secondary' size='sm' onClick={toggle}>
+                        {mess === "post" ? "Wait" : "No"}
+                    </Button>
                     {mess === "post" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 submit();
                             }}>
-                            Post
+                            Post Job
                         </Button>
                     )}
                     {mess === "save" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 save();
@@ -1638,9 +1692,6 @@ const PostJob = (props) => {
                             Save
                         </Button>
                     )}
-                    <Button color='secondary' size='sm' onClick={toggle}>
-                        Cancel
-                    </Button>
                 </ModalFooter>
             </Modal>
             <Modal
@@ -1654,6 +1705,11 @@ const PostJob = (props) => {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                 <ModalBody>{messError}</ModalBody>
+                <ModalFooter className='p-1'>
+                    <Button size='sm' color='emp-primary' onClick={toggleError}>
+                        Ok
+                    </Button>
+                </ModalFooter>
             </Modal>
         </div>
     );

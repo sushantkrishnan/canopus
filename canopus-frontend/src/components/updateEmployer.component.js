@@ -9,9 +9,13 @@ import {
     Modal,
     Nav,
     NavItem,
+    ModalFooter,
     ModalHeader,
     ModalBody,
     Alert,
+    InputGroupAddon,
+    InputGroup,
+    InputGroupText,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink, Link } from "react-router-dom";
@@ -20,6 +24,7 @@ import {
     faPen,
     faMinus,
     faMinusCircle,
+    faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import InputMap from "./map.component";
 import Axios from "axios";
@@ -56,7 +61,7 @@ export default class UpdateEmployer extends Component {
             type: "",
             links: [""],
             youtube: [""],
-            phone: null,
+            phone: "",
             image: [],
             about: "",
             about2: "",
@@ -84,6 +89,7 @@ export default class UpdateEmployer extends Component {
                 type: true,
                 // speciality: true,
                 city: true,
+                pin: true,
                 state: true,
                 firstName: true,
                 lastName: true,
@@ -96,6 +102,9 @@ export default class UpdateEmployer extends Component {
                 employeeCount: true,
             },
         };
+        this.logo = React.createRef();
+        this.image = React.createRef();
+
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
@@ -159,13 +168,33 @@ export default class UpdateEmployer extends Component {
                             Number(e.target.value) <= 100000,
                     },
                 });
-            else
+            else if (e.target.name === "phone") {
+                console.log(e.target.value);
+                // newValid[x] = Number(e.target.value) < 1000000000;
+                this.setState({
+                    valid: {
+                        ...this.state.valid,
+                        [e.target.name]: e.target.value.length === 10,
+                    },
+                });
+            } else
                 this.setState({
                     valid: {
                         ...this.state.valid,
                         [e.target.name]: e.target.value !== "",
                     },
                 });
+        } else if (e.target.name === "pin") {
+            console.log(e.target.value);
+            // newValid[x] = Number(e.target.value) < 1000000000;
+            this.setState({
+                valid: {
+                    ...this.state.valid,
+                    [e.target.name]:
+                        e.target.value.length === 6 ||
+                        e.target.value.length === 0,
+                },
+            });
         }
     }
     checkYoutube() {
@@ -183,10 +212,21 @@ export default class UpdateEmployer extends Component {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
-        const validYoutube =
-            this.state.youtube.length > 0 ? this.checkYoutube() : true;
+        const emp =
+            this.state.firstName === "" ||
+            this.state.lastName === "" ||
+            this.state.organization === "" ||
+            this.state.city === "" ||
+            this.state.state === "" ||
+            this.state.phone === "" ||
+            this.state.type === "" ||
+            this.state.phone.length !== 10 ||
+            (this.state.pin.length !== 0 && this.state.pin.length > 6);
+
+        const ytLinks = this.state.youtube.filter((link) => link !== "");
+        const validYoutube = ytLinks.length > 0 ? this.checkYoutube() : true;
         console.log(isValid);
-        if (!isValid) {
+        if (!isValid || emp) {
             this.setState({
                 modalError: true,
                 modalMess: "Please fill the required fields !",
@@ -203,7 +243,7 @@ export default class UpdateEmployer extends Component {
                 lastName: this.state.lastName,
                 image: this.state.image,
                 links: this.state.links,
-                youtube: this.state.youtube,
+                youtube: ytLinks,
                 specialty: this.state.speciality,
                 phone: this.state.phone,
                 instituteName: this.state.organization,
@@ -245,13 +285,14 @@ export default class UpdateEmployer extends Component {
                             modalError: true,
                             modalMess:
                                 response.err === ""
-                                    ? "Unable to update"
+                                    ? "Something went wrong, Please try again."
                                     : response.err,
                         });
                     } else
                         this.setState({
                             modalError: true,
-                            modalMess: "Unable to update",
+                            modalMess:
+                                "Something went wrong, Please try again.",
                         });
                 });
         }
@@ -299,7 +340,12 @@ export default class UpdateEmployer extends Component {
                         //     id: user._id,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        logo: user.logo,
+                        logo:
+                            !user.logo ||
+                            user.logo === undefined ||
+                            user.logo === ""
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_210416356.jpeg"
+                                : user.logo,
                         links: user.links,
                         username: user.username,
                         youtube: user.youtube,
@@ -309,8 +355,8 @@ export default class UpdateEmployer extends Component {
                         line: user.address.line,
                         pin: user.address.pin,
                         city: user.address.city,
+                        // state: user.address.state===""?"Maharashtra":user.address.state,
                         state: user.address.state,
-
                         lat: user.address.coordinates
                             ? user.address.coordinates.lat
                             : null,
@@ -335,63 +381,17 @@ export default class UpdateEmployer extends Component {
                     });
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                if (err.response)
+                    this.setState({
+                        modalError: true,
+                        modalMess: "Something went wrong, Please try again.",
+                    });
+            });
     }
     reload() {
-        Axios.get("/api/employer/profile")
-            .then(({ data }) => {
-                const user = data;
-                console.log(user._id);
-                console.log(user);
-                if (user) {
-                    this.setState({
-                        id: user._id,
-                    });
-                    if (!user.address.coordinates) this.getGeoLocation();
-                    this.setState({
-                        id: user._id,
-                        // });
-                        // this.setState({
-                        //     id: user._id,
-                        firstName: user.firstName,
-                        logo: user.logo,
-                        lastName: user.lastName,
-                        links: user.links,
-                        username: user.username,
-                        youtube: user.youtube,
-                        image: user.image,
-                        speciality: user.specialty,
-                        phone: user.phone,
-                        line: user.address.line,
-                        pin: user.address.pin,
-                        city: user.address.city,
-                        state: user.address.state,
-
-                        lat: user.address.coordinates
-                            ? user.address.coordinates.lat
-                            : null,
-                        lng: user.address.coordinates
-                            ? user.address.coordinates.lng
-                            : null,
-
-                        about: user.description.about,
-                        about2: user.description.about2,
-                        beds: Number(user.description.beds),
-                        OTs: user.description.OTs
-                            ? Number(user.description.OTs)
-                            : 0,
-                        ICUs: user.description.ICUs ? user.description.ICUs : 0,
-                        employeeCount: user.description.employeeCount
-                            ? Number(user.description.employeeCount)
-                            : 0,
-                        organization: user.instituteName
-                            ? user.instituteName
-                            : user.description.organization,
-                        type: user.description.type,
-                    });
-                }
-            })
-            .catch((err) => console.log(err));
+        this.props.history.push("/employer");
     }
     async uploadToStorage(storageAccountName, sas, file) {
         // console.log(file);
@@ -433,7 +433,7 @@ export default class UpdateEmployer extends Component {
                 },
             );
             console.log(uploadBlobResponse);
-            return `https://canopus.blob.core.windows.net/employer-image/profile`;
+            return `https://curoidprod.blob.core.windows.net/employer-image/profile`;
         } catch (error) {
             console.error(error);
         }
@@ -459,6 +459,7 @@ export default class UpdateEmployer extends Component {
                     uploadingImage: false,
                     progress: 0,
                 });
+                this.image.current.value = "";
                 return;
             } else {
                 this.setState({
@@ -511,7 +512,14 @@ export default class UpdateEmployer extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                modalMess:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -535,6 +543,8 @@ export default class UpdateEmployer extends Component {
                     loading: false,
                     uploadingLogo: false,
                 });
+                this.logo.current.value = "";
+
                 return;
             } else {
                 this.setState({
@@ -588,7 +598,14 @@ export default class UpdateEmployer extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                modalMess:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -638,35 +655,32 @@ export default class UpdateEmployer extends Component {
             // console.log(cityArray);
         }
         return (
-            <div>
+            <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0 overflow-hidden'>
                 <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-7'>
+                    <div className='row justify-content-start col-7 col-sm-5 col-md-6 col-lg-7'>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                to='/employer'
-                                // onClick={() => {
-                                //     this.toggleTab("1");
-                                // }}
-                                className={`p-1 p-sm-2 nav-link active-tab`}>
+                                className='p-1 p-sm-2 active-tab nav-link'
+                                to='/employer'>
                                 <h6>Overview</h6>
                             </NavLink>
                         </NavItem>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                to='/applications'
-                                className={`p-1 p-sm-2 nav-link`}>
+                                className='nav-link p-1 p-sm-2 '
+                                to='/applications'>
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem>
                     </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                        {/* <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                    <div className='row ustify-content-end'>
+                        {/* <div className='px-0 pr-0 pr-sm-1'>
                             <Link to='/employer/update'>
                                 <Button
-                                    className=' mt-2 my-1 px-2 w-100'
+                                    className=' mt-2 my-1 px-4 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='info'>
+                                    color='emp-secondary'>
                                     Update Profile
                                     <FontAwesomeIcon
                                         icon={faPen}
@@ -675,13 +689,13 @@ export default class UpdateEmployer extends Component {
                                 </Button>
                             </Link>
                         </div> */}
-                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                        <div className='px-0 pl-0 pl-sm-1'>
                             <Link to='/post'>
                                 <Button
-                                    className=' mt-2 my-1 px-2 w-100'
+                                    className=' mt-2 my-1 px-4 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='primary'>
+                                    color='emp-primary'>
                                     Post a Job{" "}
                                     <FontAwesomeIcon
                                         icon={faPen}
@@ -692,10 +706,10 @@ export default class UpdateEmployer extends Component {
                         </div>
                     </div>
                 </Nav>
-                <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
-                    <div className=' p-4 my-3 mx-2 mx-lg-5' style={block}>
+                <div className='my-2'>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
-                            <h4>Details</h4>
+                            <h4 className='text-emp-primary'>Details</h4>
                         </FormGroup>
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
@@ -739,7 +753,7 @@ export default class UpdateEmployer extends Component {
                                     <div className='my-1 mt-3'>
                                         <div className=''>
                                             <button
-                                                className='btn btn-info btn-sm m-2 btn-float'
+                                                className='btn btn-emp-secondary btn-sm m-2 btn-float'
                                                 // style={{
                                                 //     borderRadius: "50%",
                                                 // }}
@@ -747,7 +761,7 @@ export default class UpdateEmployer extends Component {
                                                     this.state.uploadingLogo
                                                 }>
                                                 <label
-                                                    htmlFor='image'
+                                                    htmlFor='logo'
                                                     style={{
                                                         display: "inline-block",
                                                         margin: 0,
@@ -768,9 +782,9 @@ export default class UpdateEmployer extends Component {
                                                     opacity: 0,
                                                     cursor: "pointer",
                                                 }}
-                                                id='image'
+                                                id='logo'
                                                 accept='image/*'
-                                                // ref={this.image}
+                                                ref={this.logo}
                                                 disabled={
                                                     this.state.uploadingLogo
                                                 }
@@ -782,12 +796,12 @@ export default class UpdateEmployer extends Component {
                             </div>
                             <div className='col-md-9 row'>
                                 <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-2'>
-                                    <Label>
+                                    <Label className='mb-1'>
                                         Oranization Name{" "}
                                         <span className='text-danger'>*</span>
                                     </Label>
                                     <Input
-                                        placeholder='Organization name'
+                                        placeholder='Organization Name'
                                         name='organization'
                                         onChange={this.handleChange}
                                         value={this.state.organization}
@@ -795,7 +809,7 @@ export default class UpdateEmployer extends Component {
                                     />
                                 </div>
                                 <div className='col-12 col-sm-6 pr-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label>
+                                    <Label className='mb-1'>
                                         Organization Type{" "}
                                         <span className='text-danger'>*</span>
                                     </Label>
@@ -831,7 +845,7 @@ export default class UpdateEmployer extends Component {
                                     />
                                 </div>
                                 <div className='col-12  my-1 my-sm-2'>
-                                    <Label>Speciality</Label>
+                                    <Label className='mb-1'>Speciality</Label>
                                     {/* <Input
                                 placeholder='Organization Type'
                                 name='type'
@@ -864,7 +878,9 @@ export default class UpdateEmployer extends Component {
                                 </div>
 
                                 <div className='col-12  my-1'>
-                                    <Label>About Organization</Label>
+                                    <Label className='mb-1'>
+                                        About Organization
+                                    </Label>
 
                                     <textarea
                                         name=''
@@ -880,15 +896,15 @@ export default class UpdateEmployer extends Component {
                             {/* <div className='col-12 col-md-9 px-2'></div> */}
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         {/* AIzaSyANIOnj2SfsuhCNZ9iqb4FMagPb7K_vdH0 */}
                         <FormGroup>
-                            <h4>Address</h4>
+                            <h4 className='text-emp-primary'>Address</h4>
                         </FormGroup>
                         <div className='row '>
                             <div className='col-12 col-lg-6 pr-2 d-flex flex-column '>
                                 <FormGroup>
-                                    <Label>Line</Label>
+                                    <Label className='mb-1'>Line</Label>
                                     <textarea
                                         placeholder='Address Line'
                                         name='line'
@@ -900,23 +916,24 @@ export default class UpdateEmployer extends Component {
                                 </FormGroup>
                                 <FormGroup className='row '>
                                     <div className='col-12 col-sm-6 pr-0 pr-sm-1 mb-2 mb-sm-0'>
-                                        <Label>PIN</Label>
+                                        <Label className='mb-1'>PIN</Label>
                                         <Input
                                             placeholder='PIN'
                                             name='pin'
                                             onChange={this.handleChange}
                                             value={this.state.pin}
+                                            invalid={!this.state.valid.pin}
                                         />
                                     </div>
                                     <div className='col-12 col-sm-6 pl-0 pl-sm-1 mb-2 mb-sm-0'>
-                                        <Label>
+                                        <Label className='mb-1'>
                                             State{" "}
                                             <span className='text-danger'>
                                                 *
                                             </span>
                                         </Label>
                                         <select
-                                            placeholder='state'
+                                            placeholder='State'
                                             name='state'
                                             className='custom-select'
                                             onChange={(e) => {
@@ -929,6 +946,9 @@ export default class UpdateEmployer extends Component {
                                             // defaultValue={values.email}
                                             list='states'>
                                             {/* <datalist id='states'> */}
+                                            <option selected value=''>
+                                                Select State
+                                            </option>
                                             {stateArray.length !== 0 &&
                                                 stateArray.map((state) => (
                                                     <option value={state}>
@@ -940,12 +960,12 @@ export default class UpdateEmployer extends Component {
                                     </div>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label>
+                                    <Label className='mb-1'>
                                         City{" "}
                                         <span className='text-danger'>*</span>
                                     </Label>
                                     <Input
-                                        placeholder='city'
+                                        placeholder='City'
                                         name='city'
                                         onChange={this.handleChange}
                                         value={this.state.city}
@@ -973,7 +993,7 @@ export default class UpdateEmployer extends Component {
                                 </FormGroup>
                                 {/* <FormGroup className='row '>
                                     <div className='col-12 col-sm-6 pr-1'>
-                                        <Label>Latitude</Label>
+                                        <Label className='mb-1'>Latitude</Label>
                                         <Input
                                             placeholder='Latitude'
                                             name='lat'
@@ -983,7 +1003,7 @@ export default class UpdateEmployer extends Component {
                                         />
                                     </div>
                                     <div className='col-12 col-sm-6 pl-1'>
-                                        <Label>Longitude</Label>
+                                        <Label className='mb-1'>Longitude</Label>
                                         <Input
                                             placeholder='longitude'
                                             name='lng'
@@ -1016,17 +1036,17 @@ export default class UpdateEmployer extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
-                            <h4>Infrastructure</h4>
+                            <h4 className='text-emp-primary'>Infrastructure</h4>
                         </FormGroup>
 
                         <FormGroup className='row'>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>Beds</Label>
+                                <Label className='mb-1'>Beds</Label>
                                 <Input
                                     type='number'
-                                    placeholder='Number of beds'
+                                    placeholder='Number of Beds'
                                     name='beds'
                                     value={Number(this.state.beds)}
                                     onChange={this.handleChange}
@@ -1036,7 +1056,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>ICUs</Label>
+                                <Label className='mb-1'>ICUs</Label>
                                 <Input
                                     type='number'
                                     placeholder='Number of ICUs'
@@ -1047,7 +1067,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>OTs</Label>
+                                <Label className='mb-1'>OTs</Label>
                                 <Input
                                     type='number'
                                     placeholder='Number of OTs'
@@ -1058,10 +1078,10 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>Employee count</Label>
+                                <Label className='mb-1'>Employee count</Label>
                                 <Input
                                     type='number'
-                                    placeholder='Number of OTs'
+                                    placeholder='No. of Employees'
                                     name='employeeCount'
                                     onChange={this.handleChange}
                                     invalid={!this.state.valid.employeeCount}
@@ -1070,38 +1090,38 @@ export default class UpdateEmployer extends Component {
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
-                            <h4>Media</h4>
+                            <h4 className='text-emp-primary'>Media</h4>
                         </FormGroup>
                         <Label className='row'>
-                            <h5 className='col-9  col-sm-11 pl-0'>Links</h5>
-
-                            <FontAwesomeIcon
-                                icon={faPlusCircle}
-                                size='lg'
-                                onClick={() => {
-                                    if (this.state.links.length < 5) {
-                                        let links = this.state.links;
-                                        links.push("");
-                                        this.setState({
-                                            links: links,
-                                        });
-                                    }
-                                }}
-                                className={`col-3 col-sm-1 ${
-                                    this.state.links.length < 5
-                                        ? "text-info"
-                                        : "text-secondary"
-                                }`}
-                                style={{ cursor: "pointer" }}
-                            />
+                            <h5 className='col-8 col-sm-10 my-auto pl-0'>
+                                Links
+                            </h5>
+                            <div className='col-4 col-sm-2 px-0 row justify-content-end'>
+                                <Button
+                                    color={"emp-secondary-2"}
+                                    disabled={this.state.links.length >= 5}
+                                    onClick={() => {
+                                        if (this.state.links.length < 5) {
+                                            let links = this.state.links;
+                                            links.push("");
+                                            this.setState({
+                                                links: links,
+                                            });
+                                        }
+                                    }}
+                                    className={`btn-sm`}
+                                    style={{ cursor: "pointer" }}>
+                                    <FontAwesomeIcon icon={faPlus} /> Add Link
+                                </Button>
+                            </div>
                         </Label>
                         {this.state.links.map((x, i) => (
                             <div className='my-1 row'>
                                 <Input
                                     id={i}
-                                    placeholder='Social Media Links'
+                                    placeholder='Social Media Link'
                                     name='links'
                                     onChange={(e) => this.handleChange(e, i)}
                                     value={this.state.links[i]}
@@ -1127,16 +1147,20 @@ export default class UpdateEmployer extends Component {
                             color='warning'
                             isOpen={this.state.showError3}
                             toggle={() => {
-                                this.setState({ showError3: false });
+                                this.setState({
+                                    showError3: !this.state.showError3,
+                                });
                             }}>
                             {this.state.imageError}
                         </Alert>
                         <Label className='row mt-2'>
-                            <h5 className='col-9 col-sm-11 pl-0'>Image</h5>
-                            <div className='col-3 col-sm-1'>
-                                <div className='my-1 mt-3'>
+                            <h5 className='col-7 col-sm-10 pl-0 my-auto'>
+                                Images
+                            </h5>
+                            <div className='col-5 col-sm-2 px-0 row justify-content-end'>
+                                <div className='my-1  ml-0 pl-0'>
                                     <button
-                                        className='btn btn-info btn-sm m-2 btn-float'
+                                        className='btn btn-emp-secondary-2 btn-sm '
                                         // style={{
                                         //     borderRadius: "50%",
                                         // }}
@@ -1152,8 +1176,8 @@ export default class UpdateEmployer extends Component {
                                                 cursor: "pointer",
                                                 width: "100%",
                                             }}>
-                                            {/* <FontAwesomeIcon icon={faPen} /> */}
-                                            Add
+                                            <FontAwesomeIcon icon={faPlus} />{" "}
+                                            Add Image
                                         </label>
                                     </button>
 
@@ -1165,10 +1189,12 @@ export default class UpdateEmployer extends Component {
                                             overflow: "hidden",
                                             opacity: 0,
                                             cursor: "pointer",
+                                            width: ".1px",
+                                            height: ".1px",
                                         }}
                                         id='image'
                                         accept='image/*'
-                                        // ref={this.image}
+                                        ref={this.image}
                                         disabled={
                                             this.state.loading ||
                                             this.state.image.length >= 5
@@ -1202,7 +1228,7 @@ export default class UpdateEmployer extends Component {
                             <div className='my-1 row'>
                                 <Input
                                     id={i}
-                                    placeholder='Image Links'
+                                    placeholder='Image Link'
                                     name='image'
                                     onChange={(e) => this.handleChange(e, i)}
                                     value={this.state.image[i]}
@@ -1231,35 +1257,36 @@ export default class UpdateEmployer extends Component {
                         ))}
                         <hr />
                         <Label className='row mt-2'>
-                            <h5 className='col-9 col-sm-11 pl-0'>
-                                Youtube Links
+                            <h5 className='col-8 col-sm-10 pl-0 my-auto'>
+                                Videos
                             </h5>
-                            <FontAwesomeIcon
-                                icon={faPlusCircle}
-                                size='lg'
-                                disabled={this.state.youtube.length >= 5}
-                                onClick={() => {
-                                    if (this.state.youtube.length < 5) {
-                                        let youtube = this.state.youtube;
-                                        youtube.push("");
-                                        this.setState({
-                                            youtube: youtube,
-                                        });
-                                    }
-                                }}
-                                className={`col-3 col-sm-1 ${
-                                    this.state.youtube.length < 5
-                                        ? "text-info"
-                                        : "text-secondary"
-                                }`}
-                                style={{ cursor: "pointer" }}
-                            />
+                            <div className='col-4 col-sm-2 px-0 row justify-content-end'>
+                                <Button
+                                    // icon={faPlusCircle}
+                                    // size='lg'
+                                    color={"emp-secondary-2"}
+                                    disabled={this.state.youtube.length >= 5}
+                                    onClick={() => {
+                                        if (this.state.youtube.length < 5) {
+                                            let youtube = this.state.youtube;
+                                            youtube.push("");
+                                            this.setState({
+                                                youtube: youtube,
+                                            });
+                                        }
+                                    }}
+                                    disabled={this.state.youtube.length >= 5}
+                                    className={` btn-sm`}
+                                    style={{ cursor: "pointer" }}>
+                                    <FontAwesomeIcon icon={faPlus} /> Add Link
+                                </Button>
+                            </div>
                         </Label>
                         {this.state.youtube.map((x, i) => (
                             <div className='my-1 row'>
                                 <Input
                                     id={i}
-                                    placeholder='Youtube Links'
+                                    placeholder='Youtube Link'
                                     name='youtube'
                                     onChange={(e) => this.handleChange(e, i)}
                                     value={this.state.youtube[i]}
@@ -1281,13 +1308,15 @@ export default class UpdateEmployer extends Component {
                             </div>
                         ))}
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
-                            <h4>Contact Details</h4>
+                            <h4 className='text-emp-primary'>
+                                Contact Details
+                            </h4>
                         </FormGroup>
                         <FormGroup className='row'>
-                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
-                                <Label>
+                            <div className='col-12 col-md-6  p-0 pr-sm-1  my-1'>
+                                <Label className='mb-1'>
                                     First Name{" "}
                                     <span className='text-danger'> *</span>
                                 </Label>
@@ -1299,8 +1328,8 @@ export default class UpdateEmployer extends Component {
                                     invalid={!this.state.valid.firstName}
                                 />
                             </div>
-                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
-                                <Label>
+                            <div className='col-12 col-md-6  p-0 pl-sm-1  my-1'>
+                                <Label className='mb-1'>
                                     Last Name{" "}
                                     <span className='text-danger'>*</span>
                                 </Label>
@@ -1311,8 +1340,8 @@ export default class UpdateEmployer extends Component {
                                     value={this.state.lastName}
                                 />
                             </div>
-                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
-                                <Label>E-mail</Label>
+                            <div className='col-12 col-md-6  p-0 pr-sm-1  my-1'>
+                                <Label className='mb-1'>E-mail</Label>
                                 <Input
                                     placeholder='Email'
                                     // name='firstName'
@@ -1321,25 +1350,30 @@ export default class UpdateEmployer extends Component {
                                     disabled={true}
                                 />
                             </div>
-                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
-                                <Label>
+                            <div className='col-12 col-md-6  p-0 pl-sm-1  my-1'>
+                                <Label className='mb-1'>
                                     Phone no.{" "}
                                     <span className='text-danger'>*</span>
                                 </Label>
-                                <Input
-                                    type='number'
-                                    // max='999999999'
-                                    pattern='[1-9]{1}[0-9]{9}'
-                                    placeholder='Phone Number'
-                                    name='phone'
-                                    onChange={this.handleChange}
-                                    value={this.state.phone}
-                                    invalid={!this.state.valid.phone}
-                                />
+                                <InputGroup>
+                                    <InputGroupAddon addonType='prepend'>
+                                        <InputGroupText>+91</InputGroupText>
+                                    </InputGroupAddon>
+                                    <Input
+                                        type='number'
+                                        // max='999999999'
+                                        pattern='[1-9]{1}[0-9]{9}'
+                                        placeholder='Phone Number'
+                                        name='phone'
+                                        onChange={this.handleChange}
+                                        value={this.state.phone}
+                                        invalid={!this.state.valid.phone}
+                                    />
+                                </InputGroup>
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>
+                    <div className='px-lg-0 m-2 mx-lg-0 d-flex justify-content-end'>
                         {/* {this.state.loading ? (
                             <Button
                                 // onClick={this.update}
@@ -1353,22 +1387,23 @@ export default class UpdateEmployer extends Component {
                                 </div>
                             </Button>
                         ) : ( */}
-                        <Button
-                            onClick={this.update}
-                            // className='w-25'
-                            size='lg'
-                            className='mr-1'
-                            disabled={this.state.loading}
-                            color='primary'>
-                            Update
-                        </Button>
+
                         <Button
                             onClick={this.reload}
                             // className='w-25'
-                            size='lg'
+
                             disabled={this.state.loading}
-                            color='danger'>
+                            color='emp-secondary'>
                             Discard Updates
+                        </Button>
+                        <Button
+                            onClick={this.update}
+                            // className='w-25'
+
+                            className='ml-1'
+                            disabled={this.state.loading}
+                            color='emp-primary'>
+                            Update Profile
                         </Button>
                         {/* )} */}
                     </div>
@@ -1386,6 +1421,14 @@ export default class UpdateEmployer extends Component {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                     <ModalBody>{this.state.modalMess}</ModalBody>
+                    <ModalFooter className='p-1'>
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={this.toggleModalError}>
+                            Ok
+                        </Button>
+                    </ModalFooter>
                 </Modal>
             </div>
         );

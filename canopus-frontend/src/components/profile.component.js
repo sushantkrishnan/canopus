@@ -41,6 +41,8 @@ export default class Profile extends Component {
             imageLoading: true,
             progress: 0,
             uploaded: true,
+            modalError: false,
+            messError: "",
         };
         this.image = React.createRef();
         this.firstName = React.createRef();
@@ -60,6 +62,12 @@ export default class Profile extends Component {
         // this.setProgress = this.setProgress.bind(this);
 
         this.uploadToStorage = this.uploadToStorage.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+    }
+    toggleModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
     }
     update() {
         console.log(this.state.profile);
@@ -74,7 +82,13 @@ export default class Profile extends Component {
                     modalEducation: false,
                 });
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
 
     toggleAbout() {
@@ -191,7 +205,14 @@ export default class Profile extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                messError:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -243,6 +264,7 @@ export default class Profile extends Component {
         }
     }
     componentDidMount() {
+        console.log(this.props.match);
         if (this.props.match) {
             if (!this.props.user) {
                 this.setState({ editable: false });
@@ -256,34 +278,51 @@ export default class Profile extends Component {
                 .then(({ data }) => {
                     if (!data.image)
                         data.image =
-                            "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
+                            "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg";
                     this.setState({
                         profile: data,
                     });
                     console.log(this.state.profile);
                 })
-                .catch((err) => console.log(err.response));
+                .catch((err) => {
+                    console.log(err.response);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
         } else
             axios
                 .get("/api/user/profile")
                 .then(({ data }) => {
                     if (!data.image)
                         data.image =
-                            "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
+                            "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg";
                     this.setState({
                         profile: data,
                     });
                     console.log(this.state.profile);
                 })
-                .catch((err) => console.log(err.response));
+                .catch((err) => {
+                    console.log(err.response);
+
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
     }
     render() {
         const option = { hour: "numeric", minute: "numeric" };
+
         return (
             <div>
-                <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-7'>
-                        {/* <NavItem className='mx-1 mx-sm-2'>
+                {this.state.editable && (
+                    <Nav
+                        tabs
+                        className='justify-content-between col-12 col-sm-11 col-xl-8 mx-auto'>
+                        <div className='row justify-content-start col-6 col-sm-7'>
+                            {/* <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
                                 to='/employer'
                                 // onClick={() => {
@@ -300,10 +339,10 @@ export default class Profile extends Component {
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem> */}
-                    </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                        <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
-                            {/* <Link to='/profile/update'>
+                        </div>
+                        <div className='col-12  col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                            <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                                {/* <Link to='/profile/update'>
                                 <Button
                                     className=' mt-2 my-1 px-2 w-100'
                                     size='sm'
@@ -316,27 +355,28 @@ export default class Profile extends Component {
                                     />
                                 </Button>
                             </Link> */}
+                            </div>
+                            <div className='px-0 pl-0 pl-sm-1'>
+                                <Link to='/profile/update'>
+                                    <Button
+                                        className=' mt-2 my-1 px-4 w-100'
+                                        size='sm'
+                                        style={{ textAlign: "center" }}
+                                        color='emp-primary'>
+                                        Update Profile{" "}
+                                        <FontAwesomeIcon
+                                            icon={faPen}
+                                            className='ml-2'
+                                        />
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
-                            <Link to='/profile/update'>
-                                <Button
-                                    className=' mt-2 my-1 px-2 w-100'
-                                    size='sm'
-                                    style={{ textAlign: "center" }}
-                                    color='primary'>
-                                    Update Profile{" "}
-                                    <FontAwesomeIcon
-                                        icon={faPen}
-                                        className='ml-2'
-                                    />
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </Nav>
+                    </Nav>
+                )}
                 {this.state.profile ? (
-                    <div className='row my-3 mx-1 mx-lg-5 p-2 px-lg-5 justify-content-center '>
-                        <div className='col-12 col-lg-3'>
+                    <div className='row my-3 mx-auto p-2 p-sm-0 col-12 col-sm-11 col-xl-8 justify-content-center font-16px'>
+                        <div className='col-12 col-lg-4'>
                             <div
                                 className='block-noHover row text-dark p-2 mt-3 mb-5 my-lg-0'
                                 style={{
@@ -386,92 +426,118 @@ export default class Profile extends Component {
                                         />
                                     </div>
                                 </div>
-                                <div
-                                    className='py-3 px-2 col-12 col-sm-8 col-lg-12 position-relative'
-                                    style={{
-                                        borderRadius: "0.5rem",
-                                    }}>
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faUser}
-                                                    className='ml-2 mr-3'
-                                                />
-                                            </div>
-                                            <div className='col-11 pl-3 text-capitalize'>
-                                                {`${this.state.profile.salutation}. ${this.state.profile.firstName} ${this.state.profile.lastName}`}
-                                            </div>
-                                        </h6>
-                                    </div>
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faBriefcaseMedical}
-                                                    className='ml-2 mr-3'
-                                                />
-                                            </div>
-                                            <div className='col-11 pl-3'>
-                                                {this.state.profile.title &&
-                                                    this.state.profile.title}
-                                            </div>
-                                        </h6>
-                                    </div>
-                                    {this.state.profile.address && (
+                                {this.state.profile.salutation !==
+                                    undefined && (
+                                    <div
+                                        className='py-3 px-2 col-12 col-sm-8 col-lg-12 position-relative'
+                                        style={{
+                                            borderRadius: "0.5rem",
+                                        }}>
                                         <div className='m-2 mx-auto'>
                                             <h6 className='row'>
                                                 <div className='col-1 px-0'>
                                                     <FontAwesomeIcon
-                                                        icon={faMapMarkerAlt}
+                                                        icon={faUser}
                                                         className='ml-2 mr-3'
                                                     />
                                                 </div>
-                                                <div className='col-11 px-0 pl-3'>
-                                                    {this.state.profile.address
-                                                        .city !== "" &&
-                                                    this.state.profile.address
-                                                        .state !== "" &&
-                                                    this.state.profile.address
-                                                        .country !== ""
-                                                        ? `${this.state.profile.address.city}, ${this.state.profile.address.state}, ${this.state.profile.address.country}`
-                                                        : ``}
+
+                                                <div className='col-11 pl-3 text-capitalize'>
+                                                    {`${this.state.profile.salutation}. ${this.state.profile.firstName} ${this.state.profile.lastName}`}
                                                 </div>
                                             </h6>
                                         </div>
-                                    )}
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faEnvelope}
-                                                    className='ml-2 mr-3'
-                                                />
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={
+                                                            faBriefcaseMedical
+                                                        }
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div className='col-11 pl-3 font-16px'>
+                                                    {this.state.profile.title &&
+                                                        this.state.profile
+                                                            .title}
+                                                </div>
+                                            </h6>
+                                        </div>
+                                        {this.state.profile.address && (
+                                            <div className='m-2 mx-auto'>
+                                                <h6 className='row'>
+                                                    <div className='col-1 px-0'>
+                                                        <FontAwesomeIcon
+                                                            icon={
+                                                                faMapMarkerAlt
+                                                            }
+                                                            className='ml-2 mr-3'
+                                                        />
+                                                    </div>
+                                                    <div className='col-11 px-0 pl-3 font-16px'>
+                                                        {this.state.profile
+                                                            .address.city !==
+                                                            "" &&
+                                                        this.state.profile
+                                                            .address.state !==
+                                                            "" &&
+                                                        this.state.profile
+                                                            .address.country !==
+                                                            ""
+                                                            ? `${this.state.profile.address.city}, ${this.state.profile.address.state}, ${this.state.profile.address.country}`
+                                                            : ``}
+                                                    </div>
+                                                </h6>
                                             </div>
-                                            <div className='col-11 pl-3'>
-                                                {this.state.profile.username}
-                                            </div>
-                                        </h6>
-                                    </div>
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faPhone}
-                                                    className='ml-2 mr-3'
+                                        )}
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faEnvelope}
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div
+                                                    className='col-11 pl-3 font-16px'
                                                     style={{
-                                                        transform:
-                                                            "rotateY(180deg)",
-                                                    }}
-                                                />
+                                                        whiteSpace: "nowrap",
+                                                        overflow: "hidden",
+                                                        textOverflow:
+                                                            "ellipsis",
+                                                    }}>
+                                                    {
+                                                        this.state.profile
+                                                            .username
+                                                    }
+                                                </div>
+                                            </h6>
+                                        </div>
+                                        {this.state.profile.phone !== "" && (
+                                            <div className='m-2 mx-auto'>
+                                                <h6 className='row'>
+                                                    <div className='col-1 px-0'>
+                                                        <FontAwesomeIcon
+                                                            icon={faPhone}
+                                                            className='ml-2 mr-3'
+                                                            style={{
+                                                                transform:
+                                                                    "rotateY(180deg)",
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className='col-11 pl-3 font-16px'>
+                                                        {"+91-"}
+                                                        {
+                                                            this.state.profile
+                                                                .phone
+                                                        }
+                                                    </div>
+                                                </h6>
                                             </div>
-                                            <div className='col-11 pl-3'>
-                                                {"+91-"}
-                                                {this.state.profile.phone}
-                                            </div>
-                                        </h6>
-                                    </div>
-                                    {/* {this.state.editable && (
+                                        )}
+                                        {/* {this.state.editable && (
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'
                                             style={{ borderRadius: "50%" }}
@@ -479,39 +545,37 @@ export default class Profile extends Component {
                                             <FontAwesomeIcon icon={faPen} />
                                         </button>
                                     )} */}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-3 '>
                             <div className='p-3 block-noHover'>
-                                <h4 className='position-relative'>
+                                <h4 className='position-relative text-emp-primary Merri24px'>
                                     {this.state.profile.title}
                                 </h4>
                             </div>
-                            <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative'>
+                            <div className='p-3 block-noHover mt-2'>
+                                <h5 className='position-relative text-emp-primary'>
                                     Area of Work
-                                </h4>
-                                <h6>
-                                    <strong>
-                                        {this.state.profile.profession}
-                                    </strong>
-                                </h6>
-                                <h6>{this.state.profile.specialization}</h6>
-                                <h6>
-                                    <em>
-                                        {this.state.profile.superSpecialization.join(
-                                            ", ",
-                                        )}
-                                    </em>
-                                </h6>
+                                </h5>
+
+                                <strong>{this.state.profile.profession}</strong>
+                                <br />
+                                {this.state.profile.specialization}
+                                <br />
+                                <em>
+                                    {this.state.profile.superSpecialization.join(
+                                        ", ",
+                                    )}
+                                </em>
                             </div>
 
-                            <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative mb-3'>
+                            <div className='p-3 block-noHover mt-2'>
+                                <h5 className='position-relative mb-3 text-emp-primary'>
                                     Education
-                                </h4>
+                                </h5>
 
                                 {this.state.profile.education &&
                                     this.state.profile.education.map((data) => (
@@ -520,11 +584,11 @@ export default class Profile extends Component {
                                             <Media>
                                                 <Media body>
                                                     <Media heading>
-                                                        <h5>
+                                                        <h6>
                                                             <strong>
                                                                 {data.degree}
                                                             </strong>
-                                                        </h5>
+                                                        </h6>
                                                     </Media>
                                                     <Media heading>
                                                         <h6>
@@ -540,10 +604,10 @@ export default class Profile extends Component {
                                         </div>
                                     ))}
                             </div>
-                            <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative'>
+                            <div className='p-3 block-noHover mt-2'>
+                                <h5 className='position-relative text-emp-primary'>
                                     Availability
-                                </h4>
+                                </h5>
 
                                 {this.state.profile.availability &&
                                     this.state.profile.availability.map(
@@ -567,7 +631,12 @@ export default class Profile extends Component {
                                                                 new Date(
                                                                     `2011-10-10T${data.endTime}:00`,
                                                                 ),
-                                                            )} on `}
+                                                            )} ${
+                                                                data.days
+                                                                    .length > 0
+                                                                    ? "on"
+                                                                    : ""
+                                                            } `}
                                                             {data.days.map(
                                                                 (day) => (
                                                                     <Badge className='mx-1'>
@@ -588,8 +657,8 @@ export default class Profile extends Component {
                                     "undefined" ||
                                 this.state.profile.resume === ""
                             ) && (
-                                <div className='block-noHover mt-4 p-2 p-sm-3'>
-                                    <h4>Resume</h4>
+                                <div className='block-noHover mt-2 p-2 p-sm-3'>
+                                    <h5 className='text-emp-primary'>Resume</h5>
 
                                     {(typeof this.state.profile.resume ===
                                         "undefined" ||
@@ -631,7 +700,7 @@ export default class Profile extends Component {
                                             <div className='col-12 col-sm-8 row justify-content-between'>
                                                 <a
                                                     href={`${this.state.profile.resume}`}
-                                                    className=' btn btn-info btn-sm mr-1'>
+                                                    className=' btn btn-emp-primary btn-sm mr-1'>
                                                     View Resume
                                                     <FontAwesomeIcon
                                                         className='ml-2'
@@ -707,7 +776,9 @@ export default class Profile extends Component {
                                 </div>
                             </ModalBody>
                             <ModalFooter>
-                                <Button color='primary' onClick={this.update}>
+                                <Button
+                                    color='emp-primary'
+                                    onClick={this.update}>
                                     Update
                                 </Button>{" "}
                                 <Button
@@ -1345,13 +1416,29 @@ export default class Profile extends Component {
                                 </div>
                             </ModalBody>
                             <ModalFooter>
-                                <Button color='primary' onClick={this.update}>
+                                <Button
+                                    color='emp-primary'
+                                    onClick={this.update}>
                                     Update
                                 </Button>{" "}
                                 <Button
                                     color='secondary'
                                     onClick={this.toggleExperience}>
                                     Cancel
+                                </Button>
+                            </ModalFooter>
+                        </Modal>
+                        <Modal
+                            isOpen={this.state.modalError}
+                            toggle={this.toggleModal}
+                            style={{ marginTop: "20vh" }}>
+                            <ModalBody>{this.state.messError}</ModalBody>
+                            <ModalFooter className='p-1'>
+                                <Button
+                                    size='sm'
+                                    color='emp-primary'
+                                    onClick={this.toggleModal}>
+                                    Ok
                                 </Button>
                             </ModalFooter>
                         </Modal>

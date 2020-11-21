@@ -57,6 +57,7 @@
     opacity: 0.9;
 }
 
+
 /* toast */
 
 .toast {
@@ -71,7 +72,7 @@
 
 .toast-body {
     text-align: center;
-    /* padding: 0.25rem 0.75rem 0.5rem 0.75rem; */
+    padding: .5rem
 }
 
 @media (max-width: 992px) {
@@ -80,6 +81,7 @@
         /* width: 40%; */
     }
 }
+
 
 /* modal form */
 

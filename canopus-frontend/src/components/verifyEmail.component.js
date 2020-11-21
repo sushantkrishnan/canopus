@@ -1,7 +1,6 @@
 import Axios from "axios";
 import React, { Component } from "react";
-import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
-import { Link } from "react-router-dom";
+import { Alert } from "reactstrap";
 import "../stylesheets/verifyEmail.css";
 const block = {
     borderRadius: " 0.25rem",
@@ -41,7 +40,8 @@ export default class VerifyEmail extends Component {
                 if (data.status === 200) {
                     this.setState({
                         modal: true,
-                        message: "Email has been sent. Check your mailbox !",
+                        message:
+                            "A verification link has been sent to your email account, please click on the link to verify your email address. ",
                     });
                 }
             });
@@ -87,11 +87,22 @@ export default class VerifyEmail extends Component {
                 <div className='make-small'>
                     <div className=' p-4 m-3 mx-lg-5' style={block}>
                         <h2>{this.state.data}</h2>
-                        Haven't got the mail?{" "}
-                        <Link onClick={this.resend} className='text-info'>
+                        If you don't get the email within few minutes (check
+                        your spam, promotions and trash folders to be sure!),
+                        try or
+                        <span
+                            onClick={this.resend}
+                            style={{ cursor: "pointer" }}
+                            className='text-emp-primary'>
                             {" "}
-                            Resend again
-                        </Link>
+                            sending again{" "}
+                        </span>
+                        contact us at{" "}
+                        <a
+                            href='mailto:support@curoid.co'
+                            className='text-emp-primary'>
+                            support@curoid.co.
+                        </a>
                     </div>
                 </div>
                 {/* <Modal

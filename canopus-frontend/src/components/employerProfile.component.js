@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import Axios from "axios";
-import hospital from "../images/hospital.svg";
-import { Table, Badge } from "reactstrap";
-import ReactPlayer from "react-player";
+import { Badge, Modal, ModalBody, ModalFooter, Button } from "reactstrap";
+// import ReactPlayer from "react-player";
 import ShowMap from "./showMap.component";
 import ImageCarousel from "./imageCarousel.component";
 import VideoCarousel from "./videoCarousel.component";
@@ -21,7 +20,14 @@ export default class EmployerProfile extends Component {
         super(props);
         this.state = {
             employer: null,
+            modalError: false,
+            messError: "",
         };
+    }
+    toggleErrorModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
     }
     componentDidMount() {
         console.log(this.props);
@@ -32,25 +38,28 @@ export default class EmployerProfile extends Component {
             })
             .catch(({ response }) => {
                 console.log(response);
-                if (response.data) {
-                    alert(response.data.err);
-                    // window.location = "/";
-                }
+
+                // alert(response.data.err);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+                // window.location = "/";
             });
     }
     render() {
         return (
             <div>
                 {this.state.employer && (
-                    <div className='d-flex flex-column-reverse flex-sm-row mx-2 mx-sm-3'>
+                    <div className='d-flex flex-column-reverse flex-sm-row mx-auto col-12 col-xl-8 px-2 px-xl-0'>
                         <div className='col-12  py-3'>
                             <div className='row m-2'>
-                                <div className='col-12 col-md-3 col-lg-2 px-5 px-sm-0 text-align-center'>
+                                <div className='col-8 col-md-3 col-lg-2 px-5 px-sm-0 text-align-center mx-auto'>
                                     <img
                                         src={
                                             this.state.employer.logo
                                                 ? this.state.employer.logo
-                                                : hospital
+                                                : "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_210416356.jpeg"
                                         }
                                         alt=''
                                         className='img-fluid img-thumbnail'
@@ -164,14 +173,21 @@ export default class EmployerProfile extends Component {
                                     this.state.employer.image[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='text-blue'>Images</h4>
-                                        <ImageCarousel
-                                            style={{ minHeight: "360px" }}
-                                            items={this.state.employer.image}
-                                        />
+                                        <h4 className='text-emp-primary col-12'>
+                                            Images
+                                        </h4>
+                                        <div className='col-12 col-md-8 mx-auto'>
+                                            <ImageCarousel
+                                                style={{ minHeight: "360px" }}
+                                                items={
+                                                    this.state.employer.image
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 )}
                             {this.state.employer.youtube &&
+                                this.state.employer.youtube.length > 0 &&
                                 !(
                                     this.state.employer.youtube.length === 1 &&
                                     this.state.employer.youtube[0] === ""
@@ -183,15 +199,25 @@ export default class EmployerProfile extends Component {
                                             className='w-100'
                                             items={this.state.employer.youtube}
                                         />
-                                        {/* <ReactPlayer
-                                        className='w-100'
-                                        url='https://www.youtube.com/watch?v=b_lHyhTRb-8&list=RDv2-9rIL_f4w&index=34'
-                                    /> */}
                                     </div>
                                 )}
                         </div>
                     </div>
                 )}
+                <Modal
+                    isOpen={this.state.modalError}
+                    toggle={this.toggleErrorModal}
+                    style={{ marginTop: "20vh" }}>
+                    <ModalBody>{this.state.messError}</ModalBody>
+                    <ModalFooter className='p-1'>
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={this.toggleErrorModal}>
+                            Ok
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         );
     }

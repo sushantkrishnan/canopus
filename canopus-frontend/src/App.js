@@ -56,8 +56,7 @@ class App extends Component {
             });
     }
     componentDidMount() {
-        console.log(data);
-        console.log(this.state.user);
+        console.log("UPDATED V4");
         if (!this.state.user) {
             this.getUser();
         }
@@ -83,7 +82,7 @@ class App extends Component {
     render() {
         return (
             <BrowserRouter
-                className='flex flex-column justify-content-between'
+                className='d-flex flex-column justify-content-between'
                 ref={this.wrapper}>
                 <NavbarComponent
                     user={this.state.user}
@@ -340,12 +339,16 @@ class App extends Component {
                             render={(props) =>
                                 this.state.user &&
                                 this.state.user.role === "Employer" ? (
-                                    <Employer
-                                        {...props}
-                                        // user={this.state.user}
-                                        setUser={this.setUser}
-                                        data={this.state.data}
-                                    />
+                                    this.state.user.emailVerified === true ? (
+                                        <Employer
+                                            {...props}
+                                            // user={this.state.user}
+                                            setUser={this.setUser}
+                                            data={this.state.data}
+                                        />
+                                    ) : (
+                                        <Redirect to='/employer/verify' />
+                                    )
                                 ) : (
                                     <Redirect to='/' />
                                 )
@@ -360,11 +363,15 @@ class App extends Component {
                             render={(props) =>
                                 this.state.user &&
                                 this.state.user.role === "Employer" ? (
-                                    <PostJob
-                                        {...props}
-                                        data={this.state.data}
-                                        locationData={this.state.location}
-                                    />
+                                    this.state.user.emailVerified === true ? (
+                                        <PostJob
+                                            {...props}
+                                            data={this.state.data}
+                                            locationData={this.state.location}
+                                        />
+                                    ) : (
+                                        <Redirect to='/employer/verify' />
+                                    )
                                 ) : (
                                     <Redirect to='/' />
                                 )
@@ -380,11 +387,15 @@ class App extends Component {
                             render={(props) =>
                                 this.state.user &&
                                 this.state.user.role === "Employer" ? (
-                                    <JobApplications
-                                        {...props}
-                                        user={this.state.user}
-                                        data={this.state.data}
-                                    />
+                                    this.state.user.emailVerified === true ? (
+                                        <JobApplications
+                                            {...props}
+                                            user={this.state.user}
+                                            data={this.state.data}
+                                        />
+                                    ) : (
+                                        <Redirect to='/employer/verify' />
+                                    )
                                 ) : (
                                     <Redirect to='/' />
                                 )
@@ -408,7 +419,20 @@ class App extends Component {
                             path='/privacy'
                             component={() => (
                                 <Iframe
-                                    url='https://canopus.blob.core.windows.net/mail-image/privacy.html'
+                                    url='https://curoidprod.blob.core.windows.net/curoid/privacy.html'
+                                    id='myId'
+                                    className='iframe'
+                                    display='initial'
+                                    position='relative'
+                                />
+                            )}
+                        />
+                        <Route
+                            exact
+                            path='/terms-and-conditions'
+                            component={() => (
+                                <Iframe
+                                    url='https://curoidprod.blob.core.windows.net/curoid/toc.html'
                                     id='myId'
                                     className='iframe'
                                     display='initial'

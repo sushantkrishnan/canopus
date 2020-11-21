@@ -1,5 +1,5 @@
 import "../stylesheets/jobSearch.css";
-
+import Banner from "../components/banner.component";
 import React, { Component, createRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,9 +17,9 @@ import {
     CustomInput,
     Pagination,
     PaginationItem,
-    FormGroup,
-    Input,
-    Label,
+    // FormGroup,
+    // Input,
+    // Label,
     PaginationLink,
     TabContent,
     TabPane,
@@ -35,7 +35,7 @@ import {
     ModalFooter,
 } from "reactstrap";
 import axios from "axios";
-import doctor from "../images/doctor.png";
+// import doctor from "../images/doctor.png";
 import hospital from "../images/hospital.svg";
 import Loader from "react-loader-spinner";
 import Select from "react-select";
@@ -58,9 +58,9 @@ const customControlStyles = {
     }),
     input: (provided, state) => ({
         ...provided,
-        width: 50,
-        color: "red",
-        fontSize: "10px",
+        // width: 50,
+        // color: "red",
+        // fontSize: "10px",
     }),
     singleValue: (provided, state) => ({
         ...provided,
@@ -78,7 +78,7 @@ const BounceIn = styled.div`
     animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
 
-const Badges = ({ desc, superSpecialization }) => {
+const Badges = ({ desc, superSpecialization, sponsored, applied }) => {
     const superSp = superSpecialization ? superSpecialization : "";
     let badges = [];
     if (desc && desc.type && desc.incentives)
@@ -90,14 +90,29 @@ const Badges = ({ desc, superSpecialization }) => {
 
     return (
         <div>
+            {applied && (
+                <Badge className='mr-1' color='success-secondary'>
+                    Applied
+                </Badge>
+            )}
+            {sponsored === "true" && (
+                <Badge className='mr-1' color='js-secondary'>
+                    Promoted
+                </Badge>
+            )}
             {badges.map((badge, i) => {
                 return (
-                    <Badge className='mx-1' color='info' key={i}>
+                    <Badge className='mr-1' color='info' key={i}>
                         {badge}
                     </Badge>
                 );
             })}
-            {number > 0 && `+ ${number} more`}
+            {number > 0 && (
+                <Badge
+                    className='mr-1'
+                    color='info'
+                    key={120}>{`+ ${number} more`}</Badge>
+            )}
         </div>
     );
 };
@@ -133,6 +148,15 @@ const Job = ({ job, userId, user }) => {
             })
             .catch((err) => console.log(err.response));
     };
+    const options = {
+        hour: "numeric",
+        minute: "numeric",
+    };
+    const optionsDate = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    };
     return (
         <div>
             <BounceIn>
@@ -151,72 +175,96 @@ const Job = ({ job, userId, user }) => {
                 >
                     <Media
                         className={`row  justify-content-center my-3 mx-auto p-2 px-md-3 ${
-                            job.sponsored === "true" ? "block-info" : "block"
+                            job.sponsored === "true" ? "block" : "block"
                         }`}
                         style={{ cursor: "pointer" }}>
-                        <Media body className='col-12 my-1 p-1'>
-                            <Media heading>
-                                <h5>{job.title}</h5>
-                            </Media>
+                        <Media body className='col-12 my-auto p-1 '>
+                            <h5 className='mb-5px Merri24px'>{job.title}</h5>
 
-                            <Media heading>
-                                <h6 className='text-info'>
-                                    {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                    {job.author && job.author.instituteName
-                                        ? job.author.instituteName
-                                        : job.instituteName
-                                        ? job.instituteName
-                                        : job.description &&
-                                          job.description.company
-                                        ? job.description.company
-                                        : "Company"}
-                                </h6>
-                            </Media>
-                            <Media heading>
-                                <h6>
-                                    <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
-                                    {job.description &&
-                                        job.description.location}
-                                </h6>
-                            </Media>
+                            <h6 className='text-emp-primary mb-2px'>
+                                {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                                {job.author && job.author.instituteName
+                                    ? job.author.instituteName
+                                    : job.instituteName
+                                    ? job.instituteName
+                                    : job.description && job.description.company
+                                    ? job.description.company
+                                    : "Company"}
+                            </h6>
+
+                            <h6 className='mb-8px'>
+                                {job.description && job.description.location}
+                            </h6>
 
                             {/* ?     <hr className='my-2' /> */}
-                            <div className='row m-0'>
+                            <div className='row m-0 '>
                                 <div className='col-12 descr'>
-                                    <em style={{ fontSize: ".9rem" }}>
-                                        {job.description &&
-                                            job.description.line}
-                                    </em>
+                                    {job.description && job.description.line}
                                 </div>
                             </div>
-                            <hr />
+
                             {job.startDate && (
-                                <div className='row'>
-                                    {new Date(
-                                        job.startDate,
-                                    ).toLocaleTimeString()}
-                                </div>
-                            )}
-                            {job.endDate && (
-                                <div className='row'>
-                                    {new Date(job.endDate).toLocaleTimeString()}
+                                <div className='row mt-1'>
+                                    {new Intl.DateTimeFormat(
+                                        "en-US",
+                                        optionsDate,
+                                    ).format(new Date(job.startDate))}
+
+                                    {job.category === "Locum" &&
+                                        ` - ${new Intl.DateTimeFormat(
+                                            "en-US",
+                                            optionsDate,
+                                        ).format(new Date(job.endDate))}`}
+
+                                    {job.category === "Day Job" && (
+                                        <span className='row'>
+                                            {"|"}
+                                            {job.startDate && (
+                                                <div className=''>
+                                                    {new Intl.DateTimeFormat(
+                                                        "en-US",
+                                                        options,
+                                                    ).format(
+                                                        new Date(job.startDate),
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {job.endDate && (
+                                                <div className=''>
+                                                    {" - "}
+                                                    {new Intl.DateTimeFormat(
+                                                        "en-US",
+                                                        options,
+                                                    ).format(
+                                                        new Date(job.endDate),
+                                                    )}
+                                                </div>
+                                            )}
+                                        </span>
+                                    )}
                                 </div>
                             )}
 
-                            <div className='col-12  px-0 '>
+                            <div className='col-12 mt-8px px-0 row justify-content-between'>
                                 <Badges
                                     desc={job.description}
                                     superSpecialization={
                                         job.superSpecialization
                                     }
+                                    sponsored={job.sponsored}
+                                    applied={job.applied === 1}
                                 />
-                                {job.applied === 1 && (
+                                {/* {job.applied === 1 && (
                                     <Badge
-                                        color='warning'
-                                        style={{ float: "right" }}>
+                                        color='warning my-auto mr-2'
+                                        style={{
+                                            float: "right",
+                                            height: "max-content",
+                                        }}>
                                         Applied
                                     </Badge>
-                                )}
+                                )} */}
                             </div>
                             {/* <div className='col-12'>
                                 <Button onClick={(e) => console.log("clicked")}>
@@ -227,7 +275,7 @@ const Job = ({ job, userId, user }) => {
                         <Media
                             left
                             href='#'
-                            className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
+                            className='d-none d-lg-block col-12 col-sm-3 my-auto mx-auto text-align-center'>
                             <Media
                                 object
                                 src={
@@ -235,9 +283,9 @@ const Job = ({ job, userId, user }) => {
                                         ? job.author.photo
                                         : hospital
                                 }
-                                style={{ maxHeight: "200px" }}
+                                style={{ maxHeight: "160px" }}
                                 alt='Generic placeholder image'
-                                className='img-fluid float-right pr-2 pr-lg-3'
+                                className='img-fluid'
                             />
                         </Media>
                     </Media>
@@ -303,10 +351,10 @@ const Job = ({ job, userId, user }) => {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color='primary' onClick={applyJob}>
+                        <Button color='emp-primary' onClick={applyJob}>
                             Apply
                         </Button>
-                        <Button color='secondary' onClick={toggle}>
+                        <Button color='emp-secondary' onClick={toggle}>
                             Cancel
                         </Button>
                     </ModalFooter>
@@ -322,7 +370,7 @@ export default class JobSearch extends Component {
         this.state = {
             jobs: [],
             pageCount: 0,
-            pageSize: 4,
+            pageSize: 15,
             freelance: true,
             isZero: false,
             currentPage: 0,
@@ -342,6 +390,9 @@ export default class JobSearch extends Component {
             sortBy: "Relevance",
             geoLocation: false,
             locumCount: null,
+            modalError: false,
+            messError: "",
+            count: 0,
             // isSticky:false
         };
         this.toggleTab = this.toggleTab.bind(this);
@@ -357,9 +408,13 @@ export default class JobSearch extends Component {
         this.incentives = React.createRef();
         this.superSpecialization = React.createRef();
         this.freelance = React.createRef();
-        // this.filter=React.createRef();
+        this.toggleModal = this.toggleModal.bind(this);
     }
-
+    toggleModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
+    }
     getLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -398,6 +453,10 @@ export default class JobSearch extends Component {
                 },
                 (err) => {
                     console.log(err);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
                 },
             );
         } else {
@@ -432,17 +491,19 @@ export default class JobSearch extends Component {
                         locumCount: data.locumcount,
                         pageCount: Math.ceil(data.count / this.state.pageSize),
                         loaded: true,
-                        jobsFound: `${data.count} ${this.state.profession}${
-                            this.state.profession !== "" &&
-                            this.state.specialization != ""
-                                ? " - "
-                                : ""
-                        }${this.state.specialization} ${
-                            data.jobs.length <= 1 ? "Job" : "Jobs"
-                        } found`,
+                        count: data.count,
+                        jobsFound: `${data.count} ${this.state.profession} ${
+                            data.count == 1 ? "Job" : "Jobs"
+                        }`,
                     });
                 })
-                .catch((ERR) => console.log(ERR));
+                .catch((ERR) => {
+                    console.log(ERR);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
         } else {
             const query = {
                 limit: this.state.pageSize,
@@ -462,14 +523,11 @@ export default class JobSearch extends Component {
                         jobs: ndata.jobs,
                         pageCount: Math.ceil(ndata.count / this.state.pageSize),
                         loaded: true,
-                        jobsFound: `${ndata.count} ${this.state.profession}${
-                            this.state.profession !== "" &&
-                            this.state.specialization != ""
-                                ? " - "
-                                : ""
-                        }${this.state.specialization} ${
-                            ndata.jobs.length <= 1 ? "Job" : "Jobs"
-                        } found`,
+                        count: ndata.count,
+
+                        jobsFound: `${ndata.count} ${this.state.profession} ${
+                            ndata.count == 1 ? "Job" : "Jobs"
+                        }`,
                     });
                     console.log("----------------");
                     console.log(this.state.isZero);
@@ -477,7 +535,10 @@ export default class JobSearch extends Component {
                 .catch((err) => {
                     console.log(err);
                     console.log(err.response);
-                    // window.location = "/";
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
                 });
         }
     }
@@ -509,14 +570,11 @@ export default class JobSearch extends Component {
                             pageCount: Math.ceil(
                                 data.count / this.state.pageSize,
                             ),
-                            jobsFound: `${data.count} ${this.state.profession}${
-                                this.state.profession !== "" &&
-                                this.state.specialization != ""
-                                    ? " - "
-                                    : ""
-                            }${this.state.specialization} ${
-                                data.jobs.length <= 1 ? "Job" : "Jobs"
-                            } found`,
+                            count: data.count,
+
+                            jobsFound: `${data.count} ${
+                                this.state.profession
+                            } ${data.count == 1 ? "Job" : "Jobs"}`,
                         });
                         console.log("----------------");
                         console.log(this.state.isZero);
@@ -555,15 +613,11 @@ export default class JobSearch extends Component {
                                 data.count / this.state.pageSize,
                             ),
                             locumCount: data.locumcount,
+                            count: data.count,
 
-                            jobsFound: `${data.count} ${this.state.profession}${
-                                this.state.profession !== "" &&
-                                this.state.specialization != ""
-                                    ? " - "
-                                    : ""
-                            }${this.state.specialization} ${
-                                data.jobs.length <= 1 ? "Job" : "Jobs"
-                            } found`,
+                            jobsFound: `${data.count} ${
+                                this.state.profession
+                            } ${data.count == 1 ? "Job" : "Jobs"}`,
                         });
                         console.log("----------------");
                         console.log(this.state.isZero);
@@ -635,20 +689,22 @@ export default class JobSearch extends Component {
                                     : Math.ceil(
                                           data.count / this.state.pageSize,
                                       ),
+                            count: data.count,
 
-                            jobsFound: `${data.count} ${this.state.profession}${
-                                this.state.profession !== "" &&
-                                this.state.specialization != ""
-                                    ? " - "
-                                    : ""
-                            }${this.state.specialization} ${
-                                data.jobs.length <= 1 ? "Job" : "Jobs"
-                            } found`,
+                            jobsFound: `${data.count} ${
+                                this.state.profession
+                            } ${data.count == 1 ? "Job" : "Jobs"}`,
                         });
                     })
                     .catch((err) => {
                         console.log(err.response);
-                        this.setState({ loaded: true });
+
+                        this.setState({
+                            loaded: true,
+                            modalError: true,
+                            messError:
+                                "Something went wrong, Please try again.",
+                        });
                     });
             } else if (locum === undefined ? this.state.freelance : !locum) {
                 query = {
@@ -677,15 +733,22 @@ export default class JobSearch extends Component {
                                       )
                                 : 0,
 
+                            // jobsFound: data.jobs
+                            //     ? `${data.count} ${this.state.profession}${
+                            //           this.state.profession !== "" &&
+                            //           this.state.specialization != ""
+                            //               ? " - "
+                            //               : ""
+                            //       }${this.state.specialization} ${
+                            //           data.jobs.length == 1 ? "Job" : "Jobs"
+                            //       }`
+                            //     : "",
+                            count: data.count,
+
                             jobsFound: data.jobs
-                                ? `${data.count} ${this.state.profession}${
-                                      this.state.profession !== "" &&
-                                      this.state.specialization != ""
-                                          ? " - "
-                                          : ""
-                                  }${this.state.specialization} ${
-                                      data.jobs.length <= 1 ? "Job" : "Jobs"
-                                  } found`
+                                ? `${data.count} ${this.state.profession} ${
+                                      data.count == 1 ? "Job" : "Jobs"
+                                  }`
                                 : "",
                         });
                         console.log("----------------");
@@ -695,9 +758,18 @@ export default class JobSearch extends Component {
                     .catch((err) => {
                         console.log(err);
                         console.log(err.response);
-                        this.setState({ loaded: true });
+                        this.setState({
+                            loaded: true,
+                        });
                         if (err && err.response && err.response.data)
-                            alert(err.response.data.err);
+                            this.setState({
+                                modalError: true,
+                                messError:
+                                    err.response.data.err !== undefined &&
+                                    err.response.data.err !== ""
+                                        ? err.response.data.err
+                                        : "Something went wrong, Please try again.",
+                            });
                     });
             }
         } else this.getAllJobs(skipNo, locum);
@@ -712,10 +784,12 @@ export default class JobSearch extends Component {
             experienceArray = [],
             locumTypeArray = [],
             jobTypeArray = [],
+            bannerData = null,
             typeArray = [];
         let specializationObj = {},
             superSpecializationObj = {};
         if (this.props.data && this.props.locData) {
+            bannerData = this.props.data.banner;
             professionArray = this.props.data.specializations.map((obj) => {
                 specializationObj[obj.profession] = obj.specialization.map(
                     (e) => {
@@ -784,181 +858,195 @@ export default class JobSearch extends Component {
             );
         }
         return (
-            <div className='row justify-content-center align-content-center mx-4 mx-lg-2 position-relative'>
-                <div
-                    className='col-12 col-lg-3  mt-md-4 position-sticky '
-                    style={{ top: 0, background: "white", zIndex: 1000 }}>
-                    <div className='sticky-filter pt-lg-2 d-none d-lg-block'>
-                        {/* <div className='form-group'> */}
-                        <div className='form-group '>
-                            <h5
-                                style={{
-                                    textAlign: "center",
-                                }}>
-                                Location
-                            </h5>
-                            <InputGroup className=''>
-                                <div className='row w-100'>
-                                    <div className='col-10'>
-                                        <Select
-                                            isClearable={true}
-                                            autosize={true}
-                                            placeholder='Location'
-                                            options={locationArray}
-                                            value={
-                                                this.state.location !== "" && {
-                                                    label: this.state.location,
-                                                    value: this.state.location,
+            <div className='position-relative'>
+                <div className='row justify-content-center align-content-center mx-4 mx-lg-2 position-relative'>
+                    <div
+                        className='col-12 col-lg-3  mt-md-4 position-sticky '
+                        style={{ top: 0, background: "white", zIndex: 1000 }}>
+                        <div className='sticky-filter pt-lg-2 d-none d-lg-block'>
+                            {/* <div className='form-group'> */}
+                            <div className='form-group '>
+                                <h5
+                                    style={{
+                                        textAlign: "center",
+                                    }}>
+                                    Location
+                                </h5>
+                                <InputGroup className=''>
+                                    <div className='row w-100'>
+                                        <div className='col-10'>
+                                            <Select
+                                                isClearable={true}
+                                                autosize={true}
+                                                placeholder='Location'
+                                                options={locationArray}
+                                                value={
+                                                    this.state.location !==
+                                                        "" && {
+                                                        label: this.state
+                                                            .location,
+                                                        value: this.state
+                                                            .location,
+                                                    }
                                                 }
-                                            }
-                                            ref={this.location}
-                                            onChange={(e) => {
-                                                this.setState({
-                                                    location: e ? e.value : "",
-                                                    geoLocation: false,
-                                                });
-                                            }}
-                                        />
+                                                ref={this.location}
+                                                onChange={(e) => {
+                                                    this.setState({
+                                                        location: e
+                                                            ? e.value
+                                                            : "",
+                                                        geoLocation: false,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                        <button
+                                            className={`btn ${
+                                                this.state.geoLocation
+                                                    ? "btn-emp-primary"
+                                                    : "btn-emp-secondary"
+                                            }  col-2 px-2`}
+                                            onClick={this.getLocation}>
+                                            <FontAwesomeIcon
+                                                icon={faMapMarkerAlt}
+                                            />
+                                        </button>
                                     </div>
-                                    <button
-                                        className={`btn ${
-                                            this.state.geoLocation
-                                                ? "btn-info"
-                                                : "btn-secondary"
-                                        } btn-hover col-2 px-2`}
-                                        onClick={this.getLocation}>
-                                        <FontAwesomeIcon
-                                            icon={faMapMarkerAlt}
-                                        />
-                                    </button>
-                                </div>
-                            </InputGroup>
-                        </div>
+                                </InputGroup>
+                            </div>
 
-                        <Nav tabs className='justify-content-center'>
-                            <NavItem className='mr-1'>
-                                <NavLink
-                                    onClick={() => {
-                                        this.toggleTab("1");
-                                    }}
-                                    className={`${
-                                        this.state.activeTab === "1" &&
-                                        "active-tab"
-                                    } p-2 tab`}>
-                                    Profession
-                                </NavLink>
-                            </NavItem>
-                            <NavItem className='ml-1'>
-                                <NavLink
-                                    onClick={() => {
-                                        this.toggleTab("2");
-                                    }}
-                                    className={`${
-                                        this.state.activeTab === "2" &&
-                                        "active-tab"
-                                    } p-2 tab`}>
-                                    Other filters
-                                </NavLink>
-                            </NavItem>
-                        </Nav>
-                        <TabContent
-                            activeTab={this.state.activeTab}
-                            className='mt-4'>
-                            <TabPane tabId='1'>
-                                <Row>
-                                    <Col sm='12'>
-                                        <div className='form-group'>
-                                            <div className='input-group'>
-                                                <div
-                                                    style={{
-                                                        width: `100%`,
-                                                    }}>
-                                                    <Select
-                                                        styles={{
-                                                            menu: (base) => ({
-                                                                ...base,
-                                                                zIndex: 100,
-                                                            }),
-                                                        }}
-                                                        autosize={true}
-                                                        isClearable={false}
-                                                        defaultValue={{
-                                                            label: this.state
-                                                                .profession,
-                                                            value: this.state
-                                                                .profession,
-                                                        }}
-                                                        placeholder='Profession'
-                                                        options={
-                                                            professionArray
-                                                        }
-                                                        ref={this.profession}
-                                                        onChange={(e) => {
-                                                            console.log(e);
+                            <Nav tabs className='justify-content-center'>
+                                <NavItem className='mr-1'>
+                                    <NavLink
+                                        onClick={() => {
+                                            this.toggleTab("1");
+                                        }}
+                                        className={`${
+                                            this.state.activeTab === "1" &&
+                                            "active-tab"
+                                        } p-2 tab`}>
+                                        Profession
+                                    </NavLink>
+                                </NavItem>
+                                <NavItem className='ml-1'>
+                                    <NavLink
+                                        onClick={() => {
+                                            this.toggleTab("2");
+                                        }}
+                                        className={`${
+                                            this.state.activeTab === "2" &&
+                                            "active-tab"
+                                        } p-2 tab`}>
+                                        Other Filters
+                                    </NavLink>
+                                </NavItem>
+                            </Nav>
+                            <TabContent
+                                activeTab={this.state.activeTab}
+                                className='mt-4'>
+                                <TabPane tabId='1'>
+                                    <Row>
+                                        <Col sm='12' className='px-3'>
+                                            <div className='form-group'>
+                                                <div className='input-group'>
+                                                    <div
+                                                        style={{
+                                                            width: `100%`,
+                                                        }}>
+                                                        <Select
+                                                            styles={{
+                                                                menu: (
+                                                                    base,
+                                                                ) => ({
+                                                                    ...base,
+                                                                    zIndex: 100,
+                                                                }),
+                                                            }}
+                                                            autosize={true}
+                                                            isClearable={false}
+                                                            defaultValue={{
+                                                                label: this
+                                                                    .state
+                                                                    .profession,
+                                                                value: this
+                                                                    .state
+                                                                    .profession,
+                                                            }}
+                                                            placeholder='Profession'
+                                                            options={
+                                                                professionArray
+                                                            }
+                                                            ref={
+                                                                this.profession
+                                                            }
+                                                            onChange={(e) => {
+                                                                console.log(e);
 
-                                                            this.setState({
-                                                                profession: e
-                                                                    ? e.value
-                                                                    : "",
-                                                                specialization:
-                                                                    "",
-                                                                superSpecialization: [],
-                                                            });
-                                                        }}
-                                                    />
+                                                                this.setState({
+                                                                    profession: e
+                                                                        ? e.value
+                                                                        : "",
+                                                                    specialization:
+                                                                        "",
+                                                                    superSpecialization: [],
+                                                                });
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className='input-group mt-2'>
-                                                <div
-                                                    style={{
-                                                        width: `100%`,
-                                                    }}>
-                                                    <Select
-                                                        autosize={true}
-                                                        isClearable={true}
-                                                        placeholder='Specialization'
-                                                        value={
-                                                            this.state
-                                                                .specialization ===
-                                                            ""
-                                                                ? null
-                                                                : {
-                                                                      label: this
-                                                                          .state
-                                                                          .specialization,
-                                                                      value: this
-                                                                          .state
-                                                                          .specialization,
-                                                                  }
-                                                        }
-                                                        options={
-                                                            this.state
-                                                                .profession ===
-                                                            ""
-                                                                ? []
-                                                                : specializationObj[
-                                                                      this.state
-                                                                          .profession
-                                                                  ]
-                                                        }
-                                                        noOptionsMessage={() =>
-                                                            "Select Profession first"
-                                                        }
-                                                        ref={
-                                                            this.specialization
-                                                        }
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                            this.setState({
-                                                                specialization: e
-                                                                    ? e.value
-                                                                    : "",
-                                                            });
-                                                        }}
-                                                    />
+                                                <div className='input-group mt-2'>
+                                                    <div
+                                                        style={{
+                                                            width: `100%`,
+                                                        }}>
+                                                        <Select
+                                                            autosize={true}
+                                                            isClearable={true}
+                                                            placeholder='Specialization'
+                                                            value={
+                                                                this.state
+                                                                    .specialization ===
+                                                                ""
+                                                                    ? null
+                                                                    : {
+                                                                          label: this
+                                                                              .state
+                                                                              .specialization,
+                                                                          value: this
+                                                                              .state
+                                                                              .specialization,
+                                                                      }
+                                                            }
+                                                            options={
+                                                                this.state
+                                                                    .profession ===
+                                                                ""
+                                                                    ? []
+                                                                    : specializationObj[
+                                                                          this
+                                                                              .state
+                                                                              .profession
+                                                                      ]
+                                                            }
+                                                            noOptionsMessage={() =>
+                                                                "Select Profession first"
+                                                            }
+                                                            ref={
+                                                                this
+                                                                    .specialization
+                                                            }
+                                                            onChange={(e) => {
+                                                                console.log(e);
+                                                                this.setState({
+                                                                    specialization: e
+                                                                        ? e.value
+                                                                        : "",
+                                                                });
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            {/* {!this.state.freelance && (
+                                                {/* {!this.state.freelance && (
                                                 <div className='mt-3'>
                                                     <div className='col-12'>
                                                         <FormGroup>
@@ -1032,440 +1120,13 @@ export default class JobSearch extends Component {
                                                     </div>
                                                 </div>
                                             )} */}
-                                        </div>
-                                    </Col>
-                                </Row>
-                            </TabPane>
-                            <TabPane tabId='2'>
-                                <Row>
-                                    <Col sm='12'>
-                                        <div className='form-group'>
-                                            {/* <h5 style={{ textAlign: "center" }}>
-                                                Other Filters
-                                            </h5> */}
-
-                                            <InputGroup className='col-12 my-1'>
-                                                <div
-                                                    style={{
-                                                        width: `100%`,
-                                                    }}>
-                                                    <Select
-                                                        isClearable={true}
-                                                        autosize={true}
-                                                        placeholder='Experience'
-                                                        options={
-                                                            experienceArray
-                                                        }
-                                                        style={{
-                                                            backgroundColor:
-                                                                "red",
-                                                        }}
-                                                        // className='basic-multi-select'
-                                                        // classNamePrefix='select'
-                                                        ref={this.experience}
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                            this.setState({
-                                                                experience: e
-                                                                    ? e.value
-                                                                    : "",
-                                                            });
-                                                        }}
-                                                    />
-                                                </div>
-                                            </InputGroup>
-                                            <InputGroup className='col-12 my-1'>
-                                                <div
-                                                    style={{
-                                                        width: `100%`,
-                                                    }}>
-                                                    <Select
-                                                        autosize={true}
-                                                        placeholder='Type'
-                                                        isMulti
-                                                        options={
-                                                            this.state.freelance
-                                                                ? jobTypeArray
-                                                                : locumTypeArray
-                                                        }
-                                                        // className='basic-multi-select'
-                                                        // classNamePrefix='select'
-                                                        ref={this.type}
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                            this.setState({
-                                                                type: e
-                                                                    ? e.map(
-                                                                          (
-                                                                              type,
-                                                                          ) =>
-                                                                              type.value,
-                                                                      )
-                                                                    : [],
-                                                            });
-                                                            console.log(
-                                                                this.state.type,
-                                                            );
-                                                        }}
-                                                    />
-                                                </div>
-                                            </InputGroup>
-                                            <InputGroup className='col-12 my-1'>
-                                                <div
-                                                    style={{
-                                                        width: `100%`,
-                                                    }}>
-                                                    <Select
-                                                        autosize={true}
-                                                        isMulti
-                                                        placeholder='Incentives'
-                                                        options={
-                                                            incentivesArray
-                                                        }
-                                                        // className='basic-multi-select'
-                                                        // classNamePrefix='select'
-                                                        ref={this.incentives}
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                            this.setState({
-                                                                incentives: e
-                                                                    ? e.map(
-                                                                          (
-                                                                              type,
-                                                                          ) =>
-                                                                              type.value,
-                                                                      )
-                                                                    : [],
-                                                            });
-                                                        }}
-                                                    />
-                                                </div>
-                                            </InputGroup>
-
-                                            <InputGroup className='col-12 my-1'>
-                                                <div
-                                                    style={{
-                                                        width: `100%`,
-                                                    }}>
-                                                    <Select
-                                                        isMulti
-                                                        autosize={true}
-                                                        placeholder='Super/Sub Specialization'
-                                                        options={
-                                                            superSpecializationObj[
-                                                                `${this.state.profession}+${this.state.specialization}`
-                                                            ]
-                                                        }
-                                                        noOptionsMessage={() =>
-                                                            "Select Profession and Specialization first"
-                                                        }
-                                                        ref={
-                                                            this
-                                                                .superSpecialization
-                                                        }
-                                                        onChange={(e) => {
-                                                            console.log(e);
-                                                            this.setState({
-                                                                incentives: e
-                                                                    ? e.map(
-                                                                          (
-                                                                              type,
-                                                                          ) =>
-                                                                              type.value,
-                                                                      )
-                                                                    : [],
-                                                            });
-                                                        }}
-                                                    />
-                                                </div>
-                                            </InputGroup>
-                                        </div>
-                                    </Col>
-                                </Row>
-                            </TabPane>
-                        </TabContent>
-                        <div className='form-group row justify-content-center'>
-                            <Button
-                                className='w-100'
-                                color='info'
-                                onClick={(e) => {
-                                    this.search(0);
-                                    this.setState({ currentPage: 0 });
-                                }}>
-                                Apply filters
-                            </Button>
-                            {/* <Button
-                                className='col-4'
-                                onClick={() => this.componentDidCatch()}>
-                                Clear filters
-                            </Button> */}
-                        </div>
-                    </div>
-                    <div
-                        className=' pt-lg-2 d-flex d-lg-none position-sticky my-1 pt-2  row'
-                        style={{
-                            top: 0,
-                            textAlign: "center",
-                        }}>
-                        <h5
-                            className='m-0  col-6 pr-1 py-1'
-                            style={{
-                                borderRight: "1px solid gray",
-                                fontSize: "1rem",
-                            }}>
-                            Edit{" "}
-                            <span
-                                className='text-info'
-                                onClick={this.toggleModalFilter}
-                                style={{ cursor: "pointer" }}>
-                                Filters
-                            </span>
-                        </h5>
-                        <div
-                            className=' col-6 row px-0 pl-1 py-1 switch justify-content-center'
-                            style={{
-                                height: "max-content",
-                            }}>
-                            <CustomInput
-                                type='switch'
-                                id='exampleCustomSwitch'
-                                name='customSwitch'
-                                className='custom-control-right'
-                                label={`${
-                                    this.state.locumCount
-                                        ? this.state.locumCount
-                                        : ""
-                                } Day Job/Locum`}
-                                // ref={this.freelance}
-                                checked={!this.state.freelance}
-                                disabled={this.state.locumCount === 0}
-                                onChange={(e) => {
-                                    console.log(e.target.checked);
-                                    // console.log(this.freelance.current.checked);
-
-                                    this.setState({
-                                        freelance: this.freelance.current
-                                            ? this.freelance.current.checked
-                                            : !this.state.freelance,
-                                    });
-                                    // this.freelance.current.checked = this.state.freelance;
-                                    this.search(0, this.state.freelance);
-                                    // this.search(0);
-                                }}
-                            />
-                        </div>
-                    </div>
-                    <Modal
-                        isOpen={this.state.modalFilter}
-                        toggle={this.toggleModalFilter}>
-                        <ModalHeader toggle={this.toggleModalFilter}>
-                            Filters
-                        </ModalHeader>
-                        <ModalBody>
-                            <div className='form-group'>
-                                <h5
-                                    style={{
-                                        textAlign: "center",
-                                    }}>
-                                    Location
-                                </h5>
-                                <InputGroup className=''>
-                                    <div className='row w-100'>
-                                        <div className='col-10'>
-                                            <Select
-                                                isClearable={true}
-                                                autosize={true}
-                                                placeholder='Location'
-                                                options={locationArray}
-                                                // ref={this.location}
-                                                value={
-                                                    this.state.location === ""
-                                                        ? null
-                                                        : {
-                                                              label: this.state
-                                                                  .location,
-                                                              value: this.state
-                                                                  .location,
-                                                          }
-                                                }
-                                                onChange={(e) => {
-                                                    console.log(e);
-
-                                                    this.setState({
-                                                        location: e
-                                                            ? e.value
-                                                            : "",
-                                                        geoLocation: false,
-                                                    });
-                                                    this.location.current.state.value = {
-                                                        label: this.state
-                                                            .location,
-                                                        value: this.state
-                                                            .location,
-                                                    };
-                                                }}
-                                            />
-                                        </div>
-                                        <button
-                                            className='btn btn-secondary btn-hover col-2 px-2 '
-                                            onClick={this.getLocation}>
-                                            <FontAwesomeIcon
-                                                icon={faMapMarkerAlt}
-                                            />
-                                        </button>
-                                    </div>
-                                </InputGroup>
-                            </div>
-
-                            <Nav tabs className='justify-content-center'>
-                                <NavItem className='mr-1'>
-                                    <NavLink
-                                        onClick={() => {
-                                            this.toggleTab("1");
-                                        }}
-                                        className={`${
-                                            this.state.activeTab === "1" &&
-                                            "active-tab"
-                                        } p-2 tab`}>
-                                        Profession
-                                    </NavLink>
-                                </NavItem>
-                                <NavItem className='ml-1'>
-                                    <NavLink
-                                        onClick={() => {
-                                            this.toggleTab("2");
-                                        }}
-                                        className={`${
-                                            this.state.activeTab === "2" &&
-                                            "active-tab"
-                                        } p-2 tab`}>
-                                        Other filters
-                                    </NavLink>
-                                </NavItem>
-                            </Nav>
-                            <TabContent
-                                activeTab={this.state.activeTab}
-                                className='mt-4'>
-                                <TabPane tabId='1'>
-                                    <Row>
-                                        <Col sm='12'>
-                                            <div className='form-group'>
-                                                <div className='input-group'>
-                                                    <div
-                                                        style={{
-                                                            width: `100%`,
-                                                        }}>
-                                                        <h6>Profession</h6>
-                                                        <Select
-                                                            styles={{
-                                                                menu: (
-                                                                    base,
-                                                                ) => ({
-                                                                    ...base,
-                                                                    zIndex: 100,
-                                                                }),
-                                                            }}
-                                                            autosize={true}
-                                                            isClearable={false}
-                                                            placeholder='Profession'
-                                                            value={
-                                                                this.state
-                                                                    .profession ===
-                                                                ""
-                                                                    ? null
-                                                                    : {
-                                                                          value: this
-                                                                              .state
-                                                                              .profession,
-                                                                          label: this
-                                                                              .state
-                                                                              .profession,
-                                                                      }
-                                                            }
-                                                            // value={
-                                                            //     this.state
-                                                            //         .profession
-                                                            // }
-                                                            options={
-                                                                professionArray
-                                                            }
-                                                            ref={
-                                                                this.profession
-                                                            }
-                                                            onChange={(e) => {
-                                                                console.log(e);
-                                                                this.setState({
-                                                                    profession: e
-                                                                        ? e.value
-                                                                        : "",
-                                                                    specialization:
-                                                                        "",
-                                                                });
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className='input-group mt-2'>
-                                                    <div
-                                                        style={{
-                                                            width: `100%`,
-                                                        }}>
-                                                        <h6>Specialization</h6>
-                                                        <Select
-                                                            autosize={true}
-                                                            isClearable={true}
-                                                            placeholder='Specialization'
-                                                            options={
-                                                                this.state
-                                                                    .profession ===
-                                                                ""
-                                                                    ? []
-                                                                    : specializationObj[
-                                                                          this
-                                                                              .state
-                                                                              .profession
-                                                                      ]
-                                                            }
-                                                            noOptionsMessage={() =>
-                                                                "Select Profession first"
-                                                            }
-                                                            ref={
-                                                                this
-                                                                    .specialization
-                                                            }
-                                                            value={
-                                                                this.state
-                                                                    .specialization ===
-                                                                ""
-                                                                    ? null
-                                                                    : {
-                                                                          value: this
-                                                                              .state
-                                                                              .specialization,
-                                                                          label: this
-                                                                              .state
-                                                                              .specialization,
-                                                                      }
-                                                            }
-                                                            onChange={(e) => {
-                                                                console.log(e);
-                                                                this.setState({
-                                                                    specialization: e
-                                                                        ? e.value
-                                                                        : "",
-                                                                    superSpecialization: [],
-                                                                });
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
                                             </div>
                                         </Col>
                                     </Row>
                                 </TabPane>
                                 <TabPane tabId='2'>
                                     <Row>
-                                        <Col sm='12'>
+                                        <Col sm='12' className='px-3'>
                                             <div className='form-group'>
                                                 {/* <h5 style={{ textAlign: "center" }}>
                                                 Other Filters
@@ -1492,20 +1153,6 @@ export default class JobSearch extends Component {
                                                             ref={
                                                                 this.experience
                                                             }
-                                                            defaultValue={
-                                                                this.state
-                                                                    .experience ===
-                                                                ""
-                                                                    ? null
-                                                                    : {
-                                                                          value: this
-                                                                              .state
-                                                                              .experience,
-                                                                          label: this
-                                                                              .state
-                                                                              .experience,
-                                                                      }
-                                                            }
                                                             onChange={(e) => {
                                                                 console.log(e);
                                                                 this.setState({
@@ -1528,21 +1175,12 @@ export default class JobSearch extends Component {
                                                             isMulti
                                                             options={
                                                                 this.state
-                                                                    .freelance ==
-                                                                true
+                                                                    .freelance
                                                                     ? jobTypeArray
                                                                     : locumTypeArray
                                                             }
                                                             // className='basic-multi-select'
                                                             // classNamePrefix='select'
-                                                            defaultValue={this.state.type.map(
-                                                                (inc) => {
-                                                                    return {
-                                                                        value: inc,
-                                                                        label: inc,
-                                                                    };
-                                                                },
-                                                            )}
                                                             ref={this.type}
                                                             onChange={(e) => {
                                                                 console.log(e);
@@ -1581,14 +1219,6 @@ export default class JobSearch extends Component {
                                                             ref={
                                                                 this.incentives
                                                             }
-                                                            defaultValue={this.state.incentives.map(
-                                                                (inc) => {
-                                                                    return {
-                                                                        value: inc,
-                                                                        label: inc,
-                                                                    };
-                                                                },
-                                                            )}
                                                             onChange={(e) => {
                                                                 console.log(e);
                                                                 this.setState({
@@ -1616,20 +1246,17 @@ export default class JobSearch extends Component {
                                                             autosize={true}
                                                             placeholder='Super/Sub Specialization'
                                                             options={
-                                                                superSpecializationArray
+                                                                superSpecializationObj[
+                                                                    `${this.state.profession}+${this.state.specialization}`
+                                                                ]
+                                                            }
+                                                            noOptionsMessage={() =>
+                                                                "Select Profession and Specialization first"
                                                             }
                                                             ref={
                                                                 this
                                                                     .superSpecialization
                                                             }
-                                                            defaultValue={this.state.superSpecialization.map(
-                                                                (inc) => {
-                                                                    return {
-                                                                        value: inc,
-                                                                        label: inc,
-                                                                    };
-                                                                },
-                                                            )}
                                                             onChange={(e) => {
                                                                 console.log(e);
                                                                 this.setState({
@@ -1651,15 +1278,15 @@ export default class JobSearch extends Component {
                                     </Row>
                                 </TabPane>
                             </TabContent>
-                            <div className='form-group row justify-content-center'>
+                            <div className='form-group row justify-content-center px-3'>
                                 <Button
                                     className='w-100'
-                                    color='info'
+                                    color='emp-primary'
                                     onClick={(e) => {
                                         this.search(0);
                                         this.setState({ currentPage: 0 });
                                     }}>
-                                    Apply filters
+                                    Apply Filters
                                 </Button>
                                 {/* <Button
                                 className='col-4'
@@ -1667,42 +1294,571 @@ export default class JobSearch extends Component {
                                 Clear filters
                             </Button> */}
                             </div>
-                        </ModalBody>
-                    </Modal>
-                </div>
-                <div
-                    className=' my-4 mx-4 vertical'
-                    style={{
-                        width: ".02rem",
-                        // borderLeft: ".1rem solid lightgray",
-                        backgroundColor: "#a9a9a9",
-                    }}></div>
-                <hr
-                    className='horizontal mt-1'
-                    style={{
-                        height: ".06rem",
-                        width: "120vw",
-                        backgroundColor: "lightgrey",
-                    }}
-                />
-                <div className='col-12 col-lg-8 position-relative'>
+                        </div>
+                        <div
+                            className=' pt-lg-2 d-flex d-lg-none position-sticky my-1 pt-2  row'
+                            style={{
+                                top: 0,
+                                textAlign: "center",
+                            }}>
+                            <h5
+                                className='m-0  col-6 pr-1 py-1'
+                                style={{
+                                    borderRight: "1px solid gray",
+                                    fontSize: "1rem",
+                                }}>
+                                Edit{" "}
+                                <span
+                                    className='text-emp-primary'
+                                    onClick={this.toggleModalFilter}
+                                    style={{ cursor: "pointer" }}>
+                                    Filters
+                                </span>
+                            </h5>
+                            <div
+                                className=' col-6 row px-0 pl-1 py-1 switch justify-content-center'
+                                style={{
+                                    height: "max-content",
+                                }}>
+                                <CustomInput
+                                    type='switch'
+                                    id='exampleCustomSwitch'
+                                    name='customSwitch'
+                                    className='custom-control-right'
+                                    label={`${this.state.locumCount} Locum/Day Jobs`}
+                                    // ref={this.freelance}
+                                    checked={!this.state.freelance}
+                                    disabled={this.state.locumCount === 0}
+                                    onChange={(e) => {
+                                        console.log(e.target.checked);
+                                        // console.log(this.freelance.current.checked);
+
+                                        this.setState({
+                                            freelance: this.freelance.current
+                                                ? this.freelance.current.checked
+                                                : !this.state.freelance,
+                                        });
+                                        // this.freelance.current.checked = this.state.freelance;
+                                        this.search(0, this.state.freelance);
+                                        // this.search(0);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <Modal
+                            isOpen={this.state.modalFilter}
+                            toggle={this.toggleModalFilter}>
+                            <ModalHeader toggle={this.toggleModalFilter}>
+                                Filters
+                            </ModalHeader>
+                            <ModalBody>
+                                <div className='form-group'>
+                                    <h5
+                                        style={{
+                                            textAlign: "center",
+                                        }}>
+                                        Location
+                                    </h5>
+                                    <InputGroup className=''>
+                                        <div className='row w-100'>
+                                            <div className='col-10'>
+                                                <Select
+                                                    isClearable={true}
+                                                    autosize={true}
+                                                    placeholder='Location'
+                                                    options={locationArray}
+                                                    // ref={this.location}
+                                                    value={
+                                                        this.state.location ===
+                                                        ""
+                                                            ? null
+                                                            : {
+                                                                  label: this
+                                                                      .state
+                                                                      .location,
+                                                                  value: this
+                                                                      .state
+                                                                      .location,
+                                                              }
+                                                    }
+                                                    onChange={(e) => {
+                                                        console.log(e);
+
+                                                        this.setState({
+                                                            location: e
+                                                                ? e.value
+                                                                : "",
+                                                            geoLocation: false,
+                                                        });
+                                                        this.location.current.state.value = {
+                                                            label: this.state
+                                                                .location,
+                                                            value: this.state
+                                                                .location,
+                                                        };
+                                                    }}
+                                                />
+                                            </div>
+                                            <button
+                                                className={`btn ${
+                                                    this.state.geoLocation
+                                                        ? "btn-emp-primary"
+                                                        : "btn-emp-secondary"
+                                                }  col-2 px-2`}
+                                                onClick={this.getLocation}>
+                                                <FontAwesomeIcon
+                                                    icon={faMapMarkerAlt}
+                                                />
+                                            </button>
+                                        </div>
+                                    </InputGroup>
+                                </div>
+
+                                <Nav tabs className='justify-content-center'>
+                                    <NavItem className='mr-1'>
+                                        <NavLink
+                                            onClick={() => {
+                                                this.toggleTab("1");
+                                            }}
+                                            className={`${
+                                                this.state.activeTab === "1" &&
+                                                "active-tab"
+                                            } p-2 tab`}>
+                                            Profession
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem className='ml-1'>
+                                        <NavLink
+                                            onClick={() => {
+                                                this.toggleTab("2");
+                                            }}
+                                            className={`${
+                                                this.state.activeTab === "2" &&
+                                                "active-tab"
+                                            } p-2 tab`}>
+                                            Other Filters
+                                        </NavLink>
+                                    </NavItem>
+                                </Nav>
+                                <TabContent
+                                    activeTab={this.state.activeTab}
+                                    className='mt-4'>
+                                    <TabPane tabId='1'>
+                                        <Row>
+                                            <Col sm='12' className='px-3'>
+                                                <div className='form-group'>
+                                                    <div className='input-group'>
+                                                        <div
+                                                            style={{
+                                                                width: `100%`,
+                                                            }}>
+                                                            <h6>Profession</h6>
+                                                            <Select
+                                                                styles={{
+                                                                    menu: (
+                                                                        base,
+                                                                    ) => ({
+                                                                        ...base,
+                                                                        zIndex: 100,
+                                                                    }),
+                                                                }}
+                                                                autosize={true}
+                                                                isClearable={
+                                                                    false
+                                                                }
+                                                                placeholder='Profession'
+                                                                value={
+                                                                    this.state
+                                                                        .profession ===
+                                                                    ""
+                                                                        ? null
+                                                                        : {
+                                                                              value: this
+                                                                                  .state
+                                                                                  .profession,
+                                                                              label: this
+                                                                                  .state
+                                                                                  .profession,
+                                                                          }
+                                                                }
+                                                                // value={
+                                                                //     this.state
+                                                                //         .profession
+                                                                // }
+                                                                options={
+                                                                    professionArray
+                                                                }
+                                                                ref={
+                                                                    this
+                                                                        .profession
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e,
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            profession: e
+                                                                                ? e.value
+                                                                                : "",
+                                                                            specialization:
+                                                                                "",
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className='input-group mt-2'>
+                                                        <div
+                                                            style={{
+                                                                width: `100%`,
+                                                            }}>
+                                                            <h6>
+                                                                Specialization
+                                                            </h6>
+                                                            <Select
+                                                                autosize={true}
+                                                                isClearable={
+                                                                    true
+                                                                }
+                                                                placeholder='Specialization'
+                                                                options={
+                                                                    this.state
+                                                                        .profession ===
+                                                                    ""
+                                                                        ? []
+                                                                        : specializationObj[
+                                                                              this
+                                                                                  .state
+                                                                                  .profession
+                                                                          ]
+                                                                }
+                                                                noOptionsMessage={() =>
+                                                                    "Select Profession first"
+                                                                }
+                                                                ref={
+                                                                    this
+                                                                        .specialization
+                                                                }
+                                                                value={
+                                                                    this.state
+                                                                        .specialization ===
+                                                                    ""
+                                                                        ? null
+                                                                        : {
+                                                                              value: this
+                                                                                  .state
+                                                                                  .specialization,
+                                                                              label: this
+                                                                                  .state
+                                                                                  .specialization,
+                                                                          }
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e,
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            specialization: e
+                                                                                ? e.value
+                                                                                : "",
+                                                                            superSpecialization: [],
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                    </TabPane>
+                                    <TabPane tabId='2'>
+                                        <Row>
+                                            <Col sm='12' className='px-3'>
+                                                <div className='form-group'>
+                                                    {/* <h5 style={{ textAlign: "center" }}>
+                                                Other Filters
+                                            </h5> */}
+
+                                                    <InputGroup className='col-12 my-1'>
+                                                        <div
+                                                            style={{
+                                                                width: `100%`,
+                                                            }}>
+                                                            <Select
+                                                                isClearable={
+                                                                    true
+                                                                }
+                                                                autosize={true}
+                                                                placeholder='Experience'
+                                                                options={
+                                                                    experienceArray
+                                                                }
+                                                                style={{
+                                                                    backgroundColor:
+                                                                        "red",
+                                                                }}
+                                                                // className='basic-multi-select'
+                                                                // classNamePrefix='select'
+                                                                ref={
+                                                                    this
+                                                                        .experience
+                                                                }
+                                                                defaultValue={
+                                                                    this.state
+                                                                        .experience ===
+                                                                    ""
+                                                                        ? null
+                                                                        : {
+                                                                              value: this
+                                                                                  .state
+                                                                                  .experience,
+                                                                              label: this
+                                                                                  .state
+                                                                                  .experience,
+                                                                          }
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e,
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            experience: e
+                                                                                ? e.value
+                                                                                : "",
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </InputGroup>
+                                                    <InputGroup className='col-12 my-1'>
+                                                        <div
+                                                            style={{
+                                                                width: `100%`,
+                                                            }}>
+                                                            <Select
+                                                                autosize={true}
+                                                                placeholder='Type'
+                                                                isMulti
+                                                                options={
+                                                                    this.state
+                                                                        .freelance ==
+                                                                    true
+                                                                        ? jobTypeArray
+                                                                        : locumTypeArray
+                                                                }
+                                                                // className='basic-multi-select'
+                                                                // classNamePrefix='select'
+                                                                defaultValue={this.state.type.map(
+                                                                    (inc) => {
+                                                                        return {
+                                                                            value: inc,
+                                                                            label: inc,
+                                                                        };
+                                                                    },
+                                                                )}
+                                                                ref={this.type}
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e,
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            type: e
+                                                                                ? e.map(
+                                                                                      (
+                                                                                          type,
+                                                                                      ) =>
+                                                                                          type.value,
+                                                                                  )
+                                                                                : [],
+                                                                        },
+                                                                    );
+                                                                    console.log(
+                                                                        this
+                                                                            .state
+                                                                            .type,
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </InputGroup>
+                                                    <InputGroup className='col-12 my-1'>
+                                                        <div
+                                                            style={{
+                                                                width: `100%`,
+                                                            }}>
+                                                            <Select
+                                                                autosize={true}
+                                                                isMulti
+                                                                placeholder='Incentives'
+                                                                options={
+                                                                    incentivesArray
+                                                                }
+                                                                // className='basic-multi-select'
+                                                                // classNamePrefix='select'
+                                                                ref={
+                                                                    this
+                                                                        .incentives
+                                                                }
+                                                                defaultValue={this.state.incentives.map(
+                                                                    (inc) => {
+                                                                        return {
+                                                                            value: inc,
+                                                                            label: inc,
+                                                                        };
+                                                                    },
+                                                                )}
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e,
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            incentives: e
+                                                                                ? e.map(
+                                                                                      (
+                                                                                          type,
+                                                                                      ) =>
+                                                                                          type.value,
+                                                                                  )
+                                                                                : [],
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </InputGroup>
+
+                                                    <InputGroup className='col-12 my-1'>
+                                                        <div
+                                                            style={{
+                                                                width: `100%`,
+                                                            }}>
+                                                            <Select
+                                                                isMulti
+                                                                autosize={true}
+                                                                placeholder='Super/Sub Specialization'
+                                                                options={
+                                                                    superSpecializationArray
+                                                                }
+                                                                ref={
+                                                                    this
+                                                                        .superSpecialization
+                                                                }
+                                                                defaultValue={this.state.superSpecialization.map(
+                                                                    (inc) => {
+                                                                        return {
+                                                                            value: inc,
+                                                                            label: inc,
+                                                                        };
+                                                                    },
+                                                                )}
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e,
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            incentives: e
+                                                                                ? e.map(
+                                                                                      (
+                                                                                          type,
+                                                                                      ) =>
+                                                                                          type.value,
+                                                                                  )
+                                                                                : [],
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </InputGroup>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                    </TabPane>
+                                </TabContent>
+                                <div className='form-group row justify-content-center px-3'>
+                                    <Button
+                                        className='w-100'
+                                        color='emp-primary'
+                                        onClick={(e) => {
+                                            this.search(0);
+                                            this.setState({ currentPage: 0 });
+                                        }}>
+                                        Apply Filters
+                                    </Button>
+                                    {/* <Button
+                                className='col-4'
+                                onClick={() => this.componentDidCatch()}>
+                                Clear filters
+                            </Button> */}
+                                </div>
+                            </ModalBody>
+                        </Modal>
+                    </div>
                     <div
-                        className='sticky-filter p-1 row justify-content-between align-content-center'
+                        className=' my-4 mx-4 vertical'
                         style={{
-                            top: 0,
-                            backgroundColor: "white",
-                            zIndex: 500,
-                        }}>
-                        <h4
-                            className='my-auto col-7 col-sm-5 px-0 job-found'
-                            // py-1 py-sm-3
-                            style={{ height: "fit-content" }}>
-                            {this.state.jobsFound}
-                        </h4>
-                        <div className='row col-5 px-0 col-sm-7 justify-content-end'>
-                            {/* <div className='row px-0  justify-content-end'> */}
-                            <div className='d-none d-lg-flex  align-content-center row switch justify-content-end'>
-                                {/* <span
+                            width: ".02rem",
+                            // borderLeft: ".1rem solid lightgray",
+                            backgroundColor: "#a9a9a9",
+                        }}></div>
+                    <hr
+                        className='horizontal mt-1'
+                        style={{
+                            height: ".06rem",
+                            width: "120vw",
+                            backgroundColor: "lightgrey",
+                        }}
+                    />
+                    <div className='col-12 col-lg-8 position-relative'>
+                        <div
+                            className='sticky-filter p-1 row justify-content-between align-content-center'
+                            style={{
+                                top: 0,
+                                backgroundColor: "white",
+                                zIndex: 500,
+                            }}>
+                            <h4
+                                className='d-block d-md-none my-auto col-7 col-sm-5 px-0 job text-js-primary'
+                                // py-1 py-sm-3
+                                style={{ height: "fit-content" }}>
+                                {this.state.jobsFound !== "" &&
+                                    `${
+                                        this.state.count === 1
+                                            ? this.state.count + " Job"
+                                            : this.state.count + " Jobs"
+                                    }`}
+                            </h4>
+                            <h4
+                                className='d-none d-md-block my-auto col-7 col-sm-5 px-0 job text-js-primary'
+                                // py-1 py-sm-3
+                                style={{ height: "fit-content" }}>
+                                {this.state.jobsFound}
+                            </h4>
+                            <div className='row col-5 px-0 col-sm-7 justify-content-end'>
+                                {/* <div className='row px-0  justify-content-end'> */}
+                                <div className='d-none d-lg-flex  align-content-center row switch justify-content-end'>
+                                    {/* <span
                                     className='py-2 pr-1'
                                     style={{
                                         fontSize: "1.1rem",
@@ -1736,35 +1892,35 @@ export default class JobSearch extends Component {
                                     }}>
                                     <span className={`react-switch-button`} />
                                 </label> */}
-                                <CustomInput
-                                    type='switch'
-                                    id='exampleCustomSwitch'
-                                    name='customSwitch'
-                                    className='custom-control-right'
-                                    label={`${
-                                        this.state.locumCount
-                                            ? this.state.locumCount
-                                            : ""
-                                    } Day Job/Locum`}
-                                    ref={this.freelance}
-                                    checked={!this.state.freelance}
-                                    onChange={(e) => {
-                                        console.log(e.target.checked);
-                                        console.log(
-                                            this.freelance.current.checked,
-                                        );
+                                    <CustomInput
+                                        type='switch'
+                                        id='exampleCustomSwitch'
+                                        name='customSwitch'
+                                        className='custom-control-right'
+                                        label={`${this.state.locumCount} Locum/Day Jobs`}
+                                        ref={this.freelance}
+                                        checked={!this.state.freelance}
+                                        onChange={(e) => {
+                                            console.log(e.target.checked);
+                                            console.log(
+                                                this.freelance.current.checked,
+                                            );
 
-                                        this.setState({
-                                            freelance: this.state.current
-                                                ? this.freelance.current.checked
-                                                : !this.state.freelance,
-                                        });
-                                        this.freelance.current.checked = this.state.freelance;
-                                        this.search(0, this.state.freelance);
-                                        // this.search(0);
-                                    }}
-                                />
-                                {/* <div class='custom-control custom-control-right custom-switch p2-lg-2'>
+                                            this.setState({
+                                                freelance: this.state.current
+                                                    ? this.freelance.current
+                                                          .checked
+                                                    : !this.state.freelance,
+                                            });
+                                            this.freelance.current.checked = this.state.freelance;
+                                            this.search(
+                                                0,
+                                                this.state.freelance,
+                                            );
+                                            // this.search(0);
+                                        }}
+                                    />
+                                    {/* <div class='custom-control custom-control-right custom-switch p2-lg-2'>
                                     <input
                                         type='checkbox'
                                         class='custom-control-input'
@@ -1777,60 +1933,63 @@ export default class JobSearch extends Component {
                                         Right switch element
                                     </label>
                                 </div> */}
-                            </div>
-                            <InputGroup
-                                className=' justify-content-end px-0 ml-md-4'
-                                style={{ width: "auto" }}>
-                                <div className='row w-100  pr-0 switch '>
-                                    <div
-                                        className=' px-0 pr-1 d-none d-lg-flex'
-                                        style={{ marginTop: ".9rem" }}>
-                                        <span className='pr-1'>Sort By</span>
-                                    </div>
-                                    <div className='py-2 px-0'>
-                                        <Select
-                                            autosize={true}
-                                            placeholder='Sort parameter'
-                                            className='select-sort'
-                                            styles={customControlStyles}
-                                            options={[
-                                                {
+                                </div>
+                                <InputGroup
+                                    className=' justify-content-end px-0 ml-md-4'
+                                    style={{ width: "auto" }}>
+                                    <div className='row w-100  pr-0 switch '>
+                                        <div
+                                            className=' px-0 pr-1 d-none d-lg-flex'
+                                            style={{ marginTop: ".9rem" }}>
+                                            <span className='pr-1'>
+                                                Sort By
+                                            </span>
+                                        </div>
+                                        <div className='py-2 px-0'>
+                                            <Select
+                                                autosize={true}
+                                                placeholder='Sort parameter'
+                                                className='select-sort'
+                                                styles={customControlStyles}
+                                                options={[
+                                                    {
+                                                        label: "Relevance",
+                                                        value: "Relevance",
+                                                    },
+                                                    {
+                                                        label: "Date",
+                                                        value: "New",
+                                                    },
+
+                                                    // {
+                                                    //     label:
+                                                    //         "Number of applicants",
+                                                    //     value:
+                                                    //         "Number of applicants",
+                                                    // },
+                                                ]}
+                                                defaultValue={{
                                                     label: "Relevance",
                                                     value: "Relevance",
-                                                },
-                                                {
-                                                    label: "Date",
-                                                    value: "New",
-                                                },
-
-                                                // {
-                                                //     label:
-                                                //         "Number of applicants",
-                                                //     value:
-                                                //         "Number of applicants",
-                                                // },
-                                            ]}
-                                            defaultValue={{
-                                                label: "Relevance",
-                                                value: "Relevance",
-                                            }}
-                                            // ref={this.location}
-                                            onChange={(e) => {
-                                                console.log(e);
-                                                this.setState({
-                                                    sortBy: e.value,
-                                                });
-                                                this.search(0);
-                                                // this.setState({
-                                                //     location: e ? e.value : "",
-                                                // });
-                                            }}
-                                        />
+                                                }}
+                                                // ref={this.location}
+                                                onChange={(e) => {
+                                                    console.log(e);
+                                                    this.setState(
+                                                        {
+                                                            sortBy: e.value,
+                                                        },
+                                                        () => {
+                                                            this.search(0);
+                                                        },
+                                                    );
+                                                }}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            </InputGroup>
-                        </div>
-                        {/* <div
+                                </InputGroup>
+                            </div>
+                            {/* <div
                                 className=' col-12 col-sm-4 mt-0 mt-sm-2 py-1  row  switch'
                                 style={{
                                     height: "max-content",
@@ -1911,135 +2070,161 @@ export default class JobSearch extends Component {
                                     </div>
                                 </div>
                             </InputGroup> */}
-                    </div>
-
-                    {this.state.loaded ? (
-                        this.state.jobs.length !== 0 && !this.state.isZero ? (
-                            <div className='position-relative '>
-                                {this.state.jobs.map((job) => {
-                                    return (
-                                        <Job
-                                            key={job._id}
-                                            job={job}
-                                            userId={
-                                                this.props.user
-                                                    ? this.props.user._id
-                                                    : null
-                                            }
-                                            user={this.props.user}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <h2
-                                className='my-5'
-                                style={{
-                                    textAlign: "center",
-                                    // marginTop: "10rem",
-                                }}>
-                                No results found
-                            </h2>
-                        )
-                    ) : (
-                        <div
-                            className='mx-auto my-auto'
-                            style={{ textAlign: "center" }}>
-                            <Loader
-                                type='Bars'
-                                color='#17a2b8'
-                                height={300}
-                                width={120}
-                            />
                         </div>
-                    )}
-                    <div className='pagination-wrapper w-100 text-align-center'>
-                        <Pagination aria-label='Page navigation example '>
-                            <PaginationItem
-                                disabled={this.state.currentPage <= 0}>
-                                <PaginationLink
-                                    onClick={(e) => {
-                                        this.setState({
-                                            currentPage:
-                                                this.state.currentPage - 1,
-                                        });
-                                        this.search(
-                                            (this.state.currentPage - 1) *
-                                                this.state.pageSize,
-                                        );
-                                    }}
-                                    previous
-                                    href='#'
-                                />
-                            </PaginationItem>
 
-                            {[...Array(this.state.pageCount)].map((page, i) => {
-                                if (i === this.state.currentPage - 3)
-                                    return (
-                                        <PaginationItem>
-                                            <PaginationLink>
-                                                {"..."}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                    );
-                                if (
-                                    i <= this.state.currentPage + 2 &&
-                                    i >= this.state.currentPage - 2
-                                )
-                                    return (
-                                        <PaginationItem
-                                            active={
-                                                i === this.state.currentPage
-                                            }
-                                            key={i}>
-                                            <PaginationLink
-                                                onClick={(e) => {
-                                                    this.setState({
-                                                        currentPage: i,
-                                                    });
-                                                    this.search(
-                                                        i * this.state.pageSize,
-                                                    );
-                                                }}
-                                                href='#'>
-                                                {i + 1}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                    );
-                                if (i === this.state.currentPage + 3)
-                                    return (
-                                        <PaginationItem>
-                                            <PaginationLink>
-                                                {"..."}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                    );
-                            })}
-
-                            <PaginationItem
-                                disabled={
-                                    this.state.currentPage >=
-                                    this.state.pageCount - 1
-                                    // true
-                                }>
-                                <PaginationLink
-                                    onClick={(e) => {
-                                        this.setState({
-                                            currentPage:
-                                                this.state.currentPage + 1,
-                                        });
-                                        this.search(
-                                            (this.state.currentPage + 1) *
-                                                this.state.pageSize,
+                        {this.state.loaded ? (
+                            this.state.jobs.length !== 0 &&
+                            !this.state.isZero ? (
+                                <div className='position-relative '>
+                                    {this.state.jobs.map((job) => {
+                                        return (
+                                            <Job
+                                                key={job._id}
+                                                job={job}
+                                                userId={
+                                                    this.props.user
+                                                        ? this.props.user._id
+                                                        : null
+                                                }
+                                                user={this.props.user}
+                                            />
                                         );
-                                    }}
-                                    next
-                                    href='#'
+                                    })}
+                                </div>
+                            ) : (
+                                <h2
+                                    className='my-5'
+                                    style={{
+                                        textAlign: "center",
+                                        // marginTop: "10rem",
+                                    }}>
+                                    No results found
+                                </h2>
+                            )
+                        ) : (
+                            <div
+                                className='mx-auto my-auto'
+                                style={{ textAlign: "center" }}>
+                                <Loader
+                                    type='Bars'
+                                    color='#17a2b8'
+                                    height={300}
+                                    width={120}
                                 />
-                            </PaginationItem>
-                        </Pagination>
+                            </div>
+                        )}
+                        <div className='pagination-wrapper w-100 text-align-center'>
+                            <Pagination aria-label='Page navigation example '>
+                                <PaginationItem
+                                    disabled={this.state.currentPage <= 0}>
+                                    <PaginationLink
+                                        onClick={(e) => {
+                                            this.setState({
+                                                currentPage:
+                                                    this.state.currentPage - 1,
+                                            });
+                                            this.search(
+                                                (this.state.currentPage - 1) *
+                                                    this.state.pageSize,
+                                            );
+                                        }}
+                                        previous
+                                        href='#'
+                                    />
+                                </PaginationItem>
+
+                                {[...Array(this.state.pageCount)].map(
+                                    (page, i) => {
+                                        if (i === this.state.currentPage - 3)
+                                            return (
+                                                <PaginationItem>
+                                                    <PaginationLink>
+                                                        {"..."}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            );
+                                        if (
+                                            i <= this.state.currentPage + 2 &&
+                                            i >= this.state.currentPage - 2
+                                        )
+                                            return (
+                                                <PaginationItem
+                                                    active={
+                                                        i ===
+                                                        this.state.currentPage
+                                                    }
+                                                    key={i}>
+                                                    <PaginationLink
+                                                        onClick={(e) => {
+                                                            this.setState({
+                                                                currentPage: i,
+                                                            });
+                                                            this.search(
+                                                                i *
+                                                                    this.state
+                                                                        .pageSize,
+                                                            );
+                                                        }}
+                                                        href='#'>
+                                                        {i + 1}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            );
+                                        if (i === this.state.currentPage + 3)
+                                            return (
+                                                <PaginationItem>
+                                                    <PaginationLink>
+                                                        {"..."}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            );
+                                    },
+                                )}
+
+                                <PaginationItem
+                                    disabled={
+                                        this.state.currentPage >=
+                                        this.state.pageCount - 1
+                                        // true
+                                    }>
+                                    <PaginationLink
+                                        onClick={(e) => {
+                                            this.setState({
+                                                currentPage:
+                                                    this.state.currentPage + 1,
+                                            });
+                                            this.search(
+                                                (this.state.currentPage + 1) *
+                                                    this.state.pageSize,
+                                            );
+                                        }}
+                                        next
+                                        href='#'
+                                    />
+                                </PaginationItem>
+                            </Pagination>
+                        </div>
                     </div>
+                    <Modal
+                        isOpen={this.state.modalError}
+                        toggle={this.toggleModal}
+                        style={{ marginTop: "20vh" }}>
+                        <ModalBody>{this.state.messError}</ModalBody>
+                        <ModalFooter className='p-1'>
+                            <Button
+                                size='sm'
+                                color='emp-primary'
+                                onClick={this.toggleModal}>
+                                Ok
+                            </Button>
+                        </ModalFooter>
+                    </Modal>
                 </div>
+                {bannerData && (
+                    <div className='sticky-bottom'>
+                        <Banner text={bannerData.text} link={bannerData.link} />
+                    </div>
+                )}
             </div>
         );
     }

@@ -1,42 +1,35 @@
-import React, { Component, Fragment, createRef } from "react";
+import React, { Component } from "react";
 import {
     Label,
     Input,
     FormGroup,
-    Form,
     Button,
     Progress,
     Modal,
     InputGroup,
-    Nav,
-    NavItem,
     ModalHeader,
     ModalBody,
+    ModalFooter,
     ButtonGroup,
     CustomInput,
     Alert,
+    InputGroupAddon,
+    InputGroupText,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../stylesheets/updateUser.css";
 // import data from "../data";
 
-import { NavLink, Link, Redirect, useHistory } from "react-router-dom";
 import {
-    faPlusCircle,
     faPen,
-    faMinus,
-    faMinusCircle,
     faPlus,
     faFileAlt,
-    faDumpster,
     faTrash,
     faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import InputMap from "./map.component";
 import Axios from "axios";
 import { BlobServiceClient } from "@azure/storage-blob";
 import imageCompression from "browser-image-compression";
-import ImageCarousel from "./imageCarousel.component";
 import Select from "react-select";
 var weekdays = new Array(
     "Sunday",
@@ -47,21 +40,12 @@ var weekdays = new Array(
     "Friday",
     "Saturday",
 );
-const daysArray = weekdays.map((day) => {
-    return { label: day.toLowerCase(), value: day.toLowerCase() };
-});
-const block = {
-    borderRadius: " 0.25rem",
-    border: "0.05rem solid lightgrey",
-    /* background-color: rgba(0, 0, 0, 0.15); */
-    // boxShadow: " 3px 3px 6px rgba(0, 0, 0, 0.3)",
-    transition: "0.3s ease-in-out",
-};
 
 export default class UpdateUser extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            title: "",
             logo: "",
             salutation: "",
             firstName: "",
@@ -140,6 +124,7 @@ export default class UpdateUser extends Component {
             },
         };
         this.resume = React.createRef();
+        this.logo = React.createRef();
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
@@ -210,6 +195,17 @@ export default class UpdateUser extends Component {
             this.setState({
                 [e.target.name]: links,
             });
+        } else if (e.target.name === "phone") {
+            console.log(e.target.value);
+            // newValid[x] = Number(e.target.value) < 1000000000;
+            this.setState({
+                [e.target.name]: e.target.value,
+
+                valid: {
+                    ...this.state.valid,
+                    [e.target.name]: e.target.value.length === 10,
+                },
+            });
         } else
             this.setState({
                 [e.target.name]: e.target.value,
@@ -236,13 +232,12 @@ export default class UpdateUser extends Component {
                 !["pdf", "doc", "docx", "rtf"].includes(file.name.split(".")[1])
             ) {
                 this.setState({
-                    // modalError: true,
-                    // modalMess: "Invalid file type",
                     loading: false,
                     showError: true,
                     resumeError:
                         "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                 });
+                this.resume.current.value = "";
                 return;
             } else if (file.size >= 5000000) {
                 this.setState({
@@ -261,15 +256,17 @@ export default class UpdateUser extends Component {
             }
             console.log("chal rha h");
             let reader = new FileReader();
-            reader.readAsDataURL(file);
+            reader.readAsArrayBuffer(file);
             reader.onload = () => {
-                var matches = reader.result.match(
-                    /^data:([A-Za-z-+\/]+);base64,(.+)$/,
-                );
-                var buffer = new Buffer(matches[2], "base64");
+                console.log(reader);
+                // var matches = reader.result.match(
+                //     /^data:([A-Za-z-+\/]+);base64,(.+)$/,
+                // );
+                // console.log(matches);
+                // var buffer = new Buffer(matches[2], "base64");
                 const resume = {
                     name: `${this.state.id}_${file.name}`,
-                    data: buffer,
+                    data: reader.result,
                     mimeType: file.type,
                     size: file.size,
                 };
@@ -280,22 +277,25 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
-                            this.uploadToStorage("canopus", sas, resume).then(
-                                (res) => {
-                                    console.log(res);
-                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
-                                    console.log(url);
-                                    this.setState({
-                                        resume: url,
-                                        prevResume: "",
-                                        loading: false,
-                                        uploadingLogo: false,
-                                        showError: false,
-                                    });
-                                    // this.update();
-                                    this.setState({ uploaded: true });
-                                },
-                            );
+                            this.uploadToStorage(
+                                "curoidprod",
+                                sas,
+                                resume,
+                            ).then((res) => {
+                                console.log(res);
+                                const url = `https://curoidprod.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                console.log(url);
+                                this.setState({
+                                    resume: url,
+                                    prevResume: "",
+                                    loading: false,
+                                    uploadingLogo: false,
+                                    showError: false,
+                                    progress: 0,
+                                });
+                                // this.update();
+                                this.setState({ uploaded: true });
+                            });
                         })
                         .catch((e) => console.log(e));
                 else {
@@ -305,6 +305,7 @@ export default class UpdateUser extends Component {
                             "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                         uploading: false,
                         loading: false,
+                        progress: 0,
                     });
                     this.resume.current.value = "";
                 }
@@ -316,7 +317,6 @@ export default class UpdateUser extends Component {
             (item) => item === true,
         );
         const emp =
-            this.state.title === "" ||
             this.state.firstName === "" ||
             this.state.lastName === "" ||
             this.state.gender === "" ||
@@ -324,7 +324,8 @@ export default class UpdateUser extends Component {
             this.state.state === "" ||
             this.state.phone === "" ||
             this.state.profession === "" ||
-            this.state.specialization === "";
+            this.state.specialization === "" ||
+            this.state.title === "";
 
         console.log(isValid);
         console.log(emp);
@@ -422,15 +423,30 @@ export default class UpdateUser extends Component {
                         username: user.username,
                         firstName: user.firstName,
                         lastName: user.lastName,
+                        logo:
+                            !user.image ||
+                            user.image === undefined ||
+                            user.image === ""
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg"
+                                : user.image,
                     });
                     this.setState({
                         id: user._id,
                         username: user.username,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        title: user.title,
+                        title:
+                            user.title && user.title !== undefined
+                                ? user.title
+                                : "",
                         gender: user.gender,
-                        logo: user.image,
+                        salutation: user.salutation,
+                        logo:
+                            !user.image ||
+                            user.image === undefined ||
+                            user.image === ""
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg"
+                                : user.image,
 
                         dob: user.dob,
                         profession:
@@ -503,7 +519,7 @@ export default class UpdateUser extends Component {
                 },
             );
             console.log(uploadBlobResponse);
-            return `https://canopus.blob.core.windows.net/user-image/profile`;
+            return `https://curoidprod.blob.core.windows.net/user-image/profile`;
         } catch (error) {
             console.error(error);
         }
@@ -511,7 +527,7 @@ export default class UpdateUser extends Component {
 
     uploadLogo(e) {
         // console.log(this.image.current.value);
-        this.setState({ loading: true });
+        this.setState({ uploadingLogo: false });
         console.log(this.state);
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
@@ -529,6 +545,7 @@ export default class UpdateUser extends Component {
                     loading: false,
                     uploadingLogo: false,
                 });
+                this.logo.current.value = "";
                 return;
             } else {
                 this.setState({
@@ -565,29 +582,39 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
-                            console.log(sas);
-                            this.uploadToStorage("canopus", sas, image).then(
+                            console.log(data);
+                            this.uploadToStorage("curoidprod", sas, image).then(
                                 (res) => {
-                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                    const url = `https://curoidprod.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
                                     this.setState({
                                         logo: url,
                                         loading: false,
                                         uploadingLogo: false,
                                         showError2: false,
+                                        progress: 0,
                                     });
 
                                     console.log(res);
                                 },
                             );
                         })
-                        .catch((e) => console.log(e.response));
+                        .catch((e) => {
+                            console.log(e.response);
+                            this.setState({
+                                loading: false,
+                                showError2: true,
+                                progress: 0,
+                                logoError:
+                                    "Something went wrong, Please try again.",
+                                uploadingLogo: false,
+                            });
+                        });
                 };
             });
         }
     }
     render() {
         let degrees = [],
-            speciality = [],
             professionArray = [],
             suggestionarray = [],
             specializationArray = [];
@@ -600,7 +627,6 @@ export default class UpdateUser extends Component {
                     label: degree,
                 };
             });
-            speciality = this.props.data.speciality;
 
             professionArray = this.props.data.specializations.map((obj) => {
                 specializationObj[obj.profession] = obj.specialization.map(
@@ -639,9 +665,9 @@ export default class UpdateUser extends Component {
             // console.log(suggestionarray);
         }
         return (
-            <div>
-                <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
-                    <div className=' p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+            <div className='overflow-hidden'>
+                <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Details</h5>
                         </FormGroup>
@@ -659,11 +685,7 @@ export default class UpdateUser extends Component {
                                     className='my-auto position-relative mx-auto'
                                     style={{ width: "fit-content" }}>
                                     <img
-                                        src={
-                                            this.state.logo === ""
-                                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
-                                                : this.state.logo
-                                        }
+                                        src={this.state.logo}
                                         className='img-fluid img-thumbnail my-auto'
                                         alt='logo'
                                         style={{ maxHeight: "50vw" }}
@@ -698,7 +720,7 @@ export default class UpdateUser extends Component {
                                             }}
                                             disabled={this.state.uploadingLogo}
                                             id='image'
-                                            ref={this.image}
+                                            ref={this.logo}
                                             accept='image/*'
                                             onChange={this.uploadLogo}
                                         />
@@ -710,24 +732,19 @@ export default class UpdateUser extends Component {
                                     Upto 5 MB
                                 </div>
                                 <div className='col-12'>
-                                    {this.state.uploadingLogo &&
-                                        this.state.progress !== 1 &&
-                                        this.state.progress !== 0 && (
-                                            <Progress
-                                                animated
-                                                color='info'
-                                                value={
-                                                    this.state.progress * 100
-                                                }>
-                                                <h6 className='m-0'>
-                                                    {Math.round(
-                                                        this.state.progress *
-                                                            100,
-                                                    )}
-                                                    {"%"}
-                                                </h6>
-                                            </Progress>
-                                        )}
+                                    {this.state.uploadingLogo && (
+                                        <Progress
+                                            animated
+                                            color='emp-primary'
+                                            value={this.state.progress * 100}>
+                                            <h6 className='m-0'>
+                                                {Math.round(
+                                                    this.state.progress * 100,
+                                                )}
+                                                {"%"}
+                                            </h6>
+                                        </Progress>
+                                    )}
                                 </div>
                                 <div className='mx-3 mx-sm-2'>
                                     <div className='my-1 mt-3'></div>
@@ -744,7 +761,7 @@ export default class UpdateUser extends Component {
                                         </h6>
                                     </Label>
                                     <Input
-                                        placeholder='eg: intervetnional cardilogist'
+                                        placeholder='e.g. Interventional Cardiologist'
                                         name='title'
                                         onChange={this.handleChange}
                                         value={this.state.title}
@@ -752,14 +769,15 @@ export default class UpdateUser extends Component {
                                         key={"title"}
                                     />
                                 </div>
-                                <div className='col-3 col-sm-2 pl-0 pr-0 pr-sm-1 row my-1 my-sm-2'>
+                                <div className='col-3 col-sm-2 pr-1 pr-sm-0 my-1 my-sm-2 pl-0'>
                                     <Label
                                         className='mb-1'
-                                        style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "center",
-                                        }}>
+                                        // style={{
+                                        //     display: "flex",
+                                        //     flexDirection: "column",
+                                        //     justifyContent: "center",
+                                        // }}
+                                    >
                                         <h6 className='mb-0 small-heading'>
                                             Prefix{" "}
                                             <span className='text-danger'>
@@ -770,20 +788,20 @@ export default class UpdateUser extends Component {
                                     <CustomInput
                                         placeholder='Salutation'
                                         type='select'
-                                        className='pl-1 m-0'
-                                        style={{ height: "auto" }}
+                                        // className='pl-1 m-0'
+                                        // style={{ height: "auto" }}
                                         onChange={this.handleChange}
                                         name='salutation'
                                         value={this.state.salutation}
                                         invalid={!this.state.valid.salutation}>
-                                        <option>Dr</option>
-                                        <option>Mr</option>
-                                        <option>Mrs</option>
-                                        <option>Ms</option>
-                                        <option>Prof</option>
+                                        <option value='Dr'>Dr</option>
+                                        <option value='Mr'>Mr</option>
+                                        <option value='Mrs'>Mrs</option>
+                                        <option value='Ms'>Ms</option>
+                                        <option value='Prof'>Prof</option>
                                     </CustomInput>
                                 </div>
-                                <div className='col-9 col-sm-5 pl-1 pl-sm-1 pr-0 my-1 my-sm-2'>
+                                <div className='col-9 col-sm-5 px-0 px-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             First Name{" "}
@@ -800,7 +818,7 @@ export default class UpdateUser extends Component {
                                         invalid={!this.state.valid.firstName}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-5 pl-0 pl-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-5 pl-0 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Last Name{" "}
@@ -817,7 +835,22 @@ export default class UpdateUser extends Component {
                                         invalid={!this.state.valid.lastName}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-2'>
+
+                                <div className='col-12 col-sm-7 pr-0 pr-sm-1 my-1 my-sm-2'>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Date of Birth
+                                        </h6>
+                                    </Label>
+                                    <Input
+                                        type='date'
+                                        name='dob'
+                                        placeholder='date placeholder'
+                                        defaultValue={this.state.dob}
+                                        onChange={this.handleChange}
+                                    />
+                                </div>
+                                <div className='col-12 col-sm-5 pl-0  my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Gender{" "}
@@ -834,28 +867,15 @@ export default class UpdateUser extends Component {
                                             console.log(e.target.value);
                                             this.handleChange(e);
                                         }}
-                                        defaultValue={this.state.gender}
+                                        value={this.state.gender}
                                         invalid={!this.state.valid.gender}>
                                         <option value='male'>Male</option>
                                         <option value='female'>Female</option>
                                         <option value='other'>Other</option>
                                     </Input>
                                 </div>
-                                <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label className='mb-1'>
-                                        <h6 className='mb-0 small-heading'>
-                                            Date of Birth
-                                        </h6>
-                                    </Label>
-                                    <Input
-                                        type='date'
-                                        name='dob'
-                                        placeholder='date placeholder'
-                                        defaultValue={this.state.dob}
-                                        onChange={this.handleChange}
-                                    />
-                                </div>
-                                <div className='row my-1 my-sm-2'>
+
+                                <div className='row my-1 my-sm-2 col-12 px-0'>
                                     <Label className='col-12 mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Location{" "}
@@ -864,27 +884,27 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-4 pl-0 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-3 pl-0 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='city'
+                                            placeholder='City'
                                             name='city'
                                             onChange={this.handleChange}
                                             value={this.state.city}
                                             invalid={!this.state.valid.city}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-4 px-0 px-sm-1 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='state'
+                                            placeholder='State'
                                             name='state'
                                             onChange={this.handleChange}
                                             value={this.state.state}
                                             invalid={!this.state.valid.state}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-5 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='country'
+                                            placeholder='Country'
                                             name='country'
                                             onChange={this.handleChange}
                                             defaultValue={"India"}
@@ -902,30 +922,34 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-7 pr-0 pr-sm-1 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='email'
+                                            placeholder='Email'
                                             name='email'
                                             // onChange={this.handleChange}
                                             value={this.state.username}
                                             disabled={true}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <InputGroup className='col-12 col-sm-5 pl-0 my-1 my-sm-0'>
+                                        <InputGroupAddon addonType='prepend'>
+                                            <InputGroupText>+91</InputGroupText>
+                                        </InputGroupAddon>
                                         <Input
-                                            placeholder='phone'
+                                            type='number'
+                                            placeholder='Phone'
                                             name='phone'
                                             onChange={this.handleChange}
                                             value={this.state.phone}
                                             invalid={!this.state.valid.phone}
                                         />
-                                    </div>
+                                    </InputGroup>
                                 </div>
                             </div>
                         </FormGroup>
                     </div>
                     <hr className='d-block d-sm-none' />
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Area of Work</h5>
                         </FormGroup>
@@ -1044,12 +1068,12 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup className='row'>
                             <h5 className='col-8 col-sm-10 px-0'>Education</h5>
                             <div className='col-4 col-sm-2 row justify-content-end px-0 d-none d-sm-flex'>
                                 <Button
-                                    color='info'
+                                    color='emp-secondary-2'
                                     size='sm'
                                     disabled={this.state.education.length > 4}
                                     onClick={() => {
@@ -1122,7 +1146,7 @@ export default class UpdateUser extends Component {
                                         style={{
                                             cursor: "pointer",
                                         }}
-                                        onClick={(e) => {
+                                        onClick={() => {
                                             let education = this.state
                                                 .education;
                                             education.splice(i, 1);
@@ -1337,11 +1361,12 @@ export default class UpdateUser extends Component {
                                     <div className='col-sm-1 d-flex flex-column justify-content-center text-align-center'>
                                         <FontAwesomeIcon
                                             icon={faTrash}
+                                            size='lg'
                                             className='d-none d-sm-flex text-danger my-auto ml-auto'
                                             style={{
                                                 cursor: "pointer",
                                             }}
-                                            onClick={(e) => {
+                                            onClick={() => {
                                                 let education = this.state
                                                     .education;
                                                 education.splice(i, 1);
@@ -1356,7 +1381,7 @@ export default class UpdateUser extends Component {
                         ))}
                         <div className='col-12 d-block d-sm-none'>
                             <Button
-                                color='info'
+                                color='emp-secondary-2'
                                 className='w-100'
                                 size='sm'
                                 disabled={this.state.education.length > 4}
@@ -1380,7 +1405,7 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Resume</h5>
                         </FormGroup>
@@ -1394,7 +1419,9 @@ export default class UpdateUser extends Component {
                                     <div
                                         class='spinner-border spinner-border-sm ml-2 my-auto'
                                         role='status'>
-                                        <span class='sr-only'>Loading...</span>
+                                        <span className='sr-only'>
+                                            Loading...
+                                        </span>
                                     </div>
                                 </h6>
                             ) : (
@@ -1404,7 +1431,7 @@ export default class UpdateUser extends Component {
                                             this.state.resume !== "" && (
                                                 <a
                                                     href={`${this.state.resume}`}
-                                                    className='btn btn-info '>
+                                                    className='btn btn-emp-secondary-2'>
                                                     View Resume
                                                     <FontAwesomeIcon
                                                         className='ml-2'
@@ -1413,13 +1440,13 @@ export default class UpdateUser extends Component {
                                                 </a>
                                             )}
                                     </div>
-                                    <div className=' pr-0 pl-1'>
+                                    <div className=' pr-0 pl-sm-1'>
                                         <div
                                             className='position-relative'
                                             style={{
                                                 height: "100%",
                                             }}>
-                                            <button className='btn btn-primary'>
+                                            <button className='btn btn-emp-primary'>
                                                 <label
                                                     htmlFor='file'
                                                     style={{
@@ -1477,28 +1504,27 @@ export default class UpdateUser extends Component {
                                 }}>
                                 {this.state.resumeError}
                             </Alert> */}
-                            {this.state.progress !== 1 &&
-                                this.state.progress !== 0 && (
-                                    <div className='my-1 mt-3 col-12'>
-                                        <Progress
-                                            animated
-                                            color='info'
-                                            value={this.state.progress * 100}>
-                                            <h6 className='m-0'>
-                                                {Math.round(
-                                                    this.state.progress * 100,
-                                                )}
-                                                {"%"}
-                                            </h6>
-                                        </Progress>
-                                    </div>
-                                )}
+                            {this.state.loading && (
+                                <div className='my-1 mt-3 col-12'>
+                                    <Progress
+                                        animated
+                                        color='emp-primary'
+                                        value={this.state.progress * 100}>
+                                        <h6 className='m-0'>
+                                            {Math.round(
+                                                this.state.progress * 100,
+                                            )}
+                                            {"%"}
+                                        </h6>
+                                    </Progress>
+                                </div>
+                            )}
                         </div>
                         {/* )} */}
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Availability</h5>
                         </FormGroup>
@@ -1529,7 +1555,7 @@ export default class UpdateUser extends Component {
                             {this.state.locum && (
                                 <div className='col-0 col-sm-2 px-0 d-none d-sm-flex row justify-content-end'>
                                     <Button
-                                        color='info'
+                                        color='emp-secondary-2'
                                         size='sm'
                                         disabled={
                                             this.state.availability.length > 4
@@ -1567,7 +1593,7 @@ export default class UpdateUser extends Component {
                                                 style={{
                                                     cursor: "pointer",
                                                 }}
-                                                onClick={(e) => {
+                                                onClick={() => {
                                                     let availability = this
                                                         .state.availability;
                                                     availability.splice(i, 1);
@@ -1720,7 +1746,7 @@ export default class UpdateUser extends Component {
                                                                     ? "success"
                                                                     : "light"
                                                             }
-                                                            onClick={(e) => {
+                                                            onClick={() => {
                                                                 let links = this
                                                                     .state
                                                                     .availability;
@@ -1772,7 +1798,7 @@ export default class UpdateUser extends Component {
                                                     cursor: "pointer",
                                                     height: "100%",
                                                 }}
-                                                onClick={(e) => {
+                                                onClick={() => {
                                                     let availability = this
                                                         .state.availability;
                                                     availability.splice(i, 1);
@@ -1788,7 +1814,7 @@ export default class UpdateUser extends Component {
                         )}
                         {this.state.locum && (
                             <Button
-                                color='info'
+                                color='emp-secondary-2'
                                 className='w-100 d-block d-sm-none'
                                 disabled={this.state.availability.length > 4}
                                 onClick={() => {
@@ -1810,7 +1836,7 @@ export default class UpdateUser extends Component {
                             </Button>
                         )}
                     </div>
-                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-start'>
+                    <div className='p-3 p-sm-0 my-3  mx-lg-auto row justify-content-end'>
                         {/* {this.state.loading ? (
                             <Button disabled={true} color='primary'>
                                 <span className='my-auto'>Uploading File</span>
@@ -1827,7 +1853,7 @@ export default class UpdateUser extends Component {
                             onClick={this.update}
                             // className='w-25'
                             disabled={this.state.loading}
-                            color='primary'>
+                            color='emp-primary'>
                             Update Profile
                         </Button>
                         {/* )} */}
@@ -1846,6 +1872,14 @@ export default class UpdateUser extends Component {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                     <ModalBody>{this.state.modalMess}</ModalBody>
+                    <ModalFooter className='p-1'>
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={this.toggleModalError}>
+                            Ok
+                        </Button>
+                    </ModalFooter>
                 </Modal>
             </div>
         );

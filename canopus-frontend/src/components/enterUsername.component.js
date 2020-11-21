@@ -1,28 +1,22 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import {
     Label,
     Input,
     FormGroup,
     Form,
     Button,
-    Modal,
-    ModalBody,
-    ModalHeader,
     Nav,
     NavItem,
+    Alert,
 } from "reactstrap";
 import { NavLink } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faPlusCircle,
-    faMinus,
-    faMinusCircle,
-} from "@fortawesome/free-solid-svg-icons";
 import Axios from "axios";
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid lightgrey",
+    /* background-color: rgba(0, 0, 0, 0.15); */
+    boxShadow: " 3px 3px 6px rgba(0, 0, 0, 0.3)",
     transition: "0.3s ease-in-out",
 };
 
@@ -35,6 +29,7 @@ export default class EnterUsername extends Component {
             message: "",
             modal: false,
             role: null,
+            color: "success",
         };
         this.handleChange = this.handleChange.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
@@ -69,7 +64,9 @@ export default class EnterUsername extends Component {
                         this.setState({
                             disabled: true,
                             modal: true,
-                            message: "Check your mailbox !",
+                            message:
+                                "Please check your email and click on the provided link to reset your password",
+                            color: "success",
                         });
                     }
                 })
@@ -77,13 +74,23 @@ export default class EnterUsername extends Component {
                     console.log(err);
                     const { response } = err;
                     console.log(response);
-                    if (response && response.data && response.data.err)
-                        alert(response.data.err.message);
+                    if (response && response.data && response.data.err) {
+                        this.setState({
+                            modal: true,
+                            message:
+                                response.data.err.message === undefined ||
+                                response.data.err.message === ""
+                                    ? "Something went wrong, Please try again."
+                                    : response.data.err.message,
+                            color: "danger",
+                        });
+                    }
                 });
         } catch (e) {
             this.setState({
                 modal: true,
                 message: "Captcha Error !",
+                color: "danger",
             });
             const employer = {
                 username: this.state.email,
@@ -98,7 +105,8 @@ export default class EnterUsername extends Component {
                         this.setState({
                             disabled: true,
                             modal: true,
-                            message: "Check your mailbox !",
+                            message:
+                                "Please check your email and click on the provided link to reset your password",
                         });
                     }
                 })
@@ -107,7 +115,16 @@ export default class EnterUsername extends Component {
                     const { response } = err;
                     console.log(response);
                     if (response && response.data && response.data.err)
-                        alert(response.data.err.message);
+                        this.setState({
+                            disabled: true,
+                            modal: true,
+                            message:
+                                response.data.err.message !== undefined &&
+                                response.data.err.message !== ""
+                                    ? response.data.err.message
+                                    : "Something went wrong, Please try again.",
+                            color: "danger",
+                        });
                 });
         }
     }
@@ -142,15 +159,20 @@ export default class EnterUsername extends Component {
                             <NavLink
                                 to={`/${this.state.role}/forgot`}
                                 className={`active-tab  nav-link p-1 p-sm-2`}>
-                                <h6>Forgot password</h6>
+                                <h6>Forgot Password</h6>
                             </NavLink>
                         </NavItem>
                     </div>
                 </Nav>
-
-                <div className='make-small'>
+                <Alert
+                    color='success'
+                    isOpen={this.state.modal}
+                    toggle={this.toggleModal}>
+                    {this.state.message}
+                </Alert>
+                <div className='row m-1 m-sm-2'>
                     <Form
-                        className=' p-4 m-3 mx-lg-5'
+                        className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4 '
                         style={block}
                         onSubmit={this.signUp}>
                         <FormGroup>
@@ -158,7 +180,7 @@ export default class EnterUsername extends Component {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label>Email</Label>
+                            <Label>Please enter your email :</Label>
                             <Input
                                 type='email'
                                 placeholder='Email Address'
@@ -178,24 +200,22 @@ export default class EnterUsername extends Component {
                         <div className=' d-flex justify-content-end'>
                             <Button
                                 type='submit'
-                                color='primary'
+                                color='emp-primary'
                                 disabled={this.state.disabled}>
                                 Send Mail
                             </Button>
                         </div>
                     </Form>
-                    <Modal
+                    {/* <Modal
                         isOpen={this.state.modal}
                         toggle={this.toggleModal}
                         style={{ marginTop: "20vh" }}>
                         <ModalHeader toggle={this.toggleModal} className='py-1'>
                             Message
                         </ModalHeader>
-                        {/* <ModalHeader toggle={toggle}>
-                    {mess === "promote" && "Promote"}
-                </ModalHeader> */}
+                        
                         <ModalBody>{this.state.message}</ModalBody>
-                    </Modal>
+                    </Modal> */}
                 </div>
             </div>
         );

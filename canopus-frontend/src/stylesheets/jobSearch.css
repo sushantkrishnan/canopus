@@ -50,6 +50,33 @@
     border-radius: 0.5rem;
 }
 
+.badge.badge-js-secondary {
+    background: rgb(255, 255, 255);
+    color: #F04C63;
+    border: 1px solid #F04C63;
+    border-radius: 0.5rem;
+}
+
+.block-js {
+    border-radius: 0.25rem;
+    border: 0.15rem solid #F04C63;
+    /* background-color: rgba(0, 0, 0, 0.15); */
+    /* box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3); */
+    transition: 0.3s ease-in-out;
+}
+
+.block-js:hover {
+    /* border-radius: 0.25rem;
+    border: 0.15rem solid #17a2b8;
+    
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    transition: 0.3s ease-in-out; */
+    /* border: 0.12rem solid rgb(150, 150, 150); */
+    box-shadow: 5px 5px 7px #F04C63;
+    transition: 0.2s ease-in-out;
+    /* transform: scale(1.0001); */
+}
+
 .block-info {
     border-radius: 0.25rem;
     border: 0.15rem solid #17a2b8;
@@ -65,7 +92,7 @@
     box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
     transition: 0.3s ease-in-out; */
     /* border: 0.12rem solid rgb(150, 150, 150); */
-    box-shadow: 5px 5px 7px rgba(2, 160, 152, 0.555);
+    box-shadow: 5px 5px 7px #17a2b8;
     transition: 0.2s ease-in-out;
     /* transform: scale(1.0001); */
 }
@@ -77,6 +104,7 @@
     white-space: nowrap;
     text-overflow: ellipsis; */
     /* width: 100%; */
+    font-size: 14px;
     overflow: hidden;
     display: -webkit-box;
     white-space: normal;
